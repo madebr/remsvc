@@ -1,0 +1,17 @@
+targets:
+  CL:
+    filename: CL.EXE
+    source_root: frontend
+    hash:
+      sha256: c5bf7ad84482e8a54d5753fcbd3e648d8a1192f5ca8b8cf1f5d23b651750585f
+    ghidra:
+      ignore_types: []
+      ignore_functions: []
+  LIB:
+    filename: LIB.EXE
+    source_root: lib
+    hash:
+      sha256: 9d840e99a7e7f23f06d77b3667747a2d814419d17b53b437b895fd622894cbd4
+    ghidra:
+      ignore_types: []
+      ignore_functions: []

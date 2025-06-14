@@ -1,0 +1,10 @@
+include(cmake/detectcpu.cmake)
+
+DetectTargetCPUArchitectures(DETECTED_ARCHS)
+if(CPU_X86)
+    add_library(MSPDB::MSPDB41 SHARED IMPORTED GLOBAL)
+    set_property(TARGET MSPDB::MSPDB41 PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    set_property(TARGET MSPDB::MSPDB41 PROPERTY IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/lib/x86/mspdb41.lib")
+else()
+    message(STATUS "MSPDB 4.1 unavailable for ${DETECTED_ARCHS}")
+endif()

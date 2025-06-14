@@ -1,0 +1,36 @@
+BraceWrapping:
+  AfterClass: false
+  AfterEnum: false
+  AfterFunction: true
+  BeforeElse: false
+  AfterControlStatement: Never
+#AllowShortCaseExpressionOnASingleLine: false
+#AllowShortCompoundRequirementOnASingleLine: false
+#EnumTrailingCommaStyle: Insert
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: DontAlign
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BracedInitializerIndentWidth: 4
+BreakBeforeBraces: Linux
+ColumnLimit: 120
+ContinuationIndentWidth: 8
+EmptyLineBeforeAccessModifier: Always
+IndentAccessModifiers: false
+IndentCaseBlocks: true
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+InsertNewlineAtEOF: true
+LineEnding: LF
+PPIndentWidth: 1
+PackConstructorInitializers: Never
+ReferenceAlignment: Right
+SpaceAfterCStyleCast: true
+UseTab: Never

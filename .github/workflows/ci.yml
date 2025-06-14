@@ -1,0 +1,67 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: 'MSVC (4.2, x86)',    x86: true,   shell: 'sh',        setup-ninja: true,  setup-msvc420: true }
+          - { name: 'MSVC (modern, x86)', x86: true,   shell: 'sh',        setup-ninja: true,  setup-msvc: 'amd64_x86' }
+          - { name: 'MSVC (modern, x64)', x86: false,  shell: 'sh',        setup-ninja: true,  setup-msvc: 'amd64' }
+          - { name: 'msys2 (x86)',        x86: true,   shell: 'msys2 {0}', msystem: mingw32,   msys-env: mingw-w64-i686 }
+
+    steps:
+      - name: Set up MSYS2
+        if: ${{ !!matrix.msystem }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          install: >-
+            ${{ matrix.msys-env }}-cc
+            ${{ matrix.msys-env }}-cmake
+            ${{ matrix.msys-env }}-ninja
+
+      - name: Setup ninja
+        if: ${{ matrix.setup-ninja }}
+        uses: ashutoshvarma/setup-ninja@master
+
+      - uses: actions/checkout@v4
+        if: ${{ matrix.setup-msvc420 }}
+        with:
+          repository: itsmattkc/msvc420
+          path: msvc420
+      - name: Setup vcvars (MSVC 4.2)
+        if: ${{ matrix.setup-msvc420 }}
+        run: |
+          ws=$(echo "${{ github.workspace }}" | sed -e 's#\\#/#g')
+          echo "LIB=${ws}/msvc420/lib;${ws}/msvc420/mfc/lib" >> $GITHUB_ENV
+          echo "INCLUDE=${ws}/msvc420/include;${ws}/msvc420/mfc/include" >> $GITHUB_ENV
+          echo "${ws}/msvc420/" >> $GITHUB_PATH
+
+      - name: Setup vcvars (modern MSVC)
+        if: ${{ !!matrix.setup-msvc }}
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.setup-msvc }}
+
+      - uses: actions/checkout@v4
+
+      - name: Configure (CMake)
+        run: |
+          cmake -S . -B build -GNinja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DREMSVC_MSPDB=${{ !!matrix.x86 }} \
+            -DREMSVC_RECCMP=${{ !!matrix.x86 }} \
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -Werror=dev
+      - name: Build (CMake)
+        run: |
+          cmake --build build --verbose -- -k0
