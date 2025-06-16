@@ -408,7 +408,7 @@ tOption_action gOption_actions[] = {
         {&gPrintPaginatedClMessage},
     },
     {
-        "bh",
+        "bil",
         eAction_setString,
         {&app_data.tempPath},
     },
