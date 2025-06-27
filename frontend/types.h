@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef FRONTEND_TYPES_H
+#define FRONTEND_TYPES_H
 
 #include "decomp.h"
 #include "types.h"
@@ -143,4 +143,4 @@ typedef struct {
     tFiletype_compiler_spec *compiler_specs;
 } tFiletype_spec;
 
-#endif /* TYPES_H */
+#endif

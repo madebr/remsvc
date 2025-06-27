@@ -12,4 +12,6 @@ typedef unsigned int undefined4;
         abort(); \
     } while (0)
 
+#define arraysize(X) (sizeof(X) / sizeof((X)[0]))
+
 #endif /* DECOMP_H */

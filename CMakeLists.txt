@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
-project(remsvc C)
+project(remsvc C CXX)
 
 include(CMakeDependentOption)
 
@@ -37,6 +37,25 @@ endif()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/decomp")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/portable")
+
+add_executable(rec1
+    c1/browser.cpp
+    c1/msc1.cpp
+    c1/incremental.cpp
+    c1/pch.c
+)
+if(MINGW)
+    target_link_libraries(rec1 PRIVATE msvcr90)
+endif()
+if(REMSVC_MSPDB)
+    target_compile_definitions(rec1 PRIVATE WITH_MSPDB)
+    target_link_libraries(rec1 PRIVATE MSPDB::MSPDB41)
+endif()
+if(REMSVC_RECCMP)
+    set_property(TARGET rec1 PROPERTY OUTPUT_NAME "C1")
+    set_property(TARGET rec1 PROPERTY SUFFIX ".EXE")
+endif()
+set_property(TARGET rec1 PROPERTY C_STANDARD 90)
 
 add_executable(recl
     frontend/args.c

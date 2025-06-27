@@ -1,6 +1,11 @@
 #pragma once
 
 #include <windows.h>
+#include <stdlib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct MREngine MREngine;
 typedef struct MREDriver MREDriver;
@@ -19,3 +24,8 @@ BOOL __stdcall MREDrvOneTimeInit(MREDriver *driver);
 BOOL __stdcall MREDrvFRelease(MREDriver *driver);
 BOOL __stdcall MREFClose(MREngine *engine, BOOL arg2);
 BOOL __stdcall MREDrvFFilesOutOfDate(MREDriver *driver, MRState *state);
+unsigned int __cdecl SigForPbCb(const void *data, size_t size, unsigned int hash);
+
+#ifdef __cplusplus
+}
+#endif

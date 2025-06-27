@@ -1,5 +1,5 @@
-#ifndef CALLBACKS_H
-#define CALLBACKS_H
+#ifndef FRONTEND_CALLBACKS_H
+#define FRONTEND_CALLBACKS_H
 
 #include "types.h"
 

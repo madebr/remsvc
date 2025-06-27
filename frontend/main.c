@@ -2886,11 +2886,11 @@ char *FUN_00403b70(tApp_data *app_data)
         arg_ptr = SafeStrCpyOrKeep(arg_ptr, argv[arg_i]);
         *arg_ptr++ = ' ';
     }
-#ifdef REMSVC_RECCMP
+# ifdef REMSVC_RECCMP
     arg_ptr[-1] = '\0';
-#else
+# else
     arg_string[len] = '\0';
-#endif
+# endif
     for (arg_i = 0; arg_i < count_arguments; arg_i++) {
         SafeFree(argv[arg_i]);
     }
@@ -3894,8 +3894,8 @@ void DumpAppData()
 int main(int argc, char *argv[])
 {
 #if 0
-    setbuf(_p__iob() + 1, NULL);
-    setbuf(_p__iob() + 2, NULL);
+    setbuf(__p__iob() + 1, NULL);
+    setbuf(__p__iob() + 2, NULL);
 #endif
     const char *msc_ide_flags;
     const char *cl;
