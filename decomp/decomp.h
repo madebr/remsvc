@@ -6,10 +6,13 @@
 typedef unsigned char undefined;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
+typedef unsigned __int64 undefined8;
 
 #define NOT_IMPLEMENTED() \
     do { \
         abort(); \
     } while (0)
+
+#define arraysize(X) (sizeof(X) / sizeof((X)[0]))
 
 #endif /* DECOMP_H */

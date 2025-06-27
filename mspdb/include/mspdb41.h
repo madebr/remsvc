@@ -1,6 +1,11 @@
 #pragma once
 
 #include <windows.h>
+#include <stdlib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct MREngine MREngine;
 typedef struct MREDriver MREDriver;
