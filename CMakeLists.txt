@@ -9,6 +9,12 @@ cmake_dependent_option(REMSVC_MSPDB "Enabled MS PDB 4.1 support" OFF "TARGET MSP
 cmake_dependent_option(REMSVC_RECCMP "Build accurate executables" OFF "MSVC" OFF)
 
 if(REMSVC_RECCMP)
+    set(CMAKE_C_FLAGS "/W2 /GX /D \"WIN32\" /D \"_WINDOWS\"")
+    set(CMAKE_C_FLAGS_DEBUG "/Gm /Zi /Od /D \"_DEBUG\"")
+    set(CMAKE_C_FLAGS_RELEASE "/D \"NDEBUG\"")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "/Zi /D \"NDEBUG\"")
+    set(CMAKE_C_FLAGS_MINSIZEREL "/Os /D \"NDEBUG\"")
+
     set(CMAKE_EXE_LINKER_FLAGS "/machine:I386")
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/incremental:yes /debug")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/incremental:no")
@@ -52,6 +58,7 @@ endif()
 if(REMSVC_RECCMP)
     set_property(TARGET recl PROPERTY OUTPUT_NAME "CL")
     set_property(TARGET recl PROPERTY SUFFIX ".EXE")
+    target_compile_options(recl PRIVATE "/O1")
 endif()
 set_property(TARGET recl PROPERTY C_STANDARD 90)
 
@@ -62,6 +69,7 @@ set_property(TARGET relib PROPERTY C_STANDARD 90)
 if(REMSVC_RECCMP)
     set_property(TARGET relib PROPERTY OUTPUT_NAME "LIB")
     set_property(TARGET relib PROPERTY SUFFIX ".EXE")
+    target_compile_options(relib PRIVATE "/O2")
 endif()
 
 message(STATUS "REMSVC_MSPDB:  ${REMSVC_MSPDB}")
