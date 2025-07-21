@@ -39,6 +39,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/decomp")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/portable")
 
 add_executable(recl
+    frontend/frontend.rc
     frontend/args.c
     frontend/main.c
 )
@@ -56,6 +57,7 @@ endif()
 set_property(TARGET recl PROPERTY C_STANDARD 90)
 
 add_executable(relib
+    lib/lib.rc
     lib/main.c
 )
 set_property(TARGET relib PROPERTY C_STANDARD 90)

@@ -1,0 +1,27 @@
+
+1 VERSIONINFO
+FILEVERSION 10,20,0,0
+PRODUCTVERSION 4,20,0,0
+FILEOS 0x40004
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+    BLOCK "040904B0"
+    {
+        VALUE "CompanyName", "Microsoft Corporation"
+        VALUE "FileDescription", "Microsoft (R) 32-Bit C/C++ Compiler Driver"
+        VALUE "FileVersion", "10.20"
+        VALUE "InternalName", "CL.EXE"
+        VALUE "LegalCopyright", "Copyright \xA9 Microsoft Corp. 1984-1996"
+        VALUE "OriginalFilename", "CL.EXE"
+        VALUE "ProductName", "Microsoft (R) Visual C++"
+        VALUE "ProductVersion", "4.20"
+    }
+}
+
+BLOCK "VarFileInfo"
+{
+    VALUE "Translation", 0x0409 0x04B0  
+}
+}

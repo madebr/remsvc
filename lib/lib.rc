@@ -1,0 +1,27 @@
+
+1 VERSIONINFO
+FILEVERSION 4,20,0,6164
+PRODUCTVERSION 4,20,0,6164
+FILEOS 0x4
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+    BLOCK "040904B0"
+    {
+        VALUE "CompanyName", "Microsoft Corporation"
+        VALUE "FileDescription", "Microsoft (R) 32-Bit Linker Stub"
+        VALUE "FileVersion", "4.20.6164"
+        VALUE "InternalName", "LIB.EXE"
+        VALUE "LegalCopyright", "Copyright (C) Microsoft Corp. 1992-1996"
+        VALUE "OriginalFilename", "LIB.EXE"
+        VALUE "ProductName", "Microsoft (R) Developer Studio"
+        VALUE "ProductVersion", "4.20.6164"
+    }
+}
+
+BLOCK "VarFileInfo"
+{
+    VALUE "Translation", 0x0409 0x04B0  
+}
+}
