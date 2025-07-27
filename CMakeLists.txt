@@ -38,6 +38,24 @@ endif()
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/decomp")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/portable")
 
+
+add_executable(redumpbin
+    frontend/dumpbin.c
+)
+if(MINGW)
+    target_link_libraries(redumpbin PRIVATE msvcr90)
+endif()
+if(REMSVC_MSPDB)
+    target_compile_definitions(redumpbin PRIVATE WITH_MSPDB)
+    target_link_libraries(redumpbin PRIVATE MSPDB::MSPDB41)
+endif()
+if(REMSVC_RECCMP)
+    set_property(TARGET redumpbin PROPERTY OUTPUT_NAME "DUMPBIN")
+    set_property(TARGET redumpbin PROPERTY SUFFIX ".EXE")
+endif()
+set_property(TARGET redumpbin PROPERTY C_STANDARD 90)
+
+
 add_executable(recl
     frontend/args.c
     frontend/main.c

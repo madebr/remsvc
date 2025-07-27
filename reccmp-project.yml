@@ -15,3 +15,8 @@ targets:
     ghidra:
       ignore_types: []
       ignore_functions: []
+  DUMPBIN:
+    filename: DUMPBIN.EXE
+    source_root: frontend
+    hash:
+      sha256: eb5f2e5420f52684ecbd1155f76a351a98ac5c21b9d4ffcc0699cf0c99da55ef
