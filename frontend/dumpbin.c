@@ -1,6 +1,7 @@
 #include <process.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "portable.h"
 
@@ -67,10 +68,10 @@ void dumpbin_main(int argc, char *argv[], char *dump_opt)
         argv[argc + 1] = NULL;
     }
 
-    code = (int) _spawnv(_P_WAIT, link_path, argv);
+    code = (int) _spawnv(_P_WAIT, link_path, (const char *const *)argv);
     if (code == -1) {
         // Try again with link.exe in the cwd.
-        code = (int) _spawnvp(_P_WAIT, "link.exe", argv);
+        code = (int) _spawnvp(_P_WAIT, "link.exe", (const char *const *) argv);
     }
 
     // Free each quote-wrapped copy of the input args.
