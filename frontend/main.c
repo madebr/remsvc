@@ -13,69 +13,55 @@
 #include <sys/types.h>
 #include <windows.h>
 
-#ifdef WITH_MSPDB
-# include <mspdb41.h>
-#else
-typedef struct MRState {
-    int und;
-} MRState;
-#endif
+extern const char *doexpand(const char *spec, char *buffer, const char *key);
+extern char *replaca(char *buffer, const char *value, context_s *ctx);
+extern int execute(int inheritEnv, const char *cmdName, const char *cmd_env_name, char **argv);
+extern char *strqcpy(char *dest, const char *path);
+extern void cmderr(int code, ...);
+extern const char *gobblewhite(const char *text);
+extern void response_file(const char *path);
+extern size_t strqlen(const char *path);
 
-extern const char *ExtractImpliedSpec(const char *spec, char *buffer, const char *key);
-extern char *FormatParsedOptionValue(char *buffer, const char *value, tApp_data *app_data);
-extern int FUN_00405c21(int inheritEnv, const char *cmdName, const char *cmd_env_name, char **argv);
-extern char *EscapePath(char *dest, const char *path);
-extern void FatalError(int code, ...);
-extern const char *SkipSpaces(const char *text);
-extern void ParseResponseFile(const char *path);
-extern size_t LengthOfEscapedPath(const char *path);
-
-tApp_data app_data = {0};
+context_s CX = {0};
 
 // GLOBAL: CL 0x0040afc4
-BOOL gConsoleInterrupted;
+BOOL GotCtrlC;
 
 // GLOBAL: CL 0x0040afc8
-BOOL gDisableControlHandler;
+BOOL Spawning;
 
 // GLOBAL: CL 0x0040a01c
-BOOL gShouldPrintLogoString = TRUE;
+BOOL Nologo = TRUE;
 
 // GLOBAL: CL 0x0040a030
-tApp_data *gApp_data = &app_data;
-
-// GLOBAL: CL 0x0040a068
-int gResponseFileDepth = 0;
-
-// GLOBAL: CL 0x0040a06c
-BOOL gShould_print_cl = TRUE;
+context_s *Context = &CX;
 
 // GLOBAL: CL 0x0040a770
-int gCount_compiler_file_inputs = 0;
+int SourceCount = 0;
 
 // GLOBAL: CL 0x0040a774
-tParsed_option *gUnknown_options = NULL;
+flag_s *Unknown_ = NULL;
 
 // GLOBAL: CL 0x0040a77c
-BOOL gPrinted_cl = FALSE;
+BOOL RespEcho = FALSE;
 
 // GLOBAL: CL 0x0040a018
-BOOL gConsider_hat_options = TRUE;
+BOOL DefPhase = TRUE;
 
 // GLOBAL: CL 0x0040a054
-tParsed_option *gUnused_parsed_options = NULL;
+flag_s *Flag_freelist = NULL;
 
 // GLOBAL: CL 0x0040a200
-char gImplied_argval[1024];
+char Bigbuf[1024];
 
 // GLOBAL: CL 0x0040afa8
-struct timeb gChronoAfter;
+struct timeb Endtime;
 
 // GLOBAL: CL 0x0040afb8
-struct timeb gChronoBefore;
+struct timeb Starttime;
 
 // GLOBAL: CL 0x0040a080
-const char *gBuiltInCompileOptions[] = {
+const char *DefaultOptions[] = {
     "-ef%e",
     "-il%t",
     "-f%f",
@@ -100,14 +86,14 @@ const char *gBuiltInCompileOptions[] = {
 };
 
 // GLOBAL: CL 0x0040a070
-const char *gBuiltInCompileDefinitions[] = {
+const char *DefaultMacros[] = {
     "-D_MSC_VER=1020",
     "-D_WIN32",
     NULL,
 };
 
 // GLOBAL: CL 0x00408510
-const tSingle_arg_spec gSingle_arg_specs[] = {
+const tSingle_arg_spec Combos[] = {
     {
         "G",
         "3:4:5:d:e:f:h*:i-:m-:p#:r:s*:t#:x-:y:z:A:B:D:E*:M:R-:X-",
@@ -127,7 +113,7 @@ const tSingle_arg_spec gSingle_arg_specs[] = {
 };
 
 // GLOBAL: CL 0x0040a0e8
-tFiletype_compiler_spec gFiletype_c_compiler_specs[] = {
+passinfo_s C_passes[] = {
     {
         "c1.exe",
         "c1.err",
@@ -155,7 +141,7 @@ tFiletype_compiler_spec gFiletype_c_compiler_specs[] = {
 };
 
 // GLOBAL: CL 0x0040a128
-tFiletype_compiler_spec gFiletype_cpp_compiler_specs[] = {
+passinfo_s Cxx_passes[] = {
     {
         "c1xx.exe",
         "c1.err",
@@ -183,7 +169,7 @@ tFiletype_compiler_spec gFiletype_cpp_compiler_specs[] = {
 };
 
 // GLOBAL: CL 0x0040a168
-tFiletype_compiler_spec gFiletype_link_compiler_specs[] = {
+passinfo_s Link_passes[] = {
     {
         "link386.exe",
         NULL,
@@ -211,7 +197,7 @@ tFiletype_compiler_spec gFiletype_link_compiler_specs[] = {
 };
 
 // GLOBAL: CL 0x0040a1a8
-tFiletype_compiler_spec gFiletype_exe_compiler_specs[] = {
+passinfo_s Post_passes[] = {
     {
         NULL,
         NULL,
@@ -222,11 +208,8 @@ tFiletype_compiler_spec gFiletype_exe_compiler_specs[] = {
     },
 };
 
-// GLOBAL: CL 0x0040a1bc
-BOOL gBOOL_0040a1bc = TRUE;
-
 // GLOBAL: CL 0x0040a038
-tFiletype_compiler_spec gFiletype_compiler_spec_0040a038 = {
+passinfo_s PassInfo = {
     NULL,
     "cl.err",
     NULL,
@@ -235,307 +218,307 @@ tFiletype_compiler_spec gFiletype_compiler_spec_0040a038 = {
     '-',
 };
 
-const tFiletype_spec gFiletype_specs[] = {
+const sourceinfo_s Sourceinfo[] = {
     {
         "c",
-        eInput_compiler,
-        gFiletype_c_compiler_specs,
+        PHASE_COMPILE,
+        C_passes,
     },
     {
         "cxx",
-        eInput_compiler,
-        gFiletype_cpp_compiler_specs,
+        PHASE_COMPILE,
+        Cxx_passes,
     },
     {
         "cpp",
-        eInput_compiler,
-        gFiletype_cpp_compiler_specs,
+        PHASE_COMPILE,
+        Cxx_passes,
     },
     {
         "obj",
-        eInput_linker,
-        gFiletype_link_compiler_specs,
+        PHASE_LINK,
+        Link_passes,
     },
     {
         "lib",
-        eInput_linker,
-        gFiletype_link_compiler_specs,
+        PHASE_LINK,
+        Link_passes,
     },
     {
         "def",
-        eInput_linker,
-        gFiletype_link_compiler_specs,
+        PHASE_LINK,
+        Link_passes,
     },
     {
         "res",
-        eInput_linker,
-        gFiletype_link_compiler_specs,
+        PHASE_LINK,
+        Link_passes,
     },
     {
         "exp",
-        eInput_linker,
-        gFiletype_link_compiler_specs,
+        PHASE_LINK,
+        Link_passes,
     },
     {
         "",
-        eInput_linker,
-        gFiletype_link_compiler_specs,
+        PHASE_LINK,
+        Link_passes,
     },
     {
         "exe",
-        eOutput_linker,
-        gFiletype_exe_compiler_specs,
+        PHASE_POSTPROCESS,
+        Post_passes,
     },
     {
         NULL,
-        eStage_invalid,
+        PHASE_NOPHASE,
         NULL,
     },
 };
 
 // GLOBAL: CL 0x0040a010
-BOOL gOption_coff = TRUE;
+BOOL Coff = TRUE;
 
 // GLOBAL: CL 0x0040a014
-BOOL gOption_notX = TRUE;
+BOOL DefInclude = TRUE;
 
 // GLOBAL: CL 0x0040a020
-BOOL gOption_Gm = TRUE;
+BOOL MinimalRebuild = TRUE;
 
 // GLOBAL: CL 0x0040a024
-BOOL gMRE_enabled = TRUE;
+BOOL MinRebuildOK = TRUE;
 
 // GLOBAL: CL 0x0040a028
-BOOL gOption_ZM = FALSE;
+BOOL BatchPasses = FALSE;
 
 // GLOBAL: CL 0x0040a02c
-BOOL gBOOL_0040a02c = TRUE;
+BOOL BatchPassOK = TRUE;
 
 // GLOBAL: CL 0x0040a618
-BOOL gUnknownFilesAreC = FALSE;
+BOOL Preprocess = FALSE;
 
 // GLOBAL: CL 0x0040a778
-char *gOption_Fm = NULL;
+char *Mapfilename = NULL;
 
 // GLOBAL: CL 0x0040a794
-BOOL gBuildingDLL = FALSE;
+BOOL DllFlg = FALSE;
 
 // GLOBAL: CL 0x0040a798
-BOOL gPrintPaginatedClMessage = FALSE;
+BOOL Help = FALSE;
 
 // GLOBAL: CL 0x0040a744
-BOOL gOption_Brepro = FALSE;
+BOOL Reproducable = FALSE;
 
 // GLOBAL: CL 0x0040a74c
-BOOL gOption_bm = FALSE;
+BOOL Mapfile = FALSE;
 
 // GLOBAL: CL 0x0040a04c
-BOOL gRedirectStdErrToStdOut = TRUE;
+BOOL RedirStderr = TRUE;
 
 // GLOBAL: CL 0x0040a050
-BOOL gOption_Bt = FALSE;
+BOOL Time = FALSE;
 
 // GLOBAL: CL 0x0040a600
-char *gOption_bt = NULL;
+char *ForceType = NULL;
 
 // GLOBAL: CL 0x0040a604
-char *gOption_Fd = NULL;
+char *IdbFileName = NULL;
 
 // GLOBAL: CL 0x0040a60c
-BOOL gOption_Bz = FALSE;
+BOOL Nospawn = FALSE;
 
 // GLOBAL: CL 0x0040a610
-BOOL gOption_bv = FALSE;
+BOOL Verbose = FALSE;
 
 // GLOBAL: CL 0x0040a614
-BOOL gAction_performed = FALSE;
+BOOL Action = FALSE;
 
 // GLOBAL: CL 0x0040a7a0
-BOOL gOption_bk = FALSE;
+BOOL Keepfiles = FALSE;
 
 // GLOBAL: CL 0x0040a608
-char *gOutputObjectFilepath = NULL;
+char *Object = NULL;
 
 // GLOBAL: CL 0x0040a784
-char *gOutputExecutableFilepath = NULL;
+char *Exefilename = NULL;
 
 // GLOBAL: CL 0x0040a78c
-BOOL gExit_failure = FALSE;
+BOOL Nerrors = FALSE;
 
 // GLOBAL: CL 0x0040a788
-char *gOption_FR = NULL;
+char *SbrFileName = NULL;
 
 // GLOBAL: CL 0x00407090
-tOption_action gOption_actions[] = {
+cmd_s Cctab[] = {
     {
         "Fo",
-        eAction_setString,
-        {&gOutputObjectFilepath},
+        CMD_STRING,
+        {&Object},
     },
     {
         "Fe",
-        eAction_setString,
-        {&gOutputExecutableFilepath},
+        CMD_STRING,
+        {&Exefilename},
     },
     {
         "bA",
-        eAction_callback,
-        {OnbAOption},
+        CMD_FUNCTION,
+        {configure_asmlist},
     },
     {
         "ba",
-        eAction_callback,
-        {OnbaOption},
+        CMD_FUNCTION,
+        {activate_pass},
     },
     {
         "bc",
-        eAction_callback,
-        {OnbcOption},
+        CMD_FUNCTION,
+        {copy_active_pass},
     },
     {
         "bd",
-        eAction_callback,
-        {OnbdOption},
+        CMD_FUNCTION,
+        {deactivate_passes},
     },
     {
         "bE",
-        eAction_setTrue,
-        {&gUnknownFilesAreC},
+        CMD_TRUE,
+        {&Preprocess},
     },
     {
         "bh",
-        eAction_setTrue,
-        {&gPrintPaginatedClMessage},
+        CMD_TRUE,
+        {&Help},
     },
     {
         "bil",
-        eAction_setString,
-        {&app_data.tempPath},
+        CMD_STRING,
+        {&CX.tempPath},
     },
     {
         "bm",
-        eAction_setTrue,
-        {&gOption_bm},
+        CMD_TRUE,
+        {&Mapfile},
     },
     {
         "bo",
-        eAction_callback,
-        {OnboOption},
+        CMD_FUNCTION,
+        {check_compile_collide},
     },
     {
         "bp",
-        eAction_callback,
-        {OnbpOption},
+        CMD_FUNCTION,
+        {alternate_pass},
     },
     {
         "br",
-        eAction_setFalse,
-        {&gRedirectStdErrToStdOut},
+        CMD_FALSE,
+        {&RedirStderr},
     },
     {
         "bt",
-        eAction_setString,
-        {&gOption_bt},
+        CMD_STRING,
+        {&ForceType},
     },
     {
         "bU",
-        eAction_callback,
-        {OnbUOption},
+        CMD_FUNCTION,
+        {undef_one_stddef},
     },
     {
         "bu",
-        eAction_callback,
-        {OnbuOption},
+        CMD_FUNCTION,
+        {undef_stddefs},
     },
     {
         "bv",
-        eAction_setTrue,
-        {&gOption_bv},
+        CMD_TRUE,
+        {&Verbose},
     },
     {
         "Bk",
-        eAction_setTrue,
-        {&gOption_bk},
+        CMD_TRUE,
+        {&Keepfiles},
     },
     {
         "Brepro",
-        eAction_setTrue,
-        {&gOption_Brepro},
+        CMD_TRUE,
+        {&Reproducable},
     },
     {
         "Bt",
-        eAction_setTrue,
-        {&gOption_Bt},
+        CMD_TRUE,
+        {&Time},
     },
     {
         "Bz",
-        eAction_setTrue,
-        {&gOption_Bz},
+        CMD_TRUE,
+        {&Nospawn},
     },
     {
         "coff",
-        eAction_setTrue,
-        {&gOption_coff},
+        CMD_TRUE,
+        {&Coff},
     },
     {
         "Fm",
-        eAction_setString,
-        {&gOption_Fm},
+        CMD_STRING,
+        {&Mapfilename},
     },
     {
         "LD",
-        eAction_callback,
-        {OnArgumentLDorLDd},
+        CMD_FUNCTION,
+        {link_dll},
     },
     {
         "LDd",
-        eAction_callback,
-        {OnArgumentLDorLDd},
+        CMD_FUNCTION,
+        {link_dll},
     },
     {
         "omf",
-        eAction_setFalse,
-        {&gOption_coff},
+        CMD_FALSE,
+        {&Coff},
     },
     {
         "X",
-        eAction_setFalse,
-        {&gOption_notX},
+        CMD_FALSE,
+        {&DefInclude},
     },
     {
         "Fd",
-        eAction_setString,
-        {&gOption_Fd},
+        CMD_STRING,
+        {&IdbFileName},
     },
     {
         "Gm",
-        eAction_setTrue,
-        {&gOption_Gm},
+        CMD_TRUE,
+        {&MinimalRebuild},
     },
     {
         "FR",
-        eAction_setString,
-        {&gOption_FR},
+        CMD_STRING,
+        {&SbrFileName},
     },
     {
         "Fr",
-        eAction_setString,
-        {&gOption_FR},
+        CMD_STRING,
+        {&SbrFileName},
     },
     {
         "ZM",
-        eAction_setTrue,
-        {&gOption_ZM},
+        CMD_TRUE,
+        {&BatchPasses},
     },
     {
         NULL,
-        eAction_invalid,
+        CMD_UNKNOWN,
         {NULL},
     },
 };
 
 // GLOBAL: CL 0x00408530
-const tTemporary_file_spec gTemporary_files_00408530[] = {
+const ilsuffix_s Il_suffix[] = {
     {
         "ex",
         TRUE,
@@ -572,90 +555,90 @@ const tTemporary_file_spec gTemporary_files_00408530[] = {
 };
 
 // FUNCTION: CL 0x00401000
-tCompile_filetype GetCompileFileType(const char *filepath)
+source_type source(const char *filepath)
 {
     char extension[256];
     int i;
 
     _splitpath(filepath, NULL, NULL, NULL, extension);
     if (extension[0] == '\0') {
-        return eFiletype_none;
+        return SOURCE_UNKNOWN;
     }
-    for (i = 0; gFiletype_specs[i].stage != eOutput_linker; i++) {
-        if (_stricmp(&extension[1], gFiletype_specs[i].extension) == 0) {
-            return (tCompile_filetype) i;
+    for (i = 0; Sourceinfo[i].phase != PHASE_POSTPROCESS; i++) {
+        if (_stricmp(&extension[1], Sourceinfo[i].extension) == 0) {
+            return (source_type) i;
         }
     }
-    return eFiletype_none;
+    return SOURCE_UNKNOWN;
 }
 
 // FUNCTION: CL 0x0040553c
-void FUN_0040553c(int index)
+void rm_one_il(int index)
 {
     char temp_path[1024];
 
-    if (strlen(gApp_data->tempPath) + 10 > sizeof(temp_path) - 1) {
-        FatalError(0);
+    if (strlen(Context->tempPath) + 10 > sizeof(temp_path) - 1) {
+        cmderr(0);
     }
-    FormatParsedOptionValue(temp_path, "%t", gApp_data);
-    strcat(temp_path, gTemporary_files_00408530[index].filename);
+    replaca(temp_path, "%t", Context);
+    strcat(temp_path, Il_suffix[index].suffix);
     _unlink(temp_path);
 }
 
 // FUNCTION: CL 0x00405483
-void FUN_00405483(BOOL arg1)
+void do_rm_il(BOOL arg1)
 {
-    tParsed_filepath *original_field_0x20;
+    source_s *original_field_0x20;
     int i;
-    const tTemporary_file_spec *temp_file;
-    if (gOption_bk) {
+    const ilsuffix_s *temp_file;
+    if (Keepfiles) {
         return;
     }
-    if (gApp_data->tempPath == NULL) {
+    if (Context->tempPath == NULL) {
         return;
     }
-    original_field_0x20 = gApp_data->field_0x20;
+    original_field_0x20 = Context->current_source;
     i = 0;
-    temp_file = &gTemporary_files_00408530[i];
-    for (; temp_file->filename != NULL; i++, temp_file++) {
+    temp_file = &Il_suffix[i];
+    for (; temp_file->suffix != NULL; i++, temp_file++) {
         if (arg1) {
-            if (temp_file->remove) {
-                FUN_0040553c(i);
+            if (temp_file->compile_il) {
+                rm_one_il(i);
                 continue;
             }
         } else {
-            if (!temp_file->remove) {
-                gApp_data->field_0x20 = NULL;
-                FUN_0040553c(i);
+            if (!temp_file->compile_il) {
+                Context->current_source = NULL;
+                rm_one_il(i);
                 continue;
             }
             if (original_field_0x20 != NULL) {
-                tCompiler_input_file *unk = gApp_data->field_0x14;
+                worklist_s *unk = Context->batchlist;
                 if (unk == NULL) {
-                    gApp_data->field_0x20 = original_field_0x20;
-                    FUN_0040553c(i);
+                    Context->current_source = original_field_0x20;
+                    rm_one_il(i);
                     continue;
                 }
                 while (unk != NULL) {
-                    gApp_data->field_0x20 = unk->parsed_file;
-                    FUN_0040553c(i);
+                    Context->current_source = unk->parsed_file;
+                    rm_one_il(i);
                     unk = unk->next;
                 }
             }
         }
     }
-    gApp_data->field_0x20 = original_field_0x20;
+    Context->current_source = original_field_0x20;
 }
 
 // FUNCTION: CL 0x004055ad
-void ExitCL(int exitcode)
+void done(int exitcode)
 {
-    FUN_00405483(FALSE);
+    do_rm_il(FALSE);
     exit(exitcode);
 }
 
 // FUNCTION: CL 0x004055c5
-size_t dtostr(unsigned long number, char *dest, int radix)
+size_t l2a(unsigned long number, char *dest, int radix)
 {
     char buffer[36];
     char *str;
@@ -699,7 +682,7 @@ char *ErrorVSprintf(size_t *len, const char *format, va_list ap)
                 break;
             case 'd':
             case 'x':
-                write_ptr += dtostr(va_arg(ap, int), write_ptr,
+                write_ptr += l2a(va_arg(ap, int), write_ptr,
                         _mbsncmp((unsigned char *) format, (unsigned char *) "d", 1) == 0 ? 10 : 0);
                 break;
             case 's':
@@ -722,7 +705,7 @@ char *ErrorVSprintf(size_t *len, const char *format, va_list ap)
     *write_ptr = '\0';
     *len = write_ptr - buffer;
     if (*len >= sizeof(buffer)) {
-        FatalError(0);
+        cmderr(0);
     }
     return buffer;
 }
@@ -746,7 +729,7 @@ const char *GetMessageInFile(const char *path, int code)
                 fclose(f);
                 return "";
             }
-            ptr_text = (char *) SkipSpaces(line);
+            ptr_text = (char *) gobblewhite(line);
             if (_ismbcdigit(*ptr_text)) {
                 break;
             }
@@ -760,7 +743,7 @@ const char *GetMessageInFile(const char *path, int code)
             break;
         }
     }
-    start_text = SkipSpaces(ptr_text) + 1;
+    start_text = gobblewhite(ptr_text) + 1;
     ptr_text = (char *) start_text; /* Skip first '"' */
 
     while (_mbsncmp((unsigned char *) ptr_text, (unsigned char *) "\"", 1) != 0) {
@@ -784,7 +767,7 @@ const char *GetMessageInFile(const char *path, int code)
 }
 
 // FUNCTION: CL 0x00405647
-void WriteTextF(int stream, const char *format, ...)
+void print(int stream, const char *format, ...)
 {
     char *text;
     size_t len;
@@ -796,7 +779,7 @@ void WriteTextF(int stream, const char *format, ...)
 }
 
 // FUNCTION: CL 0x004057b4
-void WriteTextV(int stream, const char *format, va_list ap)
+void vprint(int stream, const char *format, va_list ap)
 {
     size_t len;
     const char *text = ErrorVSprintf(&len, format, ap);
@@ -804,67 +787,67 @@ void WriteTextV(int stream, const char *format, va_list ap)
 }
 
 // FUNCTION: CL 0x00405b28
-const char *GetErrorMessage(int code)
+const char *get_message(int code)
 {
-    return GetMessageInFile(gApp_data->errorStringPath, code);
+    return GetMessageInFile(Context->errorpath, code);
 }
 
 // FUNCTION: CL 0x00405a6a
-void FatalError(int code, ...)
+void cmderr(int code, ...)
 {
     va_list ap;
     if (code == 0) {
         code = 2000;
     }
-    WriteTextF(STDERR_FILENO, GetErrorMessage(303), code); /* "Command line error D%d : " */
+    print(STDERR_FILENO, get_message(303), code); /* "Command line error D%d : " */
     va_start(ap, code);
-    WriteTextV(STDERR_FILENO, GetMessageInFile(gApp_data->errorStringPath, code), ap);
+    vprint(STDERR_FILENO, GetMessageInFile(Context->errorpath, code), ap);
     va_end(ap);
-    WriteTextF(STDERR_FILENO, "\n");
-    ExitCL(2);
+    print(STDERR_FILENO, "\n");
+    done(2);
 }
 
 // FUNCTION: CL 0x00405ad3
-void EmitWarningF(int code, ...)
+void cmdwarn(int code, ...)
 {
     va_list ap;
     const char *message;
 
-    message = GetMessageInFile(gApp_data->errorStringPath, code);
-    WriteTextF(STDERR_FILENO, GetErrorMessage(302), code);
+    message = GetMessageInFile(Context->errorpath, code);
+    print(STDERR_FILENO, get_message(302), code);
     va_start(ap, code);
-    WriteTextV(STDERR_FILENO, message, ap);
+    vprint(STDERR_FILENO, message, ap);
     va_end(ap);
-    WriteTextF(STDERR_FILENO, "\n");
+    print(STDERR_FILENO, "\n");
 }
 
 // FUNCTION: CL 0x004030c
-void PrintLogoString(void)
+void LOGO(void)
 {
-    WriteTextF(STDERR_FILENO, GetErrorMessage(306), "10.20.6166");
-    WriteTextF(STDERR_FILENO, GetErrorMessage(307));
+    print(STDERR_FILENO, get_message(306), "10.20.6166");
+    print(STDERR_FILENO, get_message(307));
 }
 
 // FUNCTION: CL 0x00402e48
-void FatalUsageError()
+void usage()
 {
-    PrintLogoString();
-    WriteTextF(STDOUT_FILENO, GetErrorMessage(305));
+    LOGO();
+    print(STDOUT_FILENO, get_message(305));
     exit(0);
 }
 
 // FUNCTION: CL 0x00405bd5
-void *SafeMalloc(size_t size)
+void *xnew(size_t size)
 {
     void *ptr = malloc(size);
     if (ptr == NULL) {
-        FatalError(0);
+        cmderr(0);
     }
     return ptr;
 }
 
 // FUNCTION: CL 0x00404fcb
-char *SafeStrCpyOrKeep(char *str1, const char *str2)
+char *append(char *str1, const char *str2)
 {
     if (str2 != NULL) {
         strcpy(str1, str2);
@@ -873,7 +856,7 @@ char *SafeStrCpyOrKeep(char *str1, const char *str2)
 }
 
 // FUNCTION: CL 0x00405c0a
-char *SafeStrDup(const char *str)
+char *xstrdup(const char *str)
 {
     if (str == NULL) {
         return NULL;
@@ -882,18 +865,18 @@ char *SafeStrDup(const char *str)
 }
 
 // FUNCTION: CL 0x00404ff2
-char *SafeStrDupJoin(char *str1, char *str2)
+char *catinate(char *str1, char *str2)
 {
     size_t len1 = strlen(str2);
     size_t len2 = strlen(str1);
-    char *result = SafeMalloc(len1 + len2 + 1);
+    char *result = xnew(len1 + len2 + 1);
     strcpy(result, str1);
     strcat(result, str2);
     return result;
 }
 
 // FUNCTION: CL 0x00404f2e
-char *SafeStrCat(char *str1, const char *str2)
+char *concat(char *str1, const char *str2)
 {
     if (str2 != NULL) {
         strcat(str1, str2);
@@ -902,7 +885,7 @@ char *SafeStrCat(char *str1, const char *str2)
 }
 
 // FUNCTION: CL 0x00405bf7
-void SafeFree(void *ptr)
+void xfree(void *ptr)
 {
     if (ptr != NULL) {
         free(ptr);
@@ -910,25 +893,25 @@ void SafeFree(void *ptr)
 }
 
 // FUNCTION: CL 0x00405db3
-BOOL WINAPI ConsoleCtrlCallback(DWORD CtrlType)
+BOOL WINAPI NT_handling_function(DWORD CtrlType)
 {
     (void) CtrlType;
-    gConsoleInterrupted = TRUE;
-    if (!gDisableControlHandler) {
+    GotCtrlC = TRUE;
+    if (!Spawning) {
         SetConsoleCtrlHandler(NULL, TRUE);
-        ExitCL(4);
+        done(4);
     }
     return 1;
 }
 
 // FUNCTION: CL 0x00405da5
-void InstallConsoleHandlers()
+void OS_Init()
 {
-    SetConsoleCtrlHandler(ConsoleCtrlCallback, TRUE);
+    SetConsoleCtrlHandler(NT_handling_function, TRUE);
 }
 
 // FUNCTION: CL 0x00404efe
-const char *SkipSpaces(const char *text)
+const char *gobblewhite(const char *text)
 {
     while (*text != '\0' && _ismbcspace(*text)) {
         text = (char *) _mbsinc((unsigned char *) text);
@@ -937,7 +920,7 @@ const char *SkipSpaces(const char *text)
 }
 
 // FUNCTION: CL 0x00405246
-char **CreateArgArray(const char *text, BOOL cleanUpSlash)
+char **sztoszv(const char *text, BOOL cleanUpSlash)
 {
     const char *src_ptr;
     char *clean_str;
@@ -950,11 +933,11 @@ char **CreateArgArray(const char *text, BOOL cleanUpSlash)
     if (text == NULL) {
         return NULL;
     }
-    src_ptr = SkipSpaces(text);
+    src_ptr = gobblewhite(text);
     if (src_ptr[0] == '\0') {
         return NULL;
     }
-    clean_str = SafeMalloc(strlen(src_ptr) + 1);
+    clean_str = xnew(strlen(src_ptr) + 1);
     dst_ptr = clean_str;
     in_quotes = false;
     count_args = 0;
@@ -1009,14 +992,14 @@ char **CreateArgArray(const char *text, BOOL cleanUpSlash)
         dst_ptr[0] = '\0';
         dst_ptr += 1;
         count_args += 1;
-        src_ptr = SkipSpaces(src_ptr);
+        src_ptr = gobblewhite(src_ptr);
     }
     arg_i = 0;
-    args = SafeMalloc(sizeof(char *) * (count_args + 1));
+    args = xnew(sizeof(char *) * (count_args + 1));
     while (count_args != 0) {
         char *arg;
         count_args -= 1;
-        arg = (char *) SkipSpaces(clean_str);
+        arg = (char *) gobblewhite(clean_str);
         if (arg[0] != '\0') {
             args[arg_i] = arg;
             arg_i += 1;
@@ -1028,7 +1011,7 @@ char **CreateArgArray(const char *text, BOOL cleanUpSlash)
 }
 
 // FUNCTION: CL 0x004023a8
-int GetArgsArraySize(const char **args)
+int argcount(const char **args)
 {
     int i;
     if (args == NULL) {
@@ -1041,19 +1024,13 @@ int GetArgsArraySize(const char **args)
 }
 
 // FUNCTION: CL 0x004025f0
-char *GetExecutableFilePath()
+char *fullccpath()
 {
-#ifdef _MSC_VER
-    return (char *) *__p__pgmptr();
-#else
-    char *buffer;
-    _get_pgmptr(&buffer);
-    return buffer;
-#endif
+    return _pgmptr;
 }
 
 // FUNCTION: CL 0x004031be
-char *GetFileDirectory(const char *path)
+char *extract_path(const char *path)
 {
     char drive[256];
     char dir[256];
@@ -1069,11 +1046,11 @@ char *GetFileDirectory(const char *path)
         dir[len_dir + 1] = '\0';
     }
     drive_dir = strcat(drive, dir);
-    return SafeStrDup(drive_dir);
+    return xstrdup(drive_dir);
 }
 
 // FUNCTION: CL 0x00403248
-size_t FindFileInPATH(const char *filename, char *buffer, size_t bufferSize)
+size_t walkpath(const char *filename, char *buffer, size_t bufferSize)
 {
     const char *path_env = getenv("PATH");
     if (path_env == NULL) {
@@ -1113,7 +1090,7 @@ size_t FindFileInPATH(const char *filename, char *buffer, size_t bufferSize)
         strcat(buffer, filename);
         len_joined = strlen(buffer);
         if (len_joined >= bufferSize) {
-            FatalError(0);
+            cmderr(0);
         }
         if (_access(buffer, R_OK) == 0) {
             return len_joined;
@@ -1122,7 +1099,7 @@ size_t FindFileInPATH(const char *filename, char *buffer, size_t bufferSize)
 }
 
 // FUNCTION: CL 0x004030fc
-char *JoinPathInExeSearchPath(const char *dirpath, const char *filename)
+char *findpass(const char *dirpath, const char *filename)
 {
     char buffer[1024];
 
@@ -1138,25 +1115,25 @@ char *JoinPathInExeSearchPath(const char *dirpath, const char *filename)
         if (_access(buffer, R_OK) == 0) {
             filename = buffer;
         } else {
-            if (FindFileInPATH(filename, buffer, sizeof(buffer)) != 0) {
+            if (walkpath(filename, buffer, sizeof(buffer)) != 0) {
                 filename = buffer;
             }
         }
     }
-    return SafeStrDup(filename);
+    return xstrdup(filename);
 }
 
 // FUNCTION: CL 0x004024f5
-void InitAppPaths(const char *exePath, tApp_data *app_data)
+void build_context(const char *exePath, context_s *ctx)
 {
-    memset(app_data, 0, sizeof(*app_data));
-    app_data->exeDirectory = GetFileDirectory(exePath);
-    app_data->errorStringPath = JoinPathInExeSearchPath(app_data->exeDirectory, "cl.err");
-    app_data->includePaths = getenv("INCLUDE");
+    memset(ctx, 0, sizeof(*ctx));
+    ctx->exedir = extract_path(exePath);
+    ctx->errorpath = findpass(ctx->exedir, "cl.err");
+    ctx->include = getenv("INCLUDE");
 }
 
 // FUNCTION: CL 0x004023c4
-BOOL ArgumentsContainNologo(char **argv, int argc)
+BOOL early_switch_scan(char **argv, int argc)
 {
     char line[1024];
     int i;
@@ -1189,20 +1166,20 @@ BOOL ArgumentsContainNologo(char **argv, int argc)
 }
 
 // FUNCTION: CL 0x004010e8
-BOOL FUN_004010e8(tParsed_option *option, const tFiletype_compiler_spec *spec)
+BOOL flag_this_pass(flag_s *option, const passinfo_s *spec)
 {
-    return strchr(option->field_0x8, spec->field_0x10) != NULL;
+    return strchr(option->passes, spec->id) != NULL;
 }
 
 // FUNCTION: CL 0x00404e41
-char *GetFileBasename(char *buffer, const char *path)
+char *basename(char *buffer, const char *path)
 {
     _splitpath(path, NULL, NULL, buffer, NULL);
     return buffer;
 }
 
 // FUNCTION: CL 0x00404eab
-char *RemoveExtension(char *buffer, const char *path)
+char *pathname(char *buffer, const char *path)
 {
     char drive[4];
     char dir[256];
@@ -1214,47 +1191,47 @@ char *RemoveExtension(char *buffer, const char *path)
 }
 
 // FUNCTION: CL 0x00404a64
-const char *FormatMapPath(char *buffer, const char *exePath)
+const char *mapfile(char *buffer, const char *exePath)
 {
     char drive[4];
     char dir[256];
-    char basename[256];
+    char filename[256];
     char extension[256];
 
-    if (!gOption_bm) {
+    if (!Mapfile) {
         return "nul.map";
     }
-    if (!gOption_Fm) {
-        _splitpath(exePath, drive, dir, basename, NULL);
-        _makepath(buffer, drive, dir, basename, "map");
+    if (!Mapfilename) {
+        _splitpath(exePath, drive, dir, filename, NULL);
+        _makepath(buffer, drive, dir, filename, "map");
         return buffer;
     }
-    _splitpath(exePath, drive, dir, basename, extension);
-    if (basename[0] == '\0') {
-        GetFileBasename(basename, exePath);
+    _splitpath(exePath, drive, dir, filename, extension);
+    if (filename[0] == '\0') {
+        basename(filename, exePath);
     }
-    _makepath(buffer, drive, dir, basename, extension[0] != '\0' ? extension : "map");
+    _makepath(buffer, drive, dir, filename, extension[0] != '\0' ? extension : "map");
     return buffer;
 }
 
 // FUNCTION: CL 0x00404b29
-char *FormatParsedOptionValue(char *buffer, const char *format, tApp_data *app_data)
+char *replaca(char *buffer, const char *format, context_s *ctx)
 {
     char path_buffer[256];
     char *dest = buffer;
     char *ptr;
     const char *filepath;
-    tCompile_filetype filetype;
-    short fileprop;
+    source_type filetype;
+    short batch_id;
 
-    if (app_data->field_0x20 != NULL) {
-        filepath = app_data->field_0x20->path;
-        filetype = app_data->field_0x20->filetype;
-        fileprop = app_data->field_0x20->field_0xe;
+    if (ctx->current_source != NULL) {
+        filepath = ctx->current_source->path;
+        filetype = ctx->current_source->type;
+        batch_id = ctx->current_source->batch_id;
     } else {
         filepath = "";
-        filetype = eFiletype_none;
-        fileprop = -1;
+        filetype = SOURCE_UNKNOWN;
+        batch_id = -1;
     }
     while (*format != '\0') {
         if (*format == '%') {
@@ -1264,49 +1241,49 @@ char *FormatParsedOptionValue(char *buffer, const char *format, tApp_data *app_d
                 *dest++ = format[1];
                 break;
             case 'b':
-                GetFileBasename(path_buffer, filepath);
-                dest = SafeStrCat(dest, path_buffer);
+                basename(path_buffer, filepath);
+                dest = concat(dest, path_buffer);
                 break;
             case 'B':
-                GetFileBasename(path_buffer, filepath);
+                basename(path_buffer, filepath);
                 _mbsupr((unsigned char *) path_buffer);
-                dest = SafeStrCat(dest, path_buffer);
+                dest = concat(dest, path_buffer);
                 break;
             case 'e':
-                ptr = app_data->error_paths[filetype][app_data->compiler_stage];
+                ptr = ctx->errorpaths[filetype][ctx->current_pass];
                 if (dest == NULL) {
                     dest = "";
                 }
-                dest = SafeStrCat(dest, ptr);
+                dest = concat(dest, ptr);
                 break;
             case 'f':
-                dest = SafeStrCat(dest, filepath);
+                dest = concat(dest, filepath);
                 break;
             case 'X':
-                if (gBuildingDLL) {
-                    dest = SafeStrCat(dest, "dll");
+                if (DllFlg) {
+                    dest = concat(dest, "dll");
                 } else {
-                    dest = SafeStrCat(dest, "exe");
+                    dest = concat(dest, "exe");
                 }
                 break;
             case 'x':
-                RemoveExtension(path_buffer, gOutputExecutableFilepath);
-                dest = SafeStrCat(dest, path_buffer);
+                pathname(path_buffer, Exefilename);
+                dest = concat(dest, path_buffer);
                 break;
             case 't':
-                dest = SafeStrCat(dest, app_data->tempPath);
-                if (app_data->field_0x14 && fileprop != -1) {
-                    dest[-6] = 'a' + fileprop / 10;
-                    dest[-5] = '0' + fileprop % 10;
+                dest = concat(dest, ctx->tempPath);
+                if (ctx->batchlist && batch_id != -1) {
+                    dest[-6] = 'a' + batch_id / 10;
+                    dest[-5] = '0' + batch_id % 10;
                 }
                 break;
             case 'm':
                 {
-                    char *exe_buffer = SafeMalloc(1024);
-                    FormatParsedOptionValue(exe_buffer, gOutputExecutableFilepath, app_data);
-                    FormatMapPath(dest, exe_buffer);
+                    char *exe_buffer = xnew(1024);
+                    replaca(exe_buffer, Exefilename, ctx);
+                    mapfile(dest, exe_buffer);
                     dest += strlen(dest);
-                    SafeFree(exe_buffer);
+                    xfree(exe_buffer);
                 }
                 break;
             }
@@ -1320,35 +1297,35 @@ char *FormatParsedOptionValue(char *buffer, const char *format, tApp_data *app_d
 }
 
 // FUNCTION: CL 0x00402ae2
-void RunOptionActions(tApp_data *app_data)
+void cc_switches(context_s *ctx)
 {
     char buffer[512];
-    tParsed_option *opt;
+    flag_s *opt;
 
-    for (opt = app_data->field_0x0; opt != NULL; opt = opt->next) {
+    for (opt = ctx->flags; opt != NULL; opt = opt->next) {
         bool found;
-        tOption_action *action;
+        cmd_s *action;
 
-        if (!FUN_004010e8(opt, &gFiletype_compiler_spec_0040a038)) {
+        if (!flag_this_pass(opt, &PassInfo)) {
             continue;
         }
         found = false;
-        for (action = gOption_actions; action->key != NULL; action++) {
-            if (opt->arg_keyonly[0] == action->key[0] && strcmp(opt->arg_keyonly, action->key) == 0) {
+        for (action = Cctab; action->form != NULL; action++) {
+            if (opt->base[0] == action->form[0] && strcmp(opt->base, action->form) == 0) {
                 found = true;
-                switch (action->action) {
-                case eAction_setTrue:
-                    *action->boolean = TRUE;
+                switch (action->type) {
+                case CMD_TRUE:
+                    *action->flag = TRUE;
                     break;
-                case eAction_setFalse:
-                    *action->boolean = FALSE;
+                case CMD_FALSE:
+                    *action->flag = FALSE;
                     break;
-                case eAction_setString:
-                    FormatParsedOptionValue(buffer, opt->arg_value, app_data);
-                    *action->text = SafeStrDup(buffer);
+                case CMD_STRING:
+                    replaca(buffer, opt->arg, ctx);
+                    *action->string = xstrdup(buffer);
                     break;
-                case eAction_callback:
-                    action->callback(opt);
+                case CMD_FUNCTION:
+                    action->function(opt);
                     break;
                 default:
                     break;
@@ -1362,18 +1339,18 @@ void RunOptionActions(tApp_data *app_data)
 }
 
 // FUNCTION: CL 0x0040253d
-void CreateTempDir(tApp_data *app_data)
+void maketempdir(context_s *ctx)
 {
     char buffer[1024];
     const char *tmp_env;
 
-    if (app_data->tempPath != NULL) {
-        gBOOL_0040a02c = FALSE;
+    if (ctx->tempPath != NULL) {
+        BatchPassOK = FALSE;
         return;
     }
     tmp_env = getenv("TMP");
     if (tmp_env == NULL) {
-        app_data->tempPath = SafeStrDup("XXXXXX");
+        ctx->tempPath = xstrdup("XXXXXX");
     } else {
         size_t len_buffer;
         char final_c;
@@ -1385,13 +1362,13 @@ void CreateTempDir(tApp_data *app_data)
             buffer[len_buffer + 0] = '\\';
             buffer[len_buffer + 1] = '\0';
         }
-        app_data->tempPath = SafeStrDupJoin(buffer, "XXXXXX");
+        ctx->tempPath = catinate(buffer, "XXXXXX");
     }
-    app_data->tempPath = _mktemp(app_data->tempPath);
+    ctx->tempPath = _mktemp(ctx->tempPath);
 }
 
 // FUNCTION: CL 0x00402387
-BOOL StringStartsWith(const char *start, const char *str)
+BOOL prefix(const char *start, const char *str)
 {
     while (1) {
         if (*start == '\0') {
@@ -1406,50 +1383,50 @@ BOOL StringStartsWith(const char *start, const char *str)
 }
 
 // FUNCTION: CL 0x0040218e
-void EmitOptionValueDiagnostic(int code, const tParsed_option *opt1, const tParsed_option *opt2)
+void switcherr(int code, const flag_s *opt1, const flag_s *opt2)
 {
     const char *argval1;
     const char *argval2;
 
-    if (opt1->parsed_option_parent != NULL) {
-        opt1 = opt1->parsed_option_parent;
+    if (opt1->swtch != NULL) {
+        opt1 = opt1->swtch;
     }
     argval1 = "";
-    if (opt1->arg_value != NULL) {
-        argval1 = opt1->arg_value;
+    if (opt1->arg != NULL) {
+        argval1 = opt1->arg;
     }
     argval2 = "";
-    if (opt2->arg_value != NULL) {
-        argval2 = opt2->arg_value;
+    if (opt2->arg != NULL) {
+        argval2 = opt2->arg;
     }
     if (code >= 4000 && code < 4100) {
-        EmitWarningF(code, opt1->arg_keyonly, argval1, opt2->arg_keyonly, argval2);
+        cmdwarn(code, opt1->base, argval1, opt2->base, argval2);
     } else {
-        FatalError(code, opt1->arg_keyonly, argval1, opt2->arg_keyonly, argval2);
+        cmderr(code, opt1->base, argval1, opt2->base, argval2);
     }
 }
 
 // FUNCTION: CL 0x004021f0
-const tSingle_arg_spec *FindMatchingSingleArgOption(const char *arg)
+const tSingle_arg_spec *is_combo(const char *arg)
 {
     int i;
-    for (i = 0; gSingle_arg_specs[i].valuespec != NULL; i++) {
-        if (StringStartsWith(gSingle_arg_specs[i].key, arg)) {
-            return &gSingle_arg_specs[i];
+    for (i = 0; Combos[i].valuespec != NULL; i++) {
+        if (prefix(Combos[i].key, arg)) {
+            return &Combos[i];
         }
     }
     return NULL;
 }
 
 // FUNCTION: CL 0x00401442
-int CalculateOptionMatchLength(const tOption_spec *option_spec, const char **args, int index)
+int trymatch(const form_s *option_spec, const char **args, int index)
 {
-    const char *arg_spec = option_spec->field_0x0;
+    const char *arg_spec = option_spec->form;
     const char *arg;
     int len_match;
 
     if (arg_spec[0] == '^') {
-        if (!gConsider_hat_options) {
+        if (!DefPhase) {
             return 0;
         }
         arg_spec += 1;
@@ -1479,16 +1456,16 @@ int CalculateOptionMatchLength(const tOption_spec *option_spec, const char **arg
 }
 
 // FUNCTION: CL 0040202e
-const tOption_spec *GetBestOptionSpec(const char **args, int index)
+const form_s *findmatch(const char **args, int index)
 {
-    const tOption_spec *best_match = NULL;
+    const form_s *best_match = NULL;
     int best_score = 0;
     int i;
 
-    for (i = 0; gOption_specs[i].field_0x0 != NULL; i++) {
-        const tOption_spec *option_spec = &gOption_specs[i];
-        if (option_spec->field_0x0[option_spec->field_0x0[0] == '^' ? 1 : 0] == args[index][1]) {
-            int score = CalculateOptionMatchLength(option_spec, args, index);
+    for (i = 0; Forms[i].form != NULL; i++) {
+        const form_s *option_spec = &Forms[i];
+        if (option_spec->form[option_spec->form[0] == '^' ? 1 : 0] == args[index][1]) {
+            int score = trymatch(option_spec, args, index);
             if (score > 0 && (best_score == 0 || score > best_score)) {
                 best_match = option_spec;
                 best_score = score;
@@ -1499,53 +1476,53 @@ const tOption_spec *GetBestOptionSpec(const char **args, int index)
 }
 
 // FUNCTION: CL 0x004013d7
-tParsed_option *AllocateParsedOption(const char *optname, const char *optval, const char *param_3, int param_4)
+flag_s *newflag(const char *base, const char *arg, const char *passes, int info)
 {
-    tParsed_option *result;
+    flag_s *result;
 
-    if (gUnused_parsed_options == NULL) {
-        result = SafeMalloc(sizeof(*result));
+    if (Flag_freelist == NULL) {
+        result = xnew(sizeof(*result));
     } else {
-        result = gUnused_parsed_options;
-        gUnused_parsed_options = gUnused_parsed_options->next;
+        result = Flag_freelist;
+        Flag_freelist = Flag_freelist->next;
     }
     memset(result, 0, sizeof(*result));
-    result->field_0x4 = param_4;
-    result->arg_value = SafeStrDup(optval);
-    result->arg_keyonly = SafeStrDup(optname);
-    result->field_0x8 = SafeStrDup(param_3);
+    result->info = info;
+    result->arg = xstrdup(arg);
+    result->base = xstrdup(base);
+    result->passes = xstrdup(passes);
     return result;
 }
 
 // FUNCTION: CL 0x00402144
-tParsed_option *DuplicateParsedOption(tParsed_option *opt)
+flag_s *dupflag(flag_s *opt)
 {
-    tParsed_option *r = AllocateParsedOption(opt->arg_keyonly, opt->arg_value, opt->field_0x8, opt->field_0x4);
-    r->void_parent = opt->void_parent;
+    flag_s *r = newflag(opt->base, opt->arg, opt->passes, opt->info);
+    r->swtch = opt->swtch;
     return r;
 }
 
 // FUNCTION: CL 0x00402004
-void FreeParsedOption(tParsed_option *opt)
+void freeflag(flag_s *opt)
 {
-    SafeFree((void *) opt->arg_value);
-    SafeFree((void *) opt->arg_keyonly);
-    opt->next = gUnused_parsed_options;
-    gUnused_parsed_options = opt;
+    xfree((void *) opt->arg);
+    xfree((void *) opt->base);
+    opt->next = Flag_freelist;
+    Flag_freelist = opt;
 }
 
 // FUNCTION: CL 00401fe8
-void FreeParsedOptions(tParsed_option *opt)
+void freeflaglist(flag_s *opt)
 {
     while (opt != NULL) {
-        tParsed_option *next = opt->next;
-        FreeParsedOption(opt);
+        flag_s *next = opt->next;
+        freeflag(opt);
         opt = next;
     }
 }
 
 // FUNCTION: CL 0x004016f8
-void AppendParsedOption(tParsed_option **list, tParsed_option *opt)
+void appendflag(flag_s **list, flag_s *opt)
 {
     while (*list != NULL) {
         list = &(*list)->next;
@@ -1554,11 +1531,11 @@ void AppendParsedOption(tParsed_option **list, tParsed_option *opt)
 }
 
 // FUNCTION: CL 0x00402165
-tParsed_option *RemoveParsedOption(tParsed_option **list, tParsed_option *item)
+flag_s *rmflag(flag_s **list, flag_s *item)
 {
     for (; *list != NULL; list = &(*list)->next) {
         if (*list == item) {
-            tParsed_option *r = *list;
+            flag_s *r = *list;
             *list = r->next;
             r->next = NULL;
             return r;
@@ -1568,40 +1545,40 @@ tParsed_option *RemoveParsedOption(tParsed_option **list, tParsed_option *item)
 }
 
 // FUNCTION: CL 0x00401068
-tParsed_filepath *AllocateParsedFilepath(const char *path, tCompile_filetype filetype)
+source_s *newsource(const char *path, source_type type)
 {
-    tParsed_filepath *result;
+    source_s *result;
 
-    result = SafeMalloc(sizeof(*result));
-    result->filetype = filetype;
-    result->field_0xc = 1;
-    result->path = SafeStrDup(path);
+    result = xnew(sizeof(*result));
+    result->type = type;
+    result->fixed_type = 1;
+    result->path = xstrdup(path);
     result->next = NULL;
-    result->field_0xe = -1;
+    result->batch_id = -1;
     return result;
 }
 
 // FUNCTION: CL 0x004010a1
-tParsed_filepath *ParseFileArgument(const char *path, tCompile_filetype filetype, undefined2 arg3)
+source_s *addsource(const char *path, source_type filetype, short fixed_type)
 {
-    tParsed_filepath *result;
-    tParsed_filepath **list;
+    source_s *result;
+    source_s **list;
 
-    result = AllocateParsedFilepath(path, filetype);
-    result->field_0xc = arg3;
-    list = &gApp_data->field_0x10;
+    result = newsource(path, filetype);
+    result->fixed_type = fixed_type;
+    list = &Context->field_0x10;
     while (*list != NULL) {
         list = &(*list)->next;
     }
     *list = result;
-    if (gFiletype_specs[filetype].stage == eInput_compiler) {
-        gCount_compiler_file_inputs += 1;
+    if (Sourceinfo[filetype].phase == PHASE_COMPILE) {
+        SourceCount += 1;
     }
     return result;
 }
 
 // FUNCTION: CL 0x0040112b
-void CheckNumericOption(const char *optkey, char *optval, const char *optspec)
+void validate_arg(const char *optkey, char *optval, const char *optspec)
 {
     int radix = 10;
     const char *optval_ptr = optval;
@@ -1623,7 +1600,7 @@ void CheckNumericOption(const char *optkey, char *optval, const char *optspec)
     }
     opt_intvalue = strtoul(optval_ptr, &end_ptr, radix);
     if (*end_ptr != '\0') {
-        FatalError(2021, optkey, optval);
+        cmderr(2021, optkey, optval);
     }
     if (optspec[1] == '[') {
         unsigned long minimum;
@@ -1650,15 +1627,15 @@ void CheckNumericOption(const char *optkey, char *optval, const char *optspec)
             }
         }
         if (!found) {
-            EmitWarningF(4014, opt_intvalue, optkey, minimum);
+            cmdwarn(4014, opt_intvalue, optkey, minimum);
             opt_intvalue = minimum;
         }
     }
-    dtostr(opt_intvalue, optval, 10);
+    l2a(opt_intvalue, optval, 10);
 }
 
 // FUNCTION: CL 0x00404f55
-char *EscapeFormatString(char *dest, const char *format)
+char *concatmeta(char *dest, const char *format)
 {
     dest = dest + strlen(dest);
     if (format != NULL) {
@@ -1677,7 +1654,7 @@ char *EscapeFormatString(char *dest, const char *format)
 }
 
 // FUNCION: CL 0x00405204
-const char *FindLastOccurrenceOfAnyCharOf(const char *text, const char *needles)
+const char *strrchars(const char *text, const char *needles)
 {
     const char *last_pos = NULL;
 
@@ -1694,40 +1671,40 @@ const char *FindLastOccurrenceOfAnyCharOf(const char *text, const char *needles)
 }
 
 // FUNCTION: CL 0x00401498
-const char *FUN_00401498(const char *spec, char *buffer, const char *key, const char **filename)
+const char *xoption(const char *spec, char *buffer, const char *key, const char **filename)
 {
     // GLOBAL: CL 0x0040a750
-    static char result_buffer[32];
+    static char defbase[32];
     const char *result;
 
     *filename = '\0';
-    result = ExtractImpliedSpec(&spec[1], buffer, key);
-    result = ExtractImpliedSpec(&result[1], result_buffer, key);
+    result = doexpand(&spec[1], buffer, key);
+    result = doexpand(&result[1], defbase, key);
     if (buffer[0] == '\0') {
-        strcpy(buffer, result_buffer);
+        strcpy(buffer, defbase);
     }
-    *filename = result_buffer;
+    *filename = defbase;
     return &result[1];
 }
 
 // FUNCTION: CL 0x00402da5
-const char *ReplaceFilenameWithExt(const char *extension_spec, char *path, const char *filename)
+const char *complete_filename(const char *extension_spec, char *path, const char *filename)
 {
     char throwaway_buffer[256];
     char ext_c1 = *extension_spec;
     const char *path_filename;
     char *path_ptr;
 
-    path_filename = FindLastOccurrenceOfAnyCharOf(path, "\\/");
+    path_filename = strrchars(path, "\\/");
     if (ext_c1 == '<') {
         extension_spec++;
     }
-    path_filename = FindLastOccurrenceOfAnyCharOf(path, "\\/");
+    path_filename = strrchars(path, "\\/");
     if (path_filename != NULL && path_filename[1] == '\0') {
         if (filename == NULL) {
             filename = "%b";
         }
-        path_ptr = SafeStrCat(path, filename);
+        path_ptr = concat(path, filename);
     } else {
         path_filename = path;
         path_ptr = (char *) _mbsrchr((unsigned char *) path_filename, '.');
@@ -1749,7 +1726,7 @@ const char *ReplaceFilenameWithExt(const char *extension_spec, char *path, const
 }
 
 // FUNCTION: CL 0x004014ea
-const char *ExtractImpliedSpec(const char *spec, char *buffer, const char *key)
+const char *doexpand(const char *spec, char *buffer, const char *key)
 {
     char *buffer_ptr;
     const char *filename_ptr = NULL;
@@ -1759,20 +1736,20 @@ const char *ExtractImpliedSpec(const char *spec, char *buffer, const char *key)
     while (*spec != '\0') {
         if (*spec == '(') {
             *buffer_ptr = '\0';
-            spec = FUN_00401498(spec, buffer_ptr, key, &filename_ptr);
+            spec = xoption(spec, buffer_ptr, key, &filename_ptr);
             buffer_ptr = &buffer[strlen(buffer)];
         } else if (*spec == '!' || *spec == ':' || *spec == ')' || *spec == ',' || *spec == '|') {
             break;
         } else if (*spec == '*') {
             *buffer_ptr = '\0';
-            if (gConsider_hat_options) {
-                buffer_ptr = SafeStrCat(buffer, key);
+            if (DefPhase) {
+                buffer_ptr = concat(buffer, key);
             } else {
-                buffer_ptr = EscapeFormatString(buffer, key);
+                buffer_ptr = concatmeta(buffer, key);
             }
             spec++;
         } else if (*spec == '<') {
-            spec = ReplaceFilenameWithExt(&spec[1], buffer, filename_ptr);
+            spec = complete_filename(&spec[1], buffer, filename_ptr);
             buffer_ptr = &buffer[strlen(buffer)];
             break;
         } else if (*spec == '@') {
@@ -1789,15 +1766,15 @@ const char *ExtractImpliedSpec(const char *spec, char *buffer, const char *key)
 }
 
 // FUNCTION: CL 0x004015d3
-tParsed_option *CreateImpliedOptions(const char *implied_spec, const tParsed_option *option)
+flag_s *expand(const char *implied_spec, const flag_s *option)
 {
-    tParsed_option *result = NULL;
+    flag_s *result = NULL;
     char speckey[20];
 
     speckey[0] = '\0';
     while (*implied_spec != '\0') {
         unsigned int specflag = 0;
-        const char *implied_spec_ptr = SkipSpaces(implied_spec);
+        const char *implied_spec_ptr = gobblewhite(implied_spec);
         char implied_argkey[32];
         const char *implied_argval;
 
@@ -1824,14 +1801,14 @@ tParsed_option *CreateImpliedOptions(const char *implied_spec, const tParsed_opt
             specflag = 0x20;
             break;
         }
-        implied_spec = ExtractImpliedSpec(&implied_spec_ptr[1], implied_argkey, option->arg_keyonly);
+        implied_spec = doexpand(&implied_spec_ptr[1], implied_argkey, option->base);
         if (*implied_spec == '!' || *implied_spec == ':') {
             if (*implied_spec == '!') {
                 specflag |= 0x4;
             }
-            implied_spec = ExtractImpliedSpec(&implied_spec[1], gImplied_argval, option->arg_value);
-            if (strlen(gImplied_argval) != 0) {
-                implied_argval = gImplied_argval;
+            implied_spec = doexpand(&implied_spec[1], Bigbuf, option->arg);
+            if (strlen(Bigbuf) != 0) {
+                implied_argval = Bigbuf;
             } else {
                 implied_argval = NULL;
             }
@@ -1841,19 +1818,19 @@ tParsed_option *CreateImpliedOptions(const char *implied_spec, const tParsed_opt
         if (*implied_spec == ',') {
             implied_spec += 1;
         }
-        AppendParsedOption(&result, AllocateParsedOption(implied_argkey, implied_argval, speckey, specflag));
+        appendflag(&result, newflag(implied_argkey, implied_argval, speckey, specflag));
     }
     return result;
 }
 
 // FUNCTION: CL 0x00401226
-tParsed_option *ExtractOptionFromArgs(const tOption_spec *option_spec, const char **args, int *index)
+flag_s *domatch(const form_s *option_spec, const char **args, int *index)
 {
     char optkey_buffer[32];
     char optval_buffer[1024];
     char *optkey_ptr = optkey_buffer;
     const char *arg = args[*index];
-    const char *optkey_spec_ptr = option_spec->field_0x0;
+    const char *optkey_spec_ptr = option_spec->form;
     BOOL arg_is_optional;
     int optflags;
     int a1;
@@ -1867,14 +1844,14 @@ tParsed_option *ExtractOptionFromArgs(const tOption_spec *option_spec, const cha
     for (arg += 1; *optkey_spec_ptr != '\0' && *optkey_spec_ptr != ':' && *optkey_spec_ptr != '!';
             optkey_spec_ptr += 1) {
         if (*arg != *optkey_spec_ptr) {
-            FatalError(0);
+            cmderr(0);
         }
         *optkey_ptr++ = *arg++;
     }
     *optkey_ptr = '\0';
     if (*optkey_spec_ptr == '\0') {
         *index += 1;
-        return AllocateParsedOption(optkey_buffer, NULL, NULL, 0);
+        return newflag(optkey_buffer, NULL, NULL, 0);
     }
     switch (*optkey_spec_ptr) {
     case '!':
@@ -1884,7 +1861,7 @@ tParsed_option *ExtractOptionFromArgs(const tOption_spec *option_spec, const cha
         arg_is_optional = TRUE;
         break;
     default:
-        FatalError(0);
+        cmderr(0);
         break;
     }
     optkey_spec_ptr++;
@@ -1913,7 +1890,7 @@ tParsed_option *ExtractOptionFromArgs(const tOption_spec *option_spec, const cha
         a2 = 1;
         break;
     case '@':
-        return option_spec->cb_0x10(args, index);
+        return option_spec->func_ret_2arg(args, index);
     default:
         a1 = optflags;
         a2 = optflags;
@@ -1931,56 +1908,56 @@ tParsed_option *ExtractOptionFromArgs(const tOption_spec *option_spec, const cha
         strcpy(optval, arg);
     } else {
         if (!arg_is_optional) {
-            FatalError(2004, optkey_buffer);
+            cmderr(2004, optkey_buffer);
         }
         optval = NULL;
     }
     if (optval != NULL && optkey_spec_ptr[1] != '\0') {
-        CheckNumericOption(optkey_buffer, optval, &optkey_spec_ptr[1]);
+        validate_arg(optkey_buffer, optval, &optkey_spec_ptr[1]);
     }
-    return AllocateParsedOption(optkey_buffer, optval, NULL, optflags);
+    return newflag(optkey_buffer, optval, NULL, optflags);
 }
 
 // FUNCTION: CL 0x00401711
-BOOL AreOptionsSimilar(tParsed_option *opt1, tParsed_option *opt2)
+BOOL flagmatch(flag_s *opt1, flag_s *opt2)
 {
     size_t l1;
     size_t l2;
 
-    if (!(strcmp(opt1->arg_keyonly, "?") == 0 || strcmp(opt2->arg_keyonly, "?") == 0 ||
-                strcmp(opt1->arg_keyonly, opt2->arg_keyonly) == 0)) {
+    if (!(strcmp(opt1->base, "?") == 0 || strcmp(opt2->base, "?") == 0 ||
+                strcmp(opt1->base, opt2->base) == 0)) {
         return FALSE;
     }
-    if (opt1->arg_value == NULL) {
-        if (opt2->arg_value == NULL || strcmp(opt2->arg_value, "?") == 0) {
+    if (opt1->arg == NULL) {
+        if (opt2->arg == NULL || strcmp(opt2->arg, "?") == 0) {
             return TRUE;
         }
         return FALSE;
     }
-    if (opt2->arg_value == NULL) {
-        if (strcmp(opt1->arg_value, "?") == 0) {
+    if (opt2->arg == NULL) {
+        if (strcmp(opt1->arg, "?") == 0) {
             return TRUE;
         } else {
             return FALSE;
         }
     }
-    l1 = strlen(opt1->arg_value);
-    l2 = strlen(opt2->arg_value);
-    if (l1 > 0 && opt1->arg_value[l1 - 1] == '?') {
-        if (strncmp(opt1->arg_value, opt2->arg_value, l1 - 1) == 0) {
+    l1 = strlen(opt1->arg);
+    l2 = strlen(opt2->arg);
+    if (l1 > 0 && opt1->arg[l1 - 1] == '?') {
+        if (strncmp(opt1->arg, opt2->arg, l1 - 1) == 0) {
             return TRUE;
         } else {
             return FALSE;
         }
     }
-    if (l2 > 0 && opt2->arg_value[l2 - 1] == '?') {
-        if (strncmp(opt1->arg_value, opt2->arg_value, l2 - 1) == 0) {
+    if (l2 > 0 && opt2->arg[l2 - 1] == '?') {
+        if (strncmp(opt1->arg, opt2->arg, l2 - 1) == 0) {
             return TRUE;
         } else {
             return FALSE;
         }
     }
-    if (strcmp(opt1->arg_value, opt2->arg_value) == 0) {
+    if (strcmp(opt1->arg, opt2->arg) == 0) {
         return TRUE;
     } else {
         return FALSE;
@@ -1988,13 +1965,13 @@ BOOL AreOptionsSimilar(tParsed_option *opt1, tParsed_option *opt2)
 }
 
 // FUNCTION: CL 0x00402d5d
-BOOL FUN_00402d5d(tParsed_option *const opts1, tParsed_option *const opts2)
+BOOL find_any_match(flag_s *const opts1, flag_s *const opts2)
 {
-    tParsed_option *opt1;
+    flag_s *opt1;
     for (opt1 = opts1; opt1 != NULL; opt1 = opt1->next) {
-        tParsed_option *opt2;
+        flag_s *opt2;
         for (opt2 = opts2; opt2 != NULL; opt2 = opt2->next) {
-            if (AreOptionsSimilar(opt1, opt2) && !(opt1->field_0x4 & 0x10) && !(opt2->field_0x4 & 0x10)) {
+            if (flagmatch(opt1, opt2) && !(opt1->info & 0x10) && !(opt2->info & 0x10)) {
                 return TRUE;
             }
         }
@@ -2003,33 +1980,33 @@ BOOL FUN_00402d5d(tParsed_option *const opts1, tParsed_option *const opts2)
 }
 
 // FUNCTION: CL 0x00402092
-tParsed_option *FUN_00402092(tParsed_option **list, tParsed_option *implied_option, tParsed_option **list_arg3)
+flag_s *conflict(flag_s **list, flag_s *implied_option, flag_s **list_arg3)
 {
-    tParsed_option *result = NULL;
+    flag_s *result = NULL;
 
     for (; implied_option != NULL; implied_option = implied_option->next) {
-        tParsed_option *list_item;
+        flag_s *list_item;
         for (list_item = *list; list_item != NULL; list_item = list_item->next) {
-            if (AreOptionsSimilar(list_item, implied_option)) {
+            if (flagmatch(list_item, implied_option)) {
                 if (list_arg3 != NULL &&
-                        (((implied_option->field_0x4 & 0x1) && !(list_item->field_0x4 & 0x21)) ||
-                                ((implied_option->field_0x4 & 0x20) && !(list_item->field_0x4 & 0x20)))) {
-                    tParsed_option *o;
+                        (((implied_option->info & 0x1) && !(list_item->info & 0x21)) ||
+                                ((implied_option->info & 0x20) && !(list_item->info & 0x20)))) {
+                    flag_s *o;
 
-                    if (list_item->void_parent == NULL) {
+                    if (list_item->swtch == NULL) {
                         continue;
                     }
                     for (o = *list_arg3; o != NULL; o = o->next) {
-                        if (o->parsed_option_parent == list_item) {
+                        if (o->swtch == list_item) {
                             break;
                         }
                     }
                     if (o != NULL) {
                         continue;
                     }
-                    AppendParsedOption(list_arg3, DuplicateParsedOption(list_item));
+                    appendflag(list_arg3, dupflag(list_item));
                 } else {
-                    AppendParsedOption(&result, RemoveParsedOption(list, list_item));
+                    appendflag(&result, rmflag(list, list_item));
                 }
             }
         }
@@ -2038,118 +2015,118 @@ tParsed_option *FUN_00402092(tParsed_option **list, tParsed_option *implied_opti
 }
 
 // FUNCTION: CL 0x00402bc0
-void FUN_00402bc0()
+void check_required()
 {
-    tParsed_option *option;
+    flag_s *option;
 
-    for (option = gApp_data->field_0x4; option != NULL; option = option->next) {
+    for (option = Context->switches; option != NULL; option = option->next) {
         char *parent_value;
         char *parent_ptr;
-        const tOption_spec *parent;
+        const form_s *parent;
 
-        if (option->field_0x4 & 0x10) {
+        if (option->info & 0x10) {
             continue;
         }
-        parent = option->parent_option_spec;
-        if (parent->str_0x10 == NULL) {
+        parent = option->form;
+        if (parent->required == NULL) {
             continue;
         }
-        if (parent->field_0x4 == NULL) {
+        if (parent->tmpl == NULL) {
             continue;
         }
-        parent_value = SafeStrDup(parent->str_0x10);
+        parent_value = xstrdup(parent->required);
         parent_ptr = parent_value;
         while (1) {
             char *next_ptr = (char *) _mbschr((unsigned char *) parent_ptr, ';');
-            tParsed_option *implied1;
-            tParsed_option *implied2;
-            tParsed_option *implied3;
+            flag_s *implied1;
+            flag_s *implied2;
+            flag_s *implied3;
 
             if (next_ptr != NULL) {
                 *next_ptr = '\0';
                 next_ptr += 1;
             }
-            implied1 = CreateImpliedOptions(parent_ptr, option);
-            if (FUN_00402d5d(gApp_data->field_0x4, implied1)) {
+            implied1 = expand(parent_ptr, option);
+            if (find_any_match(Context->switches, implied1)) {
                 parent_ptr = next_ptr;
             } else {
-                if (!(option->field_0x4 & 0x1)) {
-                    char *opt1str = SafeMalloc(80);
-                    char *opt2str = SafeMalloc(80);
-                    tParsed_option *imp;
+                if (!(option->info & 0x1)) {
+                    char *opt1str = xnew(80);
+                    char *opt2str = xnew(80);
+                    flag_s *imp;
 
                     opt1str[0] = '/';
                     opt2str[0] = '\0';
-                    strcpy(&opt1str[1], option->arg_keyonly);
+                    strcpy(&opt1str[1], option->base);
                     for (imp = implied1; imp != NULL; imp = imp->next) {
                         if (imp != implied1) {
                             if (imp->next == NULL) {
-                                strcat(opt2str, GetErrorMessage(321));
+                                strcat(opt2str, get_message(321));
                             } else {
-                                strcat(opt2str, GetErrorMessage(320));
+                                strcat(opt2str, get_message(320));
                             }
                         }
                         strcat(opt2str, "/");
-                        strcat(opt2str, imp->arg_keyonly);
+                        strcat(opt2str, imp->base);
                     }
-                    EmitWarningF(4007, opt1str, opt2str);
-                    SafeFree(opt2str);
-                    SafeFree(opt1str);
+                    cmdwarn(4007, opt1str, opt2str);
+                    xfree(opt2str);
+                    xfree(opt1str);
                 }
-                implied2 = CreateImpliedOptions(parent->field_0x4, option);
-                implied3 = FUN_00402092(&gApp_data->field_0x0, implied2, NULL);
-                FreeParsedOptions(implied3);
-                FreeParsedOptions(implied2);
+                implied2 = expand(parent->tmpl, option);
+                implied3 = conflict(&Context->flags, implied2, NULL);
+                freeflaglist(implied3);
+                freeflaglist(implied2);
                 parent_ptr = NULL;
             }
-            FreeParsedOptions(implied1);
+            freeflaglist(implied1);
             if (parent_ptr == NULL) {
                 break;
             }
         }
-        SafeFree(parent_value);
+        xfree(parent_value);
     }
 }
 
 // FUNCTION: CL 0x004028a3
-void OnbAOption(tParsed_option *option)
+void configure_asmlist(flag_s *option)
 {
     bool ext_cod;
-    tParsed_option *opt_FA;
-    tParsed_option *opt_Fa;
-    tParsed_option *imp_FA;
-    tParsed_option *imp_Fa;
+    flag_s *opt_FA;
+    flag_s *opt_Fa;
+    flag_s *imp_FA;
+    flag_s *imp_Fa;
     char *arg_extra;
 
-    if (option->arg_value[0] == '\0') {
+    if (option->arg[0] == '\0') {
         return;
     }
-    arg_extra = (char *) _mbschr((unsigned char *) option->arg_value, ' ');
+    arg_extra = (char *) _mbschr((unsigned char *) option->arg, ' ');
     if (arg_extra != NULL) {
         *arg_extra = '\0';
         arg_extra += 1;
     }
-    opt_FA = AllocateParsedOption("FA", "?", option->arg_value, 4);
-    opt_Fa = AllocateParsedOption("Fa", "?", option->arg_value, 0);
-    imp_FA = FUN_00402092(&gApp_data->field_0x0, opt_FA, NULL);
-    imp_Fa = FUN_00402092(&gApp_data->field_0x0, opt_Fa, NULL);
+    opt_FA = newflag("FA", "?", option->arg, 4);
+    opt_Fa = newflag("Fa", "?", option->arg, 0);
+    imp_FA = conflict(&Context->flags, opt_FA, NULL);
+    imp_Fa = conflict(&Context->flags, opt_Fa, NULL);
     if (imp_FA != NULL) {
-        arg_extra = imp_FA->arg_value;
-        FreeParsedOption(opt_FA);
+        arg_extra = imp_FA->arg;
+        freeflag(opt_FA);
     } else {
-        SafeFree(opt_FA->arg_value);
-        opt_FA->arg_value = SafeStrDup(arg_extra);
+        xfree(opt_FA->arg);
+        opt_FA->arg = xstrdup(arg_extra);
         imp_FA = opt_FA;
     }
     if (imp_Fa != NULL) {
-        FreeParsedOption(opt_Fa);
+        freeflag(opt_Fa);
     } else {
-        SafeFree(opt_Fa->arg_value);
-        opt_Fa->arg_value = SafeStrDup("%b");
+        xfree(opt_Fa->arg);
+        opt_Fa->arg = xstrdup("%b");
         imp_Fa = opt_Fa;
     }
     ext_cod = false;
-    strcpy(gImplied_argval, imp_Fa->arg_value);
+    strcpy(Bigbuf, imp_Fa->arg);
     if (arg_extra != NULL) {
         bool invalid = false;
         char *ptr;
@@ -2168,112 +2145,112 @@ void OnbAOption(tParsed_option *option)
             }
         }
         if (invalid) {
-            EmitWarningF(4015, "/FA", &arg_extra[1]);
+            cmdwarn(4015, "/FA", &arg_extra[1]);
         }
     }
-    ReplaceFilenameWithExt(ext_cod ? "cod" : "asm", gImplied_argval, NULL);
-    SafeFree(imp_Fa->arg_value);
-    imp_Fa->arg_value = SafeStrDup(gImplied_argval);
-    AppendParsedOption(&gApp_data->field_0x0, imp_FA);
-    AppendParsedOption(&gApp_data->field_0x0, imp_Fa);
-    option->arg_value[0] = '\0';
+    complete_filename(ext_cod ? "cod" : "asm", Bigbuf, NULL);
+    xfree(imp_Fa->arg);
+    imp_Fa->arg = xstrdup(Bigbuf);
+    appendflag(&Context->flags, imp_FA);
+    appendflag(&Context->flags, imp_Fa);
+    option->arg[0] = '\0';
 }
 
 // FUNCTION: CL 0x00401d71
-BOOL ParseMultipleArgOption(const char **args, int *index)
+BOOL handlematch(const char **args, int *index)
 {
-    const tOption_spec *option_spec = GetBestOptionSpec(args, *index);
-    tParsed_option *option;
-    tParsed_option *implied_options1;
+    const form_s *option_spec = findmatch(args, *index);
+    flag_s *option;
+    flag_s *implied_options1;
 
     if (option_spec == NULL) {
-        AppendParsedOption(&gUnknown_options, AllocateParsedOption(args[*index], NULL, NULL, 0));
+        appendflag(&Unknown_, newflag(args[*index], NULL, NULL, 0));
         *index += 1;
         return FALSE;
     }
-    option = ExtractOptionFromArgs(option_spec, args, index);
+    option = domatch(option_spec, args, index);
     if (option == NULL) {
         return TRUE;
     }
-    if (option->field_0x4 & 0x2) {
-        AppendParsedOption(&gUnknown_options, option);
+    if (option->info & 0x2) {
+        appendflag(&Unknown_, option);
         return FALSE;
     }
-    option->parent_option_spec = option_spec;
-    AppendParsedOption(&gApp_data->field_0x4, option);
+    option->form = option_spec;
+    appendflag(&Context->switches, option);
     implied_options1 = NULL;
-    if (option_spec->field_0x4 != NULL) {
-        implied_options1 = CreateImpliedOptions(option_spec->field_0x4, option);
+    if (option_spec->tmpl != NULL) {
+        implied_options1 = expand(option_spec->tmpl, option);
         if (implied_options1 != NULL) {
-            tParsed_option *f1 = NULL;
-            tParsed_option *f2 = FUN_00402092(&gApp_data->field_0x0, implied_options1, &f1);
-            tParsed_option *p;
+            flag_s *f1 = NULL;
+            flag_s *f2 = conflict(&Context->flags, implied_options1, &f1);
+            flag_s *p;
 
-            FreeParsedOptions(f2);
-            FreeParsedOptions(f1);
+            freeflaglist(f2);
+            freeflaglist(f1);
             for (p = implied_options1; p != NULL; p = p->next) {
-                p->parsed_option_parent = option;
+                p->swtch = option;
             }
         }
     }
-    if (option_spec->field_0xc != NULL) {
+    if (option_spec->override != NULL) {
         void *prev_override;
-        tParsed_option *implied_options2 = CreateImpliedOptions(option_spec->field_0xc, option);
-        tParsed_option *f1 = NULL;
-        tParsed_option *f2 = FUN_00402092(&gApp_data->field_0x0, implied_options2, &f1);
-        tParsed_option *p;
+        flag_s *implied_options2 = expand(option_spec->override, option);
+        flag_s *f1 = NULL;
+        flag_s *f2 = conflict(&Context->flags, implied_options2, &f1);
+        flag_s *p;
 
         prev_override = NULL;
         for (p = f2; p != NULL; p = p->next) {
-            if (p->parsed_option_parent != NULL) {
-                p->field_0x4 |= 0x10;
+            if (p->swtch != NULL) {
+                p->info |= 0x10;
             }
-            if (!(p->field_0x4 & 0x21)) {
-                if (prev_override == NULL || p->parsed_option_parent != prev_override) {
-                    EmitOptionValueDiagnostic(4025, p, option);
+            if (!(p->info & 0x21)) {
+                if (prev_override == NULL || p->swtch != prev_override) {
+                    switcherr(4025, p, option);
                 }
-                prev_override = p->parsed_option_parent;
+                prev_override = p->swtch;
             }
         }
-        FreeParsedOptions(f2);
+        freeflaglist(f2);
         for (p = f1; p != NULL; p = p->next) {
-            if (p->parsed_option_parent != NULL && p->parent_option_spec->field_0xc != NULL) {
-                tParsed_option *g1 = NULL;
-                tParsed_option *implied_opts = CreateImpliedOptions(p->parent_option_spec->field_0xc, p);
-                tParsed_option *g2 = FUN_00402092(&implied_options1, implied_opts, &g1);
-                FreeParsedOptions(g2);
-                FreeParsedOptions(implied_opts);
-                FreeParsedOptions(g1);
+            if (p->swtch != NULL && p->form->override != NULL) {
+                flag_s *g1 = NULL;
+                flag_s *implied_opts = expand(p->form->override, p);
+                flag_s *g2 = conflict(&implied_options1, implied_opts, &g1);
+                freeflaglist(g2);
+                freeflaglist(implied_opts);
+                freeflaglist(g1);
             }
         }
-        FreeParsedOptions(f1);
+        freeflaglist(f1);
     }
-    if (option_spec->field_0x8 != NULL) {
-        tParsed_option *implied_options3 = CreateImpliedOptions(option_spec->field_0x8, option);
-        tParsed_option *f2 = FUN_00402092(&gApp_data->field_0x0, implied_options3, NULL);
-        tParsed_option *p;
+    if (option_spec->conflict != NULL) {
+        flag_s *implied_options3 = expand(option_spec->conflict, option);
+        flag_s *f2 = conflict(&Context->flags, implied_options3, NULL);
+        flag_s *p;
 
         if (f2 != NULL) {
             for (p = f2; p != NULL; p = p->next) {
-                if (p->parsed_option_parent != NULL) {
-                    p->parsed_option_parent->field_0x4 |= 0x10;
+                if (p->swtch != NULL) {
+                    p->swtch->info |= 0x10;
                 }
-                if (!(p->field_0x4 & 0x21)) {
-                    EmitOptionValueDiagnostic(2016, p, option);
+                if (!(p->info & 0x21)) {
+                    switcherr(2016, p, option);
                 }
             }
-            FreeParsedOptions(f2);
+            freeflaglist(f2);
         }
-        FreeParsedOptions(implied_options3);
+        freeflaglist(implied_options3);
     }
     if (implied_options1 != NULL) {
-        AppendParsedOption(&gApp_data->field_0x0, implied_options1);
+        appendflag(&Context->flags, implied_options1);
     }
     return TRUE;
 }
 
 // FUNCTION: CL 0x0040222b
-void ParseSingleArgOption(const tSingle_arg_spec *spec, const char *arg)
+void crack_combo(const tSingle_arg_spec *spec, const char *arg)
 {
     char buffer[32];
     const char *argv[2];
@@ -2289,13 +2266,13 @@ void ParseSingleArgOption(const tSingle_arg_spec *spec, const char *arg)
     buffer_pos += 1;
     if (buffer[1] == 'O') {
         if (_mbsstr((const unsigned char *) arg_value, (const unsigned char *) "y1") != NULL) {
-            EmitWarningF(4099, "Oy1", "Oy-");
+            cmdwarn(4099, "Oy1", "Oy-");
         } else if (_mbsstr((const unsigned char *) arg_value, (const unsigned char *) "y2") != NULL) {
-            EmitWarningF(4099, "Oy2", "Oy");
+            cmdwarn(4099, "Oy2", "Oy");
         }
     }
     while (*arg_value != '\0') {
-        const char *valuespec = strchr(spec->valuespec, *arg_value);
+        const char *valuespec = strchr(spec->valuespec, *arg);
         char *buffer_ptr;
         int multi_arg;
 
@@ -2321,63 +2298,69 @@ void ParseSingleArgOption(const tSingle_arg_spec *spec, const char *arg)
         }
         *buffer_ptr = '\0';
         multi_arg = 0;
-        ParseMultipleArgOption(argv, &multi_arg);
+        handlematch(argv, &multi_arg);
     }
 }
 
 // FUNCTION: CL 0x00401c6d
-void ParseArguments(const char **args, int count)
+void templates(const char **args, int count)
 {
     // GLOBAL: CL 0x0040a058
-    static BOOL options_are_global = FALSE;
+    static BOOL seen_src_flag = FALSE;
     // GLOBAL: CL 0x0040a05c
-    static BOOL warning_4026_emitted = FALSE;
+    static BOOL already_warned = FALSE;
     int i;
 
     for (i = 0; i < count;) {
-        int original_count = gCount_compiler_file_inputs;
+        int original_count = SourceCount;
         const char *arg = args[i];
         if (arg[0] == '@') {
-            ParseResponseFile(&arg[1]);
+            response_file(&arg[1]);
             continue;
         }
         if (arg[0] == '-' || arg[0] == '/') {
-            const tSingle_arg_spec *single_arg_spec = FindMatchingSingleArgOption(&arg[1]);
+            const tSingle_arg_spec *single_arg_spec = is_combo(&arg[1]);
             if (single_arg_spec != NULL && arg[strlen(single_arg_spec->key) + 1] != '\0') {
-                ParseSingleArgOption(single_arg_spec, arg);
+                crack_combo(single_arg_spec, arg);
                 i++;
             } else {
-                ParseMultipleArgOption(args, &i);
+                handlematch(args, &i);
             }
-            if (gCount_compiler_file_inputs != 0 && original_count == gCount_compiler_file_inputs) {
-                options_are_global = TRUE;
+            if (SourceCount != 0 && original_count == SourceCount) {
+                seen_src_flag = TRUE;
             }
         } else {
-            ParseFileArgument(arg, GetCompileFileType(arg), 0);
+            addsource(arg, source(arg), 0);
             i++;
         }
-        if (options_are_global && original_count != gCount_compiler_file_inputs && !warning_4026_emitted) {
-            EmitWarningF(4026);
-            warning_4026_emitted = 1;
+        if (seen_src_flag && original_count != SourceCount && !already_warned) {
+            cmdwarn(4026);
+            already_warned = 1;
         }
     }
 }
 
 // FUNCTION: CL 0x0040336e
-void ParseResponseFile(const char *path)
+void response_file(const char *path)
 {
     FILE *f;
     char *line;
 
-    gResponseFileDepth += 1;
-    if (gResponseFileDepth > 13) {
-        FatalError(2035, path);
+    // GLOBAL: CL 0x0040a06c
+    static BOOL first = TRUE;
+
+    // GLOBAL: CL 0x0040a068
+    int nesting = 0;
+
+    nesting += 1;
+    if (nesting > 13) {
+        cmderr(2035, path);
     }
     f = fopen(path, "r");
     if (f == NULL) {
-        FatalError(2022, path);
+        cmderr(2022, path);
     }
-    line = SafeMalloc(1024);
+    line = xnew(1024);
     while (fgets(line, sizeof(line) - 1, f) != NULL) {
         size_t len_line = strlen(line);
         char **args;
@@ -2385,37 +2368,37 @@ void ParseResponseFile(const char *path)
         if (line[len_line - 1] == '\n') {
             line[len_line - 1] = '\0';
         }
-        if (!gShouldPrintLogoString) {
-            WriteTextF(STDERR_FILENO, gShould_print_cl ? "cl " : "   ");
-            WriteTextF(STDERR_FILENO, "%s\n", line);
-            gShould_print_cl = FALSE;
-            gPrinted_cl = TRUE;
+        if (!Nologo) {
+            print(STDERR_FILENO, first ? "cl " : "   ");
+            print(STDERR_FILENO, "%s\n", line);
+            first = FALSE;
+            RespEcho = TRUE;
         }
-        args = CreateArgArray(line, TRUE);
+        args = sztoszv(line, TRUE);
         if (args != NULL) {
-            size_t args_count = GetArgsArraySize((const char **) args);
-            ParseArguments((const char **) args, args_count);
-            SafeFree(args[0]);
-            SafeFree(args);
+            size_t args_count = argcount((const char **) args);
+            templates((const char **) args, args_count);
+            xfree(args[0]);
+            xfree(args);
         }
     }
     if (!feof(f)) {
-        FatalError(2034, path);
+        cmderr(2034, path);
     }
     fclose(f);
-    SafeFree(line);
-    gResponseFileDepth -= 1;
+    xfree(line);
+    nesting -= 1;
 }
 
 // FUNCTION: CL 0x00402f31
-int OnDCallback(const char **args, int *index)
+int Dargs(const char **args, int *index)
 {
     const char *macro_arg = &args[*index][2];
     char *pos_hash;
     char *pos_assign;
     char *macro_name;
     size_t macro_name_len;
-    tParsed_option *opt;
+    flag_s *opt;
 
     if (*macro_arg != '\0') {
         *index += 1;
@@ -2424,7 +2407,7 @@ int OnDCallback(const char **args, int *index)
         *index += 2;
     }
     if (macro_arg == NULL || macro_arg[0] == '\0') {
-        FatalError(2004, "D");
+        cmderr(2004, "D");
     }
     pos_hash = (char *) _mbschr((unsigned char *) macro_arg, '#');
     if (pos_hash != NULL) {
@@ -2437,33 +2420,33 @@ int OnDCallback(const char **args, int *index)
     } else {
         macro_name_len = pos_assign - macro_arg;
     }
-    macro_name = SafeMalloc(macro_name_len + 1);
+    macro_name = xnew(macro_name_len + 1);
     strncpy(macro_name, macro_arg, macro_name_len);
     macro_name[macro_name_len] = '\0';
-    opt = AllocateParsedOption("D", macro_name, NULL, 0x0);
-    OnbUOption(opt);
-    FreeParsedOption(opt);
-    SafeFree(macro_name);
-    opt = AllocateParsedOption("D", macro_arg, "1PM", 0x4);
-    AppendParsedOption(&gApp_data->field_0x0, opt);
+    opt = newflag("D", macro_name, NULL, 0x0);
+    undef_one_stddef(opt);
+    freeflag(opt);
+    xfree(macro_name);
+    opt = newflag("D", macro_arg, "1PM", 0x4);
+    appendflag(&Context->flags, opt);
     return 0;
 }
 
 // FUNCTION: CL 0x00402e76
-int OnLinkCallback(const char **args, int *index)
+int ldargs(const char **args, int *index)
 {
     const char *link_arg = &args[*index][5];
     int new_index;
 
     if (*link_arg != '\0') {
-        AppendParsedOption(&gApp_data->field_0x0, AllocateParsedOption(link_arg, NULL, "L", 0x8));
-        AppendParsedOption(&gApp_data->field_0x0, AllocateParsedOption(link_arg, NULL, "C", 0x8));
+        appendflag(&Context->flags, newflag(link_arg, NULL, "L", 0x8));
+        appendflag(&Context->flags, newflag(link_arg, NULL, "C", 0x8));
     }
     new_index = *index + 1;
     while (args[new_index] != NULL) {
         const char *link_arg = args[new_index];
-        AppendParsedOption(&gApp_data->field_0x0, AllocateParsedOption(link_arg, NULL, "L", 0x8));
-        AppendParsedOption(&gApp_data->field_0x0, AllocateParsedOption(link_arg, NULL, "C", 0x8));
+        appendflag(&Context->flags, newflag(link_arg, NULL, "L", 0x8));
+        appendflag(&Context->flags, newflag(link_arg, NULL, "C", 0x8));
         new_index += 1;
     }
     *index = new_index;
@@ -2471,7 +2454,7 @@ int OnLinkCallback(const char **args, int *index)
 }
 
 // FUNCTION: CL 0x00403069
-void FUN_00403069(const char *optionPrefix, const char **args, int *index, tCompile_filetype filetype)
+void other_sources(const char *optionPrefix, const char **args, int *index, source_type filetype)
 {
     const char *path = &args[*index][1];
     const char *prefix = optionPrefix;
@@ -2487,75 +2470,75 @@ void FUN_00403069(const char *optionPrefix, const char **args, int *index, tComp
         *index += 2;
     }
     if (path == NULL || path[0] == '\0') {
-        FatalError(2004, optionPrefix);
+        cmderr(2004, optionPrefix);
     }
-    ParseFileArgument(path, filetype, 1);
+    addsource(path, filetype, 1);
 }
 
 // FUNCTION: CL 0x00403035
-int OnTcCallback(const char **args, int *index)
+int tcargs(const char **args, int *index)
 {
-    FUN_00403069("Tc", args, index, eFiletype_c);
+    other_sources("Tc", args, index, SOURCE_C);
     return 0;
 }
 
 // FUNCTION: CL 0x0040304f
-int OnTpCallback(const char **args, int *index)
+int tpargs(const char **args, int *index)
 {
-    FUN_00403069("Tp", args, index, eFiletype_cpp);
+    other_sources("Tp", args, index, SOURCE_CPP);
     return 0;
 }
 
 // FUNCTION: CL 0x0040301b
-int OnToCallback(const char **args, int *index)
+int toargs(const char **args, int *index)
 {
-    FUN_00403069("Tp", args, index, eFiletype_obj);
+    other_sources("To", args, index, SOURCE_OBJ);
     return 0;
 }
 
 // FUNCTION: CL 0x0040264e
-void OnbaOption(tParsed_option *option)
+void activate_pass(flag_s *option)
 {
-    const tFiletype_spec *filetype_spec;
+    const sourceinfo_s *filetype_spec;
 
-    for (filetype_spec = gFiletype_specs; filetype_spec->stage != eStage_invalid; filetype_spec++) {
-        tFiletype_compiler_spec *compiler_spec;
+    for (filetype_spec = Sourceinfo; filetype_spec->phase != PHASE_NOPHASE; filetype_spec++) {
+        passinfo_s *compiler_spec;
 
-        for (compiler_spec = filetype_spec->compiler_specs; compiler_spec->compiler_filename != NULL; compiler_spec++) {
-            if (option->arg_value[0] == '.' || compiler_spec->field_0x10 == option->arg_value[0]) {
-                compiler_spec->field_0xc = 1;
+        for (compiler_spec = filetype_spec->passes; compiler_spec->pass_filename != NULL; compiler_spec++) {
+            if (option->arg[0] == '.' || compiler_spec->id == option->arg[0]) {
+                compiler_spec->is_active = TRUE;
             }
         }
     }
 }
 
 // FUNCTION: CL 0x004026f1
-void OnbcOption(tParsed_option *option)
+void copy_active_pass(flag_s *option)
 {
-    char a2 = option->arg_value[1];
+    char a2 = option->arg[1];
     bool found = false;
-    undefined4 filetype_compiler_spec_field_0xc;
-    const tFiletype_spec *filetype_spec = gFiletype_specs;
+    BOOL active;
+    const sourceinfo_s *filetype_spec = Sourceinfo;
 
-    while (!found && filetype_spec->stage != eStage_invalid) {
-        const tFiletype_compiler_spec *filetype_compiler_spec;
-        for (filetype_compiler_spec = filetype_spec->compiler_specs;
-                !found && filetype_compiler_spec->compiler_filename != NULL; filetype_compiler_spec++) {
-            if (filetype_compiler_spec->field_0x10 == option->arg_value[0]) {
-                filetype_compiler_spec_field_0xc = filetype_compiler_spec->field_0xc;
+    while (!found && filetype_spec->phase != PHASE_NOPHASE) {
+        const passinfo_s *filetype_compiler_spec;
+        for (filetype_compiler_spec = filetype_spec->passes;
+                !found && filetype_compiler_spec->pass_filename != NULL; filetype_compiler_spec++) {
+            if (filetype_compiler_spec->id == option->arg[0]) {
+                active = filetype_compiler_spec->is_active;
                 found = true;
             }
         }
         filetype_spec++;
     }
-    if (filetype_compiler_spec_field_0xc != 0) {
-        filetype_spec = gFiletype_specs;
-        while (filetype_spec->stage != eStage_invalid) {
-            tFiletype_compiler_spec *filetype_compiler_spec;
-            for (filetype_compiler_spec = filetype_spec->compiler_specs;
-                    filetype_compiler_spec->compiler_filename != NULL; filetype_compiler_spec++) {
-                if (filetype_compiler_spec->field_0x10 == a2) {
-                    filetype_compiler_spec->field_0xc = filetype_compiler_spec_field_0xc;
+    if (active) {
+        filetype_spec = Sourceinfo;
+        while (filetype_spec->phase != PHASE_NOPHASE) {
+            passinfo_s *filetype_compiler_spec;
+            for (filetype_compiler_spec = filetype_spec->passes;
+                    filetype_compiler_spec->pass_filename != NULL; filetype_compiler_spec++) {
+                if (filetype_compiler_spec->id == a2) {
+                    filetype_compiler_spec->is_active = active;
                 }
             }
             filetype_spec++;
@@ -2564,35 +2547,35 @@ void OnbcOption(tParsed_option *option)
 }
 
 // FUNCTION: CL 0x00402690
-void OnbdOption(tParsed_option *option)
+void deactivate_passes(flag_s *option)
 {
-    char a0 = option->arg_value[0];
-    const tFiletype_spec *filetype_spec;
+    char a0 = option->arg[0];
+    const sourceinfo_s *filetype_spec;
 
-    for (filetype_spec = gFiletype_specs; filetype_spec->stage != eStage_invalid; filetype_spec++) {
-        tFiletype_compiler_spec *filetype_compiler_spec;
-        for (filetype_compiler_spec = filetype_spec->compiler_specs; filetype_compiler_spec->compiler_filename != NULL;
+    for (filetype_spec = Sourceinfo; filetype_spec->phase != PHASE_NOPHASE; filetype_spec++) {
+        passinfo_s *filetype_compiler_spec;
+        for (filetype_compiler_spec = filetype_spec->passes; filetype_compiler_spec->pass_filename != NULL;
                 filetype_compiler_spec++) {
-            if (a0 == '.' || _mbschr((unsigned char *) option->arg_value, filetype_compiler_spec->field_0x10) != NULL) {
-                filetype_compiler_spec->field_0xc = 0;
+            if (a0 == '.' || _mbschr((unsigned char *) option->arg, filetype_compiler_spec->id) != NULL) {
+                filetype_compiler_spec->is_active = 0;
             }
         }
     }
 }
 
 // FUNCTION: CL 0x00402808
-void OnboOption(tParsed_option *option)
+void check_compile_collide(flag_s *option)
 {
-    if (option->arg_value[0] == '\0') {
+    if (option->arg[0] == '\0') {
         return;
     }
-    if (gCount_compiler_file_inputs > 1) {
+    if (SourceCount > 1) {
         char *arg1_space;
         char *arg2_space;
         const char *arg2;
         const char *end_arg2;
 
-        arg1_space = (char *) _mbschr((unsigned char *) option->arg_value, ' ');
+        arg1_space = (char *) _mbschr((unsigned char *) option->arg, ' ');
         arg2_space = (char *) _mbschr((unsigned char *) arg1_space + 1, ' ');
         *arg2_space = '\0';
         arg2 = arg2_space + 1;
@@ -2606,77 +2589,77 @@ void OnboOption(tParsed_option *option)
         }
         if (_mbsstr((unsigned char *) arg2, (unsigned char *) "%b") == NULL &&
                 _mbschr((unsigned char *) "\\/", *end_arg2) == NULL) {
-            FatalError(2036, &arg1_space[1], arg2);
+            cmderr(2036, &arg1_space[1], arg2);
         }
     }
-    option->arg_value[0] = '\0';
+    option->arg[0] = '\0';
 }
 
 // FUNCTION: CL 0x004025f9
-void OnbpOption(tParsed_option *option)
+void alternate_pass(flag_s *option)
 {
-    char a0 = option->arg_value[0];
-    const tFiletype_spec *filetype_spec;
-    for (filetype_spec = gFiletype_specs; filetype_spec->stage != eStage_invalid; filetype_spec++) {
-        tFiletype_compiler_spec *filetype_compiler_spec;
-        for (filetype_compiler_spec = filetype_spec->compiler_specs; filetype_compiler_spec->compiler_filename != NULL;
+    char a0 = option->arg[0];
+    const sourceinfo_s *filetype_spec;
+    for (filetype_spec = Sourceinfo; filetype_spec->phase != PHASE_NOPHASE; filetype_spec++) {
+        passinfo_s *filetype_compiler_spec;
+        for (filetype_compiler_spec = filetype_spec->passes; filetype_compiler_spec->pass_filename != NULL;
                 filetype_compiler_spec++) {
-            if (a0 == '.' || filetype_compiler_spec->field_0x10 == a0) {
-                filetype_compiler_spec->compiler_filename = SafeStrDup(&option->arg_value[1]);
+            if (a0 == '.' || filetype_compiler_spec->id == a0) {
+                filetype_compiler_spec->pass_filename = xstrdup(&option->arg[1]);
             }
         }
     }
 }
 
 // FUNCTION: CL 0x00402775
-void OnbUOption(tParsed_option *option)
+void undef_one_stddef(flag_s *option)
 {
-    tParsed_option *implied_option1 = CreateImpliedOptions("=D:*,=D:*=?", option);
-    tParsed_option *implied_option2 = FUN_00402092(&gApp_data->field_0x0, implied_option1, NULL);
-    FreeParsedOptions(implied_option2);
-    FreeParsedOptions(implied_option1);
+    flag_s *implied_option1 = expand("=D:*,=D:*=?", option);
+    flag_s *implied_option2 = conflict(&Context->flags, implied_option1, NULL);
+    freeflaglist(implied_option2);
+    freeflaglist(implied_option1);
 }
 
 // FUNCTION: CL 0x004027ae
-void OnbuOption(tParsed_option *option)
+void undef_stddefs(flag_s *option)
 {
     // GLOBAL: CL 0x0040a060
     static BOOL macros_0x1_flags_enabled = TRUE;
-    tParsed_option *p;
+    flag_s *p;
 
     (void) option;
     if (!macros_0x1_flags_enabled) {
         return;
     }
     macros_0x1_flags_enabled = FALSE;
-    for (p = gApp_data->field_0x0; p != NULL; p = p->next) {
-        if ((p->field_0x4 & 1) && strcmp(p->arg_keyonly, "D") == 0) {
-            FreeParsedOption(RemoveParsedOption(&gApp_data->field_0x0, p));
+    for (p = Context->flags; p != NULL; p = p->next) {
+        if ((p->info & 1) && strcmp(p->base, "D") == 0) {
+            freeflag(rmflag(&Context->flags, p));
         }
     }
 }
 
 // FUNCTION: CL 0x00402a59
-void OnArgumentLDorLDd(tParsed_option *option)
+void link_dll(flag_s *option)
 {
-    static BOOL ld_argument_given = TRUE;
+    static BOOL first = TRUE;
 
     (void) option;
 
-    if (ld_argument_given) {
-        tParsed_filepath *filepath;
+    if (first) {
+        source_s *filepath;
 
-        ld_argument_given = TRUE;
-        gBuildingDLL = TRUE;
+        first = TRUE;
+        DllFlg = TRUE;
 
-        for (filepath = gApp_data->field_0x10; filepath != NULL; filepath = filepath->next) {
-            if (filepath->filetype == eFiletype_exp) {
-                tParsed_option *implib_option = AllocateParsedOption("implib\\:", NULL, NULL, 0x0);
-                tParsed_option *implied_option1 = CreateImpliedOptions("=implib\\::?", implib_option);
-                tParsed_option *implied_option2 = FUN_00402092(&gApp_data->field_0x0, implied_option1, NULL);
-                FreeParsedOptions(implied_option2);
-                FreeParsedOption(implib_option);
-                FreeParsedOptions(implied_option1);
+        for (filepath = Context->field_0x10; filepath != NULL; filepath = filepath->next) {
+            if (filepath->type == SOURCE_EXP) {
+                flag_s *implib_option = newflag("implib\\:", NULL, NULL, 0x0);
+                flag_s *implied_option1 = expand("=implib\\::?", implib_option);
+                flag_s *implied_option2 = conflict(&Context->flags, implied_option1, NULL);
+                freeflaglist(implied_option2);
+                freeflag(implib_option);
+                freeflaglist(implied_option1);
                 break;
             }
         }
@@ -2684,7 +2667,7 @@ void OnArgumentLDorLDd(tParsed_option *option)
 }
 
 // FUNCTION: CL 0x00405df9
-int GetTerminalHeight()
+int screen_length()
 {
     HANDLE conHandle;
     CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
@@ -2709,7 +2692,7 @@ int GetTerminalHeight()
 }
 
 // FUNCTION: CL 0x00405836
-void PrintPaginatedFileAndExit(const char *path)
+void help(const char *path)
 {
     char buffer[84];
     int line;
@@ -2718,18 +2701,18 @@ void PrintPaginatedFileAndExit(const char *path)
 
     f = fopen(path, "r");
     if (f == NULL) {
-        FatalError(2022, path);
+        cmderr(2022, path);
     }
     terminal_height = INT_MAX;
     if (_isatty(STDOUT_FILENO)) {
-        terminal_height = GetTerminalHeight();
+        terminal_height = screen_length();
     }
     if (terminal_height <= 0) {
         terminal_height = 1;
     }
     for (line = 0; fgets(buffer, 81, f) != NULL; line++) {
         if (line != 0 && line % terminal_height == 0) {
-            WriteTextF(STDOUT_FILENO, GetErrorMessage(313));
+            print(STDOUT_FILENO, get_message(313));
             while (1) {
                 int ch = getchar();
                 if (ch == '\n' || ch == -1) {
@@ -2737,7 +2720,7 @@ void PrintPaginatedFileAndExit(const char *path)
                 }
             }
         }
-        WriteTextF(STDOUT_FILENO, buffer);
+        print(STDOUT_FILENO, buffer);
     }
     fclose(f);
     exit(0);
@@ -2746,48 +2729,48 @@ void PrintPaginatedFileAndExit(const char *path)
 // FUNCTION: CL 0x00405de2
 void RedirectStdErrToStdOut()
 {
-    if (gRedirectStdErrToStdOut) {
+    if (RedirStderr) {
         _dup2(STDOUT_FILENO, STDERR_FILENO);
     }
 }
 
 // FUNCTION: CL 0x0040330d
-void FUN_0040330d(tApp_data *app_data)
+void acquire_pass(context_s *ctx)
 {
-    tFiletype_compiler_spec *stage_spec = app_data->compiler_stage_spec;
-    tCompile_filetype filetype = app_data->field_0x20->filetype;
-    int stage = app_data->compiler_stage;
+    passinfo_s *stage_spec = ctx->compiler_stage_spec;
+    source_type filetype = ctx->current_source->type;
+    int stage = ctx->current_pass;
 
-    if (app_data->compiler_paths[filetype][stage] == NULL) {
-        char *compiler_path = JoinPathInExeSearchPath(app_data->exeDirectory, stage_spec->compiler_filename);
+    if (ctx->exepaths[filetype][stage] == NULL) {
+        char *compiler_path = findpass(ctx->exedir, stage_spec->pass_filename);
 
-        app_data->compiler_paths[filetype][stage] = compiler_path;
+        ctx->exepaths[filetype][stage] = compiler_path;
         if (stage_spec->error_filename != NULL) {
-            app_data->error_paths[filetype][stage] =
-                    JoinPathInExeSearchPath(GetFileDirectory(compiler_path), stage_spec->error_filename);
+            ctx->errorpaths[filetype][stage] =
+                    findpass(extract_path(compiler_path), stage_spec->error_filename);
         }
     }
 }
 
 // FUNCTION: CL 0x00403705
-tCompiler_input_file *AllocateCompilerInputFile(tParsed_filepath *parsed_file)
+worklist_s *new_worklist_item(source_s *parsed_file)
 {
-    tCompiler_input_file *result = SafeMalloc(sizeof(tCompiler_input_file));
+    worklist_s *result = xnew(sizeof(worklist_s));
     result->next = NULL;
     result->parsed_file = parsed_file;
-    result->field_0x08 = 0;
+    result->had_error = 0;
     return result;
 }
 
 // FUNCTION: CL 0x004036b5
-tCompiler_input_file *GetCompilerInputFiles(tApp_data *app_data)
+worklist_s *build_full_worklist(context_s *ctx)
 {
-    tCompiler_input_file *result = NULL;
-    tCompiler_input_file *last_input = NULL;
-    tParsed_filepath *parsed_filepath;
-    for (parsed_filepath = app_data->field_0x10; parsed_filepath != NULL; parsed_filepath = parsed_filepath->next) {
-        if (gFiletype_specs[parsed_filepath->filetype].stage == eInput_compiler) {
-            tCompiler_input_file *compiler_input = AllocateCompilerInputFile(parsed_filepath);
+    worklist_s *result = NULL;
+    worklist_s *last_input = NULL;
+    source_s *parsed_filepath;
+    for (parsed_filepath = ctx->field_0x10; parsed_filepath != NULL; parsed_filepath = parsed_filepath->next) {
+        if (Sourceinfo[parsed_filepath->type].phase == PHASE_COMPILE) {
+            worklist_s *compiler_input = new_worklist_item(parsed_filepath);
             if (result != NULL) {
                 last_input->next = compiler_input;
             } else {
@@ -2797,7 +2780,7 @@ tCompiler_input_file *GetCompilerInputFiles(tApp_data *app_data)
         }
     }
     if (last_input == result) {
-        gBOOL_0040a02c = FALSE;
+        BatchPassOK = FALSE;
     }
     return result;
 }
@@ -2805,9 +2788,9 @@ tCompiler_input_file *GetCompilerInputFiles(tApp_data *app_data)
 #ifdef WITH_MSPDB
 
 // FUNCTION: CL 0x00401108
-char ParsedOptionContainsCharOf(tParsed_option *option, char *needles)
+char flag_these_pass_ids(flag_s *option, char *needles)
 {
-    char *pos = strpbrk(option->field_0x8, needles);
+    char *pos = strpbrk(option->passes, needles);
     if (pos == NULL) {
         return '\0';
     } else {
@@ -2816,74 +2799,74 @@ char ParsedOptionContainsCharOf(tParsed_option *option, char *needles)
 }
 
 // FUNCTION: CL 0x00403db1
-int StringCompareCbfn(const void *lhs, const void *rhs)
+int strcmp_proxy(const void *lhs, const void *rhs)
 {
     return strcmp(*(char **) lhs, *(char **) rhs);
 }
 
 // FUNCTION: CL 0x00403b70
-char *FUN_00403b70(tApp_data *app_data)
+char *get_minrebuild_options(context_s *ctx)
 {
-    char *buffer1 = SafeMalloc(1024);
-    char *buffer2 = SafeMalloc(1024);
+    char *buffer1 = xnew(1024);
+    char *buffer2 = xnew(1024);
     char **argv;
     int arg_i;
-    tParsed_option *option;
+    flag_s *option;
     char *arg_string;
     char *arg_ptr;
     int count_arguments;
     size_t len;
 
     count_arguments = 0;
-    if (app_data->includePaths != NULL && gOption_notX) {
+    if (ctx->include != NULL && DefInclude) {
         count_arguments += 1;
     }
-    for (option = app_data->field_0x0; option != NULL; option = option->next) {
-        if (ParsedOptionContainsCharOf(option, "Mm") != '\0') {
+    for (option = ctx->flags; option != NULL; option = option->next) {
+        if (flag_these_pass_ids(option, "Mm") != '\0') {
             count_arguments += 1;
         }
     }
     len = 0;
-    argv = SafeMalloc(count_arguments * sizeof(char *));
+    argv = xnew(count_arguments * sizeof(char *));
     arg_i = 0;
-    for (option = app_data->field_0x0; option != NULL; option = option->next) {
-        char c = ParsedOptionContainsCharOf(option, "Mm");
+    for (option = ctx->flags; option != NULL; option = option->next) {
+        char c = flag_these_pass_ids(option, "Mm");
         if (c != '\0') {
             char *arg_ptr;
             char *arg_value_ptr;
 
-            gImplied_argval[0] = '-';
-            arg_ptr = SafeStrCpyOrKeep(&gImplied_argval[1], option->arg_keyonly);
-            arg_value_ptr = option->arg_value;
+            Bigbuf[0] = '-';
+            arg_ptr = append(&Bigbuf[1], option->base);
+            arg_value_ptr = option->arg;
             if (arg_value_ptr != NULL) {
                 if (c == 'm') {
                     if (_fullpath(buffer2, arg_value_ptr, 1024) == NULL) {
-                        strcpy(buffer2, option->arg_value);
+                        strcpy(buffer2, option->arg);
                     }
                     _mbslwr((unsigned char *) buffer2);
                     arg_value_ptr = buffer2;
                 }
-                EscapePath(buffer1, arg_value_ptr);
-                SafeStrCpyOrKeep(arg_ptr, buffer1);
+                strqcpy(buffer1, arg_value_ptr);
+                append(arg_ptr, buffer1);
             }
-            argv[arg_i++] = SafeStrDup(gImplied_argval);
-            len += strlen(gImplied_argval) + 1;
+            argv[arg_i++] = xstrdup(Bigbuf);
+            len += strlen(Bigbuf) + 1;
         }
     }
-    if (app_data->includePaths != NULL && gOption_notX) {
-        size_t lenInclude = LengthOfEscapedPath(app_data->includePaths);
-        char *incString = SafeMalloc(lenInclude + 6);
+    if (ctx->include != NULL && DefInclude) {
+        size_t lenInclude = strqlen(ctx->include);
+        char *incString = xnew(lenInclude + 6);
         strcpy(incString, "-inc=");
-        EscapePath(&incString[5], app_data->includePaths);
+        strqcpy(&incString[5], ctx->include);
         _mbslwr((unsigned char *) incString);
         len += lenInclude + 6;
         argv[arg_i] = incString;
     }
-    qsort(argv, count_arguments, sizeof(char *), StringCompareCbfn);
-    arg_string = SafeMalloc(len + 1);
+    qsort(argv, count_arguments, sizeof(char *), strcmp_proxy);
+    arg_string = xnew(len + 1);
     arg_ptr = arg_string;
     for (arg_i = 0; arg_i < count_arguments; arg_i++) {
-        arg_ptr = SafeStrCpyOrKeep(arg_ptr, argv[arg_i]);
+        arg_ptr = append(arg_ptr, argv[arg_i]);
         *arg_ptr++ = ' ';
     }
 #ifdef REMSVC_RECCMP
@@ -2892,16 +2875,16 @@ char *FUN_00403b70(tApp_data *app_data)
     arg_string[len] = '\0';
 #endif
     for (arg_i = 0; arg_i < count_arguments; arg_i++) {
-        SafeFree(argv[arg_i]);
+        xfree(argv[arg_i]);
     }
-    SafeFree(argv);
-    SafeFree(buffer2);
-    SafeFree(buffer1);
+    xfree(argv);
+    xfree(buffer2);
+    xfree(buffer1);
     return arg_string;
 }
 
 // FUNCTION: CL 00403dc6
-tCompiler_input_file *FUN_00403dc6(DWORD *arg1)
+worklist_s *rethread_worklist_by_srctargs(SRCTARG *arg1)
 {
     (void) arg1;
     NOT_IMPLEMENTED();
@@ -2909,81 +2892,84 @@ tCompiler_input_file *FUN_00403dc6(DWORD *arg1)
 #endif
 
 // FUNCTION: CL 0x0040371e
-tCompiler_input_file *FUN_0040371e(tApp_data *app_data, tCompiler_input_file *inputs, MRState *mr_state)
+worklist_s *init_minrebuild(context_s *ctx, worklist_s *inputs, CAList *mr_state)
 {
 #ifdef WITH_MSPDB
     MREngine *engine;
     MREDriver *driver;
     int result_code;
-    tCompiler_input_file *input;
-    void **unk;
+    worklist_s *input;
+    SRCTARG *unk;
     char *arg_string;
 #endif
 
-    if (!gOption_Gm || !gMRE_enabled) {
-        gMRE_enabled = FALSE;
+    if (!MinimalRebuild || !MinRebuildOK) {
+        MinRebuildOK = FALSE;
         return inputs;
     }
 #ifdef WITH_MSPDB
-    if (!MREFOpenByName(&engine, gOption_Fd, &result_code, gImplied_argval, gOption_Brepro, TRUE)) {
-        EmitWarningF(4028);
-        gMRE_enabled = FALSE;
+    if (!MREFOpenByName(&engine, IdbFileName, &result_code, Bigbuf, Reproducable, TRUE)) {
+        cmdwarn(4028);
+        MinRebuildOK = FALSE;
         return inputs;
     }
     unk = NULL;
     MREQueryMreDrv(engine, &driver);
     MREDrvOneTimeInit(driver);
-    mr_state->field_0x00 = 0;
-    mr_state->field_0x04 = 0;
-    mr_state->field_0x08 = 0;
-    mr_state->field_0x0c = 0;
-    mr_state->field_0x10 = 0;
-    app_data->field_0x18 = NULL;
-    app_data->field_0x1c = &app_data->field_0x18;
-    arg_string = FUN_00403b70(app_data);
+    mr_state->pstDoCompile = NULL;
+    mr_state->pstMaybeCompile = NULL;
+    mr_state->pstDontCompile = NULL;
+    mr_state->pstDone = NULL;
+    mr_state->pstError = NULL;
+    ctx->skiplist = NULL;
+    ctx->skiplistend = &ctx->skiplist;
+    arg_string = get_minrebuild_options(ctx);
     for (input = inputs; input != NULL; input = input->next) {
-        tParsed_filepath *parsed_file = input->parsed_file;
-        app_data->field_0x20 = parsed_file;
-        RunOptionActions(app_data);
-        input->field_0x0c = 0;
+        source_s *parsed_file = input->parsed_file;
+        SRCTARG* srctarg;
+
+        ctx->current_source = parsed_file;
+        cc_switches(ctx);
+        srctarg = &input->srctarg;
+        srctarg->psrctargNext = NULL;
         if (unk != NULL) {
-            *unk = &input->field_0x0c;
+            unk->psrctargNext = srctarg;
         } else {
-            mr_state->field_0x04 = (DWORD *) &input->field_0x0c;
+            mr_state->pstMaybeCompile = srctarg;
         }
-        input->is_cpp = parsed_file->filetype == eFiletype_cxx || parsed_file->filetype == eFiletype_cpp;
-        input->field_0x14 = parsed_file->path;
-        input->field_0x18 = gOutputObjectFilepath;
-        input->field_0x1c = arg_string;
-        input->field_0x24 = gOption_FR;
-        unk = (void **) &input->field_0x0c;
+        srctarg->fCpp = parsed_file->type == SOURCE_CXX || parsed_file->type == SOURCE_CPP;
+        srctarg->szSrc = parsed_file->path;
+        srctarg->szTarg = Object;
+        srctarg->szOptions = arg_string;
+        input->sbrfile = SbrFileName;
+        unk = srctarg;
     }
-    if (gMRE_enabled && MREDrvFFilesOutOfDate(driver, mr_state)) {
-        inputs = FUN_00403dc6(mr_state->field_0x00);
-    } else if (gMRE_enabled) {
-        EmitWarningF(4028);
-        gMRE_enabled = FALSE;
+    if (MinRebuildOK && MREDrvFFilesOutOfDate(driver, mr_state)) {
+        inputs = rethread_worklist_by_srctargs(mr_state->pstDoCompile);
+    } else if (MinRebuildOK) {
+        cmdwarn(4028);
+        MinRebuildOK = FALSE;
     }
-    if (!MREDrvFRelease(driver) && gMRE_enabled) {
-        EmitWarningF(4028);
-        gMRE_enabled = FALSE;
+    if (!MREDrvFRelease(driver) && MinRebuildOK) {
+        cmdwarn(4028);
+        MinRebuildOK = FALSE;
     }
-    if (!MREFClose(engine, gMRE_enabled) && gMRE_enabled) {
-        EmitWarningF(4028);
-        gMRE_enabled = FALSE;
+    if (!MREFClose(engine, MinRebuildOK) && MinRebuildOK) {
+        cmdwarn(4028);
+        MinRebuildOK = FALSE;
     }
     return inputs;
 #else
-    (void) app_data;
+    (void) ctx;
     (void) mr_state;
-    EmitWarningF(4028);
-    gMRE_enabled = FALSE;
+    cmdwarn(4028);
+    MinRebuildOK = FALSE;
     return inputs;
 #endif
 }
 
 // FUNCTION: CL 0x004038f0
-tCompiler_input_file *FUN_004038f0(tApp_data *app_data, MRState *mr_state)
+worklist_s *iterate_minrebuild(context_s *ctx, CAList *mr_state)
 {
 #ifdef WITH_MSPDB
     int result_code;
@@ -2991,38 +2977,38 @@ tCompiler_input_file *FUN_004038f0(tApp_data *app_data, MRState *mr_state)
     MREDriver *driver;
 #endif
 
-    if (!gOption_Gm || !gMRE_enabled) {
+    if (!MinimalRebuild || !MinRebuildOK) {
         return NULL;
     }
 #ifdef WITH_MSPDB
-    if (mr_state->field_0x00 == 0 && mr_state->field_0x04 == 0 && mr_state->field_0x08 == 0) {
+    if (mr_state->pstDoCompile == NULL && mr_state->pstMaybeCompile == NULL && mr_state->pstDontCompile == NULL) {
         return NULL;
     }
-    if (!MREFOpenByName(&engine, gOption_Fd, &result_code, gImplied_argval, gOption_Brepro, TRUE)) {
-        EmitWarningF(4028);
-        gMRE_enabled = FALSE;
-        return FUN_00403dc6(mr_state->field_0x04);
+    if (!MREFOpenByName(&engine, IdbFileName, &result_code, Bigbuf, Reproducable, TRUE)) {
+        cmdwarn(4028);
+        MinRebuildOK = FALSE;
+        return rethread_worklist_by_srctargs(mr_state->pstMaybeCompile);
     }
     MREQueryMreDrv(engine, &driver);
-    if (mr_state->field_0x00 != NULL) {
+    if (mr_state->pstDoCompile != NULL) {
         NOT_IMPLEMENTED();
     }
-    (void) app_data;
+    (void) ctx;
     NOT_IMPLEMENTED();
 #else
-    (void) app_data;
+    (void) ctx;
     (void) mr_state;
-    EmitWarningF(4028);
-    gMRE_enabled = FALSE;
+    cmdwarn(4028);
+    MinRebuildOK = FALSE;
     return NULL;
 #endif
 }
 
 // FUNCTION: CL 0x00404069
-tCompiler_input_file *ReverseCompilerInputFile(tCompiler_input_file *input_file)
+worklist_s *reverse_worklist(worklist_s *input_file)
 {
-    tCompiler_input_file *new_head;
-    tCompiler_input_file *new_next;
+    worklist_s *new_head;
+    worklist_s *new_next;
 
     new_next = new_head = NULL;
     while (input_file != NULL) {
@@ -3035,7 +3021,7 @@ tCompiler_input_file *ReverseCompilerInputFile(tCompiler_input_file *input_file)
 }
 
 // FUNCTION: CL 0x00404e5c
-char *ExtractFilename(char *dest, const char *path)
+char *filename(char *dest, const char *path)
 {
     char ext[256];
     char filename[256];
@@ -3046,7 +3032,7 @@ char *ExtractFilename(char *dest, const char *path)
 }
 
 // FUNCTION: CL 0x00405039
-size_t LengthOfEscapedPath(const char *path)
+size_t strqlen(const char *path)
 {
     int count_backslash = 0;
     size_t len = 0;
@@ -3073,18 +3059,18 @@ size_t LengthOfEscapedPath(const char *path)
 }
 
 // FUNCTION: CL 0x00404d26
-size_t LengthOfFormatedArgument(const char *text, tApp_data *app_data)
+size_t replaca_strlen(const char *text, context_s *ctx)
 {
     char buffer[256];
     size_t len = 0;
     const char *current_file;
-    tCompile_filetype current_filetype;
-    if (app_data->field_0x20 == NULL) {
+    source_type current_filetype;
+    if (ctx->current_source == NULL) {
         current_file = "";
-        current_filetype = eFiletype_none;
+        current_filetype = SOURCE_UNKNOWN;
     } else {
-        current_file = app_data->field_0x20->path;
-        current_filetype = app_data->field_0x20->filetype;
+        current_file = ctx->current_source->path;
+        current_filetype = ctx->current_source->type;
     }
     while (*text != '\0') {
         switch (*text) {
@@ -3102,27 +3088,27 @@ size_t LengthOfFormatedArgument(const char *text, tApp_data *app_data)
                 len += 3;
                 break;
             case 'e':
-                if (app_data->error_paths[current_filetype][app_data->compiler_stage] != NULL) {
-                    len += LengthOfEscapedPath(app_data->error_paths[current_filetype][app_data->compiler_stage]);
+                if (ctx->errorpaths[current_filetype][ctx->current_pass] != NULL) {
+                    len += strqlen(ctx->errorpaths[current_filetype][ctx->current_pass]);
                 }
                 break;
             case 'f':
-                len += LengthOfEscapedPath(current_file);
+                len += strqlen(current_file);
                 break;
             case 'b':
             case 'B':
-                GetFileBasename(buffer, current_file);
-                len += LengthOfEscapedPath(buffer);
+                basename(buffer, current_file);
+                len += strqlen(buffer);
                 break;
             case 'm':
                 len += 1024;
                 break;
             case 't':
-                len += LengthOfEscapedPath(app_data->tempPath);
+                len += strqlen(ctx->tempPath);
                 break;
             case 'x':
-                RemoveExtension(buffer, gOutputExecutableFilepath);
-                len += LengthOfEscapedPath(buffer);
+                pathname(buffer, Exefilename);
+                len += strqlen(buffer);
                 break;
             }
             text += 2;
@@ -3137,7 +3123,7 @@ size_t LengthOfFormatedArgument(const char *text, tApp_data *app_data)
 }
 
 // FUNCTION: CL 0x004050c0
-char *EscapePath(char *dest, const char *path)
+char *strqcpy(char *dest, const char *path)
 {
     int count_backslash = 0;
     bool space = false;
@@ -3178,71 +3164,71 @@ char *EscapePath(char *dest, const char *path)
 }
 
 // FUNCTION: CL 0x00405b3e
-void ChronoTimeBefore()
+void starttiming()
 {
-    ftime(&gChronoBefore);
+    ftime(&Starttime);
 }
 
 // FUNCTION: CL 0x00405b4d
-void ChronoTimeAfter(const char *description)
+void endtiming(const char *description)
 {
     char buffer[8];
     int time_s;
     int time_ms;
     size_t len;
 
-    WriteTextF(STDOUT_FILENO, "time(%s)=", description);
-    ftime(&gChronoAfter);
-    time_s = gChronoAfter.time - gChronoBefore.time;
-    time_ms = gChronoAfter.millitm - gChronoBefore.millitm;
+    print(STDOUT_FILENO, "time(%s)=", description);
+    ftime(&Endtime);
+    time_s = Endtime.time - Starttime.time;
+    time_ms = Endtime.millitm - Starttime.millitm;
     if (time_ms < 0) {
         time_ms += 1000;
         time_s -= 1;
     }
     strcpy(buffer, "00");
-    len = dtostr(time_ms, &buffer[2], 10);
-    WriteTextF(STDOUT_FILENO, "%d.%ss\n", time_s, buffer + len - 1);
+    len = l2a(time_ms, &buffer[2], 10);
+    print(STDOUT_FILENO, "%d.%ss\n", time_s, buffer + len - 1);
 }
 
 // FUNCTION: CL 0x004040c9
-int FUN_004040c9(tApp_data *app_data)
+int dopass(context_s *ctx)
 {
     char *buffer1;
     char *buffer2;
     const char *exe_filepath;
     size_t len;
     int argc;
-    tParsed_option *option;
+    flag_s *option;
     char **argv;
     char *arg_string;
     char **argv_ptr;
     char *arg_ptr;
-    tFiletype_compiler_spec *compiler_stage_spec;
-    tParsed_filepath *current_filepath;
+    passinfo_s *compiler_stage_spec;
+    source_s *current_filepath;
     int result;
 
-    gAction_performed = TRUE;
-    buffer1 = SafeMalloc(1024);
-    buffer2 = SafeMalloc(1024);
-    compiler_stage_spec = app_data->compiler_stage_spec;
-    current_filepath = app_data->field_0x20;
-    exe_filepath = app_data->compiler_paths[current_filepath->filetype][app_data->compiler_stage];
-    len = LengthOfEscapedPath(exe_filepath);
+    Action = TRUE;
+    buffer1 = xnew(1024);
+    buffer2 = xnew(1024);
+    compiler_stage_spec = ctx->compiler_stage_spec;
+    current_filepath = ctx->current_source;
+    exe_filepath = ctx->exepaths[current_filepath->type][ctx->current_pass];
+    len = strqlen(exe_filepath);
     argc = 0;
-    for (option = app_data->field_0x0; option != NULL; option = option->next) {
-        if (FUN_004010e8(option, compiler_stage_spec)) {
-            len += LengthOfFormatedArgument(option->arg_keyonly, app_data) + 2;
+    for (option = ctx->flags; option != NULL; option = option->next) {
+        if (flag_this_pass(option, compiler_stage_spec)) {
+            len += replaca_strlen(option->base, ctx) + 2;
             argc += 1;
-            if (option->arg_value != NULL) {
-                len += LengthOfFormatedArgument(option->arg_value, app_data) + 2;
+            if (option->arg != NULL) {
+                len += replaca_strlen(option->arg, ctx) + 2;
                 argc += 1;
             }
         }
     }
-    if (app_data->includePaths != NULL && gOption_notX) {
+    if (ctx->include != NULL && DefInclude) {
         const char *ptr_include;
-        len += LengthOfEscapedPath(app_data->includePaths) + 6;
-        ptr_include = app_data->includePaths;
+        len += strqlen(ctx->include) + 6;
+        ptr_include = ctx->include;
         for (;;) {
             argc += 2;
             ptr_include = (char *) _mbschr((unsigned char *) ptr_include, ';');
@@ -3253,32 +3239,32 @@ int FUN_004040c9(tApp_data *app_data)
             ptr_include += 1;
         }
     }
-    argv = SafeMalloc((argc + 2) * sizeof(char *));
-    arg_string = SafeMalloc(len);
+    argv = xnew((argc + 2) * sizeof(char *));
+    arg_string = xnew(len);
     argv_ptr = argv;
     *argv_ptr++ = arg_string;
-    EscapePath(buffer1, exe_filepath);
-    arg_ptr = SafeStrCpyOrKeep(arg_string, buffer1);
-    for (option = app_data->field_0x0; option != NULL; option = option->next) {
-        if (FUN_004010e8(option, compiler_stage_spec)) {
+    strqcpy(buffer1, exe_filepath);
+    arg_ptr = append(arg_string, buffer1);
+    for (option = ctx->flags; option != NULL; option = option->next) {
+        if (flag_this_pass(option, compiler_stage_spec)) {
             arg_ptr++;
             *argv_ptr++ = arg_ptr;
-            if (!(option->field_0x4 & 0x8)) {
-                *arg_ptr++ = compiler_stage_spec->field_0x11;
+            if (!(option->info & 0x8)) {
+                *arg_ptr++ = compiler_stage_spec->swchar;
             }
-            arg_ptr = SafeStrCpyOrKeep(arg_ptr, FormatParsedOptionValue(buffer1, option->arg_keyonly, app_data));
-            if (option->arg_value != NULL) {
-                if (!(option->field_0x4 & 0x4)) {
+            arg_ptr = append(arg_ptr, replaca(buffer1, option->base, ctx));
+            if (option->arg != NULL) {
+                if (!(option->info & 0x4)) {
                     arg_ptr++;
                     *argv_ptr++ = arg_ptr;
                 }
-                EscapePath(buffer1, FormatParsedOptionValue(buffer2, option->arg_value, app_data));
-                arg_ptr = SafeStrCpyOrKeep(arg_ptr, buffer1);
+                strqcpy(buffer1, replaca(buffer2, option->arg, ctx));
+                arg_ptr = append(arg_ptr, buffer1);
             }
         }
     }
-    if (app_data->includePaths != NULL && gOption_notX && strchr("1P", compiler_stage_spec->field_0x10) != NULL) {
-        const char *ptr_include = app_data->includePaths;
+    if (ctx->include != NULL && DefInclude && strchr("1P", compiler_stage_spec->id) != NULL) {
+        const char *ptr_include = ctx->include;
         size_t pos_non_whitespace;
 
         for (;;) {
@@ -3292,12 +3278,12 @@ int FUN_004040c9(tApp_data *app_data)
                 int pos_non_whitespace = (int) _mbsspn((unsigned char *) ptr_include, (unsigned char *) " \t");
                 if (pos_non_whitespace < ptr_end - ptr_include) {
                     *argv_ptr++ = &arg_ptr[1];
-                    arg_ptr = SafeStrCpyOrKeep(&arg_ptr[1], "-I");
+                    arg_ptr = append(&arg_ptr[1], "-I");
                     *argv_ptr++ = &arg_ptr[1];
                     *ptr_end = '\0';
-                    EscapePath(buffer1, ptr_include);
+                    strqcpy(buffer1, ptr_include);
                     *ptr_end = ';';
-                    arg_ptr = SafeStrCpyOrKeep(&arg_ptr[1], buffer1);
+                    arg_ptr = append(&arg_ptr[1], buffer1);
                 }
             }
             ptr_include = &ptr_end[1];
@@ -3305,141 +3291,144 @@ int FUN_004040c9(tApp_data *app_data)
         pos_non_whitespace = _mbsspn((unsigned char *) ptr_include, (unsigned char *) " \t");
         if (pos_non_whitespace < strlen(ptr_include)) {
             *argv_ptr++ = &arg_ptr[1];
-            arg_ptr = SafeStrCpyOrKeep(&arg_ptr[1], "-I");
+            arg_ptr = append(&arg_ptr[1], "-I");
             *argv_ptr++ = &arg_ptr[1];
-            EscapePath(buffer1, ptr_include);
-            SafeStrCpyOrKeep(&arg_ptr[1], buffer1);
+            strqcpy(buffer1, ptr_include);
+            append(&arg_ptr[1], buffer1);
         }
     }
     *argv_ptr = NULL;
-    if (gOption_bv) {
+    if (Verbose) {
         char **ptr;
 
-        WriteTextF(STDERR_FILENO, "`%s", exe_filepath);
+        print(STDERR_FILENO, "`%s", exe_filepath);
         for (ptr = &argv[1]; *ptr != NULL; ptr++) {
-            WriteTextF(STDERR_FILENO, " %s", *ptr);
+            print(STDERR_FILENO, " %s", *ptr);
         }
-        WriteTextF(STDERR_FILENO, "'\n");
+        print(STDERR_FILENO, "'\n");
     }
     result = 0;
-    if (!gOption_Bz) {
+    if (!Nospawn) {
         int inheritEnv;
 
-        if (gOption_Bt) {
-            ChronoTimeBefore();
+        if (Time) {
+            starttiming();
         }
-        if (current_filepath->filetype == eFiletype_exe) {
+        if (current_filepath->type == SOURCE_EXE) {
             inheritEnv = 2;
         } else {
             inheritEnv = 0;
         }
-        result = FUN_00405c21(inheritEnv, exe_filepath, compiler_stage_spec->extra_env, argv);
-        if (gOption_Bt) {
-            ChronoTimeAfter(exe_filepath);
+        result = execute(inheritEnv, exe_filepath, compiler_stage_spec->environment_variable, argv);
+        if (Time) {
+            endtiming(exe_filepath);
         }
     }
-    SafeFree(argv);
-    SafeFree(arg_string);
-    SafeFree(buffer2);
-    SafeFree(buffer1);
+    xfree(argv);
+    xfree(arg_string);
+    xfree(buffer2);
+    xfree(buffer1);
     return result;
 }
 
 // FUNCTION: CL 0x00404080
-int FUN_00404080(tFiletype_compiler_spec *filetype_compiler_specs, tApp_data *app_data, int (*exec)(tApp_data *))
+int passes(passinfo_s *passes, context_s *ctx, int (*exec)(context_s *))
 {
     int i;
 
-    for (i = 0; filetype_compiler_specs[i].compiler_filename != NULL; i++) {
-        tFiletype_compiler_spec *spec = &filetype_compiler_specs[i];
-        if (spec->field_0xc) {
-            app_data->compiler_stage = i;
-            app_data->compiler_stage_spec = spec;
-            FUN_0040330d(app_data);
-            gExit_failure = exec(app_data);
-            if (gExit_failure) {
-                return gExit_failure;
+    for (i = 0; passes[i].pass_filename != NULL; i++) {
+        passinfo_s *pass = &passes[i];
+        if (pass->is_active) {
+            ctx->current_pass = i;
+            ctx->compiler_stage_spec = pass;
+            acquire_pass(ctx);
+            Nerrors = exec(ctx);
+            if (Nerrors) {
+                return Nerrors;
             }
         }
     }
-    return gExit_failure;
+    return Nerrors;
 }
 
 // FUNCTION: CL 0x00403e26
-unsigned int FUN_00403e26(tApp_data *app_data, tCompiler_input_file *input_file)
+unsigned int compile_worklist(context_s *ctx, worklist_s *input_file)
 {
     char buffer[1024];
     int count_failed = 0;
-    tFiletype_compiler_spec *input_compiler_spec = gFiletype_specs[input_file->parsed_file->filetype].compiler_specs;
+    passinfo_s *input_compiler_spec = Sourceinfo[input_file->parsed_file->type].passes;
     int count_stages = 0;
     int stage;
     int message_stage;
     bool do_stage_per_stage;
 
-    for (stage = 0; input_compiler_spec[stage].compiler_filename != NULL; stage++) {
-        if (input_compiler_spec[stage].field_0xc) {
+    // GLOBAL: CL 0x0040a1bc
+    BOOL first = TRUE;
+
+    for (stage = 0; input_compiler_spec[stage].pass_filename != NULL; stage++) {
+        if (input_compiler_spec[stage].is_active) {
             count_stages += 1;
         }
     }
-    if (gOption_ZM && gBOOL_0040a02c && count_stages >= 2) {
+    if (BatchPasses && BatchPassOK && count_stages >= 2) {
         do_stage_per_stage = true;
-        app_data->field_0x14 = input_file;
+        ctx->batchlist = input_file;
     } else {
         do_stage_per_stage = false;
-        app_data->field_0x14 = NULL;
+        ctx->batchlist = NULL;
     }
     message_stage = 0;
     for (stage = 0;; stage++) {
-        tFiletype_compiler_spec *stage_compiler_spec = &input_compiler_spec[stage];
+        passinfo_s *stage_compiler_spec = &input_compiler_spec[stage];
         bool run_on_file = false;
         if (do_stage_per_stage) {
-            if (stage_compiler_spec->field_0xc) {
+            if (stage_compiler_spec->is_active) {
                 if (message_stage > 0) {
-                    input_file = ReverseCompilerInputFile(input_file);
-                    app_data->field_0x14 = input_file;
+                    input_file = reverse_worklist(input_file);
+                    ctx->batchlist = input_file;
                 }
                 message_stage += 1;
-                app_data->compiler_stage = stage;
-                app_data->compiler_stage_spec = stage_compiler_spec;
-                app_data->field_0x20 = input_file->parsed_file;
+                ctx->current_pass = stage;
+                ctx->compiler_stage_spec = stage_compiler_spec;
+                ctx->current_source = input_file->parsed_file;
                 if (message_stage == 1) {
-                    if (gBOOL_0040a1bc) {
-                        gBOOL_0040a1bc = FALSE;
+                    if (first) {
+                        first = FALSE;
                     } else {
-                        WriteTextF(STDERR_FILENO, GetErrorMessage(331));
+                        print(STDERR_FILENO, get_message(331));
                     }
                 } else if (message_stage == 2 && count_stages > 2) {
-                    WriteTextF(STDERR_FILENO, GetErrorMessage(332));
+                    print(STDERR_FILENO, get_message(332));
                 } else {
                     if (message_stage == count_stages) {
-                        WriteTextF(STDERR_FILENO, GetErrorMessage(333));
+                        print(STDERR_FILENO, get_message(333));
                     }
                 }
                 run_on_file = true;
             }
         }
         if (!do_stage_per_stage || run_on_file) {
-            tCompiler_input_file *current_input_file;
+            worklist_s *current_input_file;
             for (current_input_file = input_file; current_input_file != NULL;
                     current_input_file = current_input_file->next) {
-                if (!do_stage_per_stage || !current_input_file->field_0x08) {
-                    tParsed_filepath *current_parsed_filepath = current_input_file->parsed_file;
-                    app_data->field_0x20 = current_parsed_filepath;
-                    RunOptionActions(app_data);
+                if (!do_stage_per_stage || !current_input_file->had_error) {
+                    source_s *current_parsed_filepath = current_input_file->parsed_file;
+                    ctx->current_source = current_parsed_filepath;
+                    cc_switches(ctx);
                     if (!do_stage_per_stage || message_stage < 2) {
-                        WriteTextF(STDERR_FILENO, "%s\n", ExtractFilename(buffer, current_parsed_filepath->path));
+                        print(STDERR_FILENO, "%s\n", filename(buffer, current_parsed_filepath->path));
                     }
                     if (do_stage_per_stage) {
-                        FUN_0040330d(app_data);
-                        gExit_failure = FUN_004040c9(app_data);
+                        acquire_pass(ctx);
+                        Nerrors = dopass(ctx);
                     } else {
-                        gExit_failure = FUN_00404080(input_compiler_spec, app_data, FUN_004040c9);
+                        Nerrors = passes(input_compiler_spec, ctx, dopass);
                     }
-                    if (gExit_failure) {
+                    if (Nerrors) {
                         count_failed += 1;
-                        current_input_file->field_0x08 = 1;
+                        current_input_file->had_error = 1;
                         if (do_stage_per_stage) {
-                            FUN_00405483(TRUE);
+                            do_rm_il(TRUE);
                             if (do_stage_per_stage && message_stage != count_stages) {
                                 continue;
                             }
@@ -3447,22 +3436,22 @@ unsigned int FUN_00403e26(tApp_data *app_data, tCompiler_input_file *input_file)
                     } else if (do_stage_per_stage && message_stage != count_stages) {
                         continue;
                     }
-                    if (gOutputObjectFilepath != NULL) {
-                        tParsed_filepath *obj_parsed_path =
-                                AllocateParsedFilepath(gOutputObjectFilepath, eFiletype_obj);
+                    if (Object != NULL) {
+                        source_s *obj_parsed_path =
+                                newsource(Object, SOURCE_OBJ);
                         obj_parsed_path->next = current_parsed_filepath->next;
                         current_input_file->parsed_file->next = obj_parsed_path;
                     }
-                    FUN_00405483(TRUE);
+                    do_rm_il(TRUE);
                 }
             }
             if (!do_stage_per_stage) {
-                app_data->field_0x14 = NULL;
+                ctx->batchlist = NULL;
                 return count_failed;
             }
         }
-        if (!do_stage_per_stage || stage_compiler_spec->compiler_filename == NULL) {
-            app_data->field_0x14 = NULL;
+        if (!do_stage_per_stage || stage_compiler_spec->pass_filename == NULL) {
+            ctx->batchlist = NULL;
             return count_failed;
         }
     }
@@ -3481,97 +3470,97 @@ void WriteF(FILE *stream, const char *format, ...)
     if (stream != NULL) {
         _write(_fileno(stream), text, len);
     }
-    if (gOption_bv) {
+    if (Verbose) {
         _write(STDERR_FILENO, text, len);
     }
 }
 
 // FUNCTION: CL 0x00404897
-void CreateCOFFLinkerResponseFile(tApp_data *app_data)
+void CoffResponseFile(context_s *ctx)
 {
     char *buffer1;
     char *buffer2;
     FILE *f;
-    const tFiletype_compiler_spec *compiler_stage_spec;
-    tParsed_option *option;
-    tParsed_filepath *filepath;
+    const passinfo_s *compiler_stage_spec;
+    flag_s *option;
+    source_s *filepath;
 
-    buffer1 = SafeMalloc(1024);
-    buffer2 = SafeMalloc(1024);
-    compiler_stage_spec = app_data->compiler_stage_spec;
-    strcpy(buffer1, app_data->tempPath);
+    buffer1 = xnew(1024);
+    buffer2 = xnew(1024);
+    compiler_stage_spec = ctx->compiler_stage_spec;
+    strcpy(buffer1, ctx->tempPath);
     strcat(buffer1, "lk");
-    if (!gOption_Bz) {
+    if (!Nospawn) {
         f = fopen(buffer1, "w");
         if (f == NULL) {
-            FatalError(2018);
+            cmderr(2018);
         }
     } else {
         f = NULL;
     }
-    for (option = app_data->field_0x0; option != NULL; option = option->next) {
-        if (FUN_004010e8(option, compiler_stage_spec)) {
-            if (!(option->field_0x4 & 0x8)) {
-                WriteF(f, "%c", compiler_stage_spec->field_0x11);
+    for (option = ctx->flags; option != NULL; option = option->next) {
+        if (flag_this_pass(option, compiler_stage_spec)) {
+            if (!(option->info & 0x8)) {
+                WriteF(f, "%c", compiler_stage_spec->swchar);
             }
-            WriteF(f, "%s", FormatParsedOptionValue(buffer1, option->arg_keyonly, app_data));
-            if (option->arg_value != NULL) {
-                if (!(option->field_0x4 & 0x4)) {
+            WriteF(f, "%s", replaca(buffer1, option->base, ctx));
+            if (option->arg != NULL) {
+                if (!(option->info & 0x4)) {
                     WriteF(f, " ");
                 }
-                EscapePath(buffer1, FormatParsedOptionValue(buffer2, option->arg_value, app_data));
+                strqcpy(buffer1, replaca(buffer2, option->arg, ctx));
                 WriteF(f, "%s", buffer1);
             }
             WriteF(f, "\n");
         }
     }
-    for (filepath = app_data->field_0x10; filepath != NULL; filepath = filepath->next) {
-        if (filepath->filetype == eFiletype_def) {
-            EscapePath(buffer1, filepath->path);
-            WriteF(f, "%cdef:%s\n", compiler_stage_spec->field_0x11, buffer1);
+    for (filepath = ctx->field_0x10; filepath != NULL; filepath = filepath->next) {
+        if (filepath->type == SOURCE_DEF) {
+            strqcpy(buffer1, filepath->path);
+            WriteF(f, "%cdef:%s\n", compiler_stage_spec->swchar, buffer1);
         }
     }
-    for (filepath = app_data->field_0x10; filepath != NULL; filepath = filepath->next) {
-        if (gFiletype_specs[filepath->filetype].stage == eInput_linker && filepath->filetype != eFiletype_def) {
-            EscapePath(buffer1, filepath->path);
+    for (filepath = ctx->field_0x10; filepath != NULL; filepath = filepath->next) {
+        if (Sourceinfo[filepath->type].phase == PHASE_LINK && filepath->type != SOURCE_DEF) {
+            strqcpy(buffer1, filepath->path);
             WriteF(f, "%s\n", buffer1);
         }
     }
     if (f != NULL) {
         fclose(f);
     }
-    SafeFree(buffer2);
-    SafeFree(buffer1);
+    xfree(buffer2);
+    xfree(buffer1);
 }
 
 // FUNCTION: CL 0x004045d8
-void FUN_004045d8(tApp_data *app_data)
+void OmfResponseFile(context_s *ctx)
 {
     char *buffer1;
     char *buffer2;
     FILE *f;
-    const tFiletype_compiler_spec *compiler_stage_spec;
-    tParsed_filepath *filepath;
-    tParsed_option *option;
+    const passinfo_s *compiler_stage_spec;
+    source_s *filepath;
+    flag_s *option;
     bool first;
     char *exePath;
 
-    buffer1 = SafeMalloc(1024);
-    buffer2 = SafeMalloc(1024);
-    compiler_stage_spec = app_data->compiler_stage_spec;
-    strcpy(buffer1, app_data->tempPath);
+    buffer1 = xnew(1024);
+    buffer2 = xnew(1024);
+    compiler_stage_spec = ctx->compiler_stage_spec;
+    strcpy(buffer1, ctx->tempPath);
     strcat(buffer1, "lk");
-    if (!gOption_Bz) {
+    if (!Nospawn) {
         f = fopen(buffer1, "w");
         if (f == NULL) {
-            FatalError(2018);
+            cmderr(2018);
         }
     } else {
         f = NULL;
     }
     first = true;
-    for (filepath = app_data->field_0x10; filepath != NULL; filepath = filepath->next) {
-        if (filepath->filetype == eFiletype_obj || filepath->filetype == eFiletype_none) {
+    for (filepath = ctx->field_0x10; filepath != NULL; filepath = filepath->next) {
+        if (filepath->type == SOURCE_OBJ || filepath->type == SOURCE_UNKNOWN) {
             if (!first) {
                 WriteF(f, "+\n");
             }
@@ -3579,13 +3568,13 @@ void FUN_004045d8(tApp_data *app_data)
             first = false;
         }
     }
-    FormatParsedOptionValue(buffer1, gOutputExecutableFilepath, app_data);
-    exePath = SafeStrDup(buffer1);
+    replaca(buffer1, Exefilename, ctx);
+    exePath = xstrdup(buffer1);
     WriteF(f, "\n\"%s\"", exePath);
-    WriteF(f, "\n\"%s\"", FormatMapPath(buffer1, exePath));
+    WriteF(f, "\n\"%s\"", mapfile(buffer1, exePath));
     first = true;
-    for (filepath = app_data->field_0x10; filepath != NULL; filepath = filepath->next) {
-        if (filepath->filetype == eFiletype_lib) {
+    for (filepath = ctx->field_0x10; filepath != NULL; filepath = filepath->next) {
+        if (filepath->type == SOURCE_LIB) {
             if (!first) {
                 WriteF(f, "+");
             }
@@ -3597,22 +3586,22 @@ void FUN_004045d8(tApp_data *app_data)
         WriteF(f, "\n");
     }
     first = true;
-    for (option = app_data->field_0x0; option != NULL; option = option->next) {
-        if (FUN_004010e8(option, compiler_stage_spec)) {
+    for (option = ctx->flags; option != NULL; option = option->next) {
+        if (flag_this_pass(option, compiler_stage_spec)) {
             if (!first) {
                 WriteF(f, " ");
             } else {
                 first = false;
             }
-            if (!(option->field_0x4 & 0x8)) {
-                WriteF(f, "%c", compiler_stage_spec->field_0x11);
+            if (!(option->info & 0x8)) {
+                WriteF(f, "%c", compiler_stage_spec->swchar);
             }
-            WriteF(f, "%s", FormatParsedOptionValue(buffer1, option->arg_keyonly, app_data));
-            if (option->arg_value != NULL) {
-                if (!(option->field_0x4 & 0x4)) {
+            WriteF(f, "%s", replaca(buffer1, option->base, ctx));
+            if (option->arg != NULL) {
+                if (!(option->info & 0x4)) {
                     WriteF(f, " ");
                 }
-                EscapePath(buffer1, FormatParsedOptionValue(buffer2, option->arg_value, app_data));
+                strqcpy(buffer1, replaca(buffer2, option->arg, ctx));
                 WriteF(f, "%s", buffer1);
             }
         }
@@ -3621,8 +3610,8 @@ void FUN_004045d8(tApp_data *app_data)
         WriteF(f, "\n");
     }
     first = true;
-    for (filepath = app_data->field_0x10; filepath != NULL; filepath = filepath->next) {
-        if (filepath->filetype == eFiletype_def) {
+    for (filepath = ctx->field_0x10; filepath != NULL; filepath = filepath->next) {
+        if (filepath->type == SOURCE_DEF) {
             if (!first) {
                 WriteF(f, "+\n");
             }
@@ -3634,13 +3623,13 @@ void FUN_004045d8(tApp_data *app_data)
     if (f != NULL) {
         fclose(f);
     }
-    SafeFree(exePath);
-    SafeFree(buffer2);
-    SafeFree(buffer1);
+    xfree(exePath);
+    xfree(buffer2);
+    xfree(buffer1);
 }
 
 // FUNCTION: CL 0x00405c21
-int FUN_00405c21(int inheritEnv, const char *cmdName, const char *cmd_env_name, char **argv)
+int execute(int inheritEnv, const char *cmdName, const char *cmd_env_name, char **argv)
 {
     int result;
 
@@ -3657,41 +3646,41 @@ int FUN_00405c21(int inheritEnv, const char *cmdName, const char *cmd_env_name, 
             for (argv_ptr = &argv[1]; *argv_ptr != NULL; argv_ptr++) {
                 len_env += 1 + strlen(*argv_ptr);
             }
-            env_string = SafeMalloc(len_env);
-            env_ptr = SafeStrCpyOrKeep(env_string, cmd_env_name);
+            env_string = xnew(len_env);
+            env_ptr = append(env_string, cmd_env_name);
             for (argv_ptr = &argv[1]; *argv_ptr != NULL; argv_ptr++) {
-                env_ptr = SafeStrCpyOrKeep(env_ptr, *argv_ptr);
+                env_ptr = append(env_ptr, *argv_ptr);
                 *env_ptr++ = ' ';
             }
             *env_ptr = '\0';
             if (_putenv(env_string) != 0) {
-                FatalError(2029, cmdName);
+                cmderr(2029, cmdName);
             }
-            SafeFree(env_string);
+            xfree(env_string);
         }
         break;
     case 1:
     case 2:
         break;
     default:
-        FatalError(0);
+        cmderr(0);
         break;
     }
     _flushall();
     *_errno() = 0;
-    gDisableControlHandler = TRUE;
-    gConsoleInterrupted = FALSE;
+    Spawning = TRUE;
+    GotCtrlC = FALSE;
     result = (int) _spawnvp(_P_WAIT, cmdName, (const char *const *) argv);
-    gDisableControlHandler = FALSE;
-    if (gConsoleInterrupted || (result >> 8) == -128) {
-        ExitCL(4);
+    Spawning = FALSE;
+    if (GotCtrlC || (result >> 8) == -128) {
+        done(4);
     }
     if (result < 0 && *_errno() != 0) {
-        FatalError(2027, cmdName);
+        cmderr(2027, cmdName);
     }
     if (result != 0) {
         if (result == 525) {
-            FatalError(2030, cmdName);
+            cmderr(2030, cmdName);
         }
         result = 2;
     }
@@ -3699,112 +3688,112 @@ int FUN_00405c21(int inheritEnv, const char *cmdName, const char *cmd_env_name, 
 }
 
 // FUNCTION: CL 0x00404471
-int FUN_00404471(tApp_data *app_data)
+int link(context_s *ctx)
 {
     char buffer[2048];
     char *argument_string;
     const char *program_exe;
     char *arguments_ptr;
-    tFiletype_compiler_spec *compiler_stage_spec;
+    passinfo_s *compiler_stage_spec;
     char **argv;
     int result;
 
-    gAction_performed = TRUE;
-    argument_string = SafeMalloc(1024);
-    compiler_stage_spec = app_data->compiler_stage_spec;
-    program_exe = app_data->compiler_paths[app_data->field_0x20->filetype][app_data->compiler_stage];
-    EscapePath(argument_string, program_exe);
-    arguments_ptr = SafeStrCpyOrKeep(buffer, argument_string);
-    if (gOption_coff) {
-        CreateCOFFLinkerResponseFile(app_data);
-        arguments_ptr = SafeStrCpyOrKeep(arguments_ptr, " -link");
+    Action = TRUE;
+    argument_string = xnew(1024);
+    compiler_stage_spec = ctx->compiler_stage_spec;
+    program_exe = ctx->exepaths[ctx->current_source->type][ctx->current_pass];
+    strqcpy(argument_string, program_exe);
+    arguments_ptr = append(buffer, argument_string);
+    if (Coff) {
+        CoffResponseFile(ctx);
+        arguments_ptr = append(arguments_ptr, " -link");
     } else {
-        FUN_004045d8(app_data);
+        OmfResponseFile(ctx);
     }
     arguments_ptr[0] = ' ';
     arguments_ptr[1] = '\0';
-    arguments_ptr = SafeStrCpyOrKeep(&arguments_ptr[1], "@");
-    arguments_ptr = SafeStrCpyOrKeep(arguments_ptr, app_data->tempPath);
-    SafeStrCpyOrKeep(arguments_ptr, "lk");
+    arguments_ptr = append(&arguments_ptr[1], "@");
+    arguments_ptr = append(arguments_ptr, ctx->tempPath);
+    append(arguments_ptr, "lk");
     if (strlen(buffer) > sizeof(buffer) - 1) {
-        FatalError(0);
+        cmderr(0);
     }
-    argv = CreateArgArray(buffer, 0);
-    if (gOption_bv) {
-        WriteTextF(STDERR_FILENO, "`%s'\n", buffer);
+    argv = sztoszv(buffer, 0);
+    if (Verbose) {
+        print(STDERR_FILENO, "`%s'\n", buffer);
     }
     result = 0;
-    if (!gOption_Bz) {
-        if (gOption_Bt) {
-            ChronoTimeBefore();
+    if (!Nospawn) {
+        if (Time) {
+            starttiming();
         }
-        result = FUN_00405c21(1, program_exe, compiler_stage_spec->extra_env, argv);
-        if (gOption_Bt) {
-            ChronoTimeAfter(program_exe);
+        result = execute(1, program_exe, compiler_stage_spec->environment_variable, argv);
+        if (Time) {
+            endtiming(program_exe);
         }
     }
-    SafeFree(argv);
-    SafeFree(argument_string);
+    xfree(argv);
+    xfree(argument_string);
     return result;
 }
 
 // FUNCTION: CL 0x004034c2
-void FUN_004034c2(tApp_data *app_data)
+void compile(context_s *ctx)
 {
     unsigned int mre_result = 0;
-    MRState mr_state;
-    tCompiler_input_file *remaining_inputs;
-    tParsed_filepath *next_linker_output;
+    CAList mr_state;
+    worklist_s *remaining_inputs;
+    source_s *next_linker_output;
 
-    remaining_inputs = GetCompilerInputFiles(app_data);
-    remaining_inputs = FUN_0040371e(app_data, remaining_inputs, &mr_state);
+    remaining_inputs = build_full_worklist(ctx);
+    remaining_inputs = init_minrebuild(ctx, remaining_inputs, &mr_state);
     for (;;) {
         if (remaining_inputs != NULL) {
             for (;;) {
                 while (remaining_inputs != NULL) {
-                    tFiletype_compiler_spec *filetype_compiler_spec;
-                    tCompiler_input_file *next_input;
-                    tCompiler_input_file *current_input;
+                    passinfo_s *filetype_compiler_spec;
+                    worklist_s *next_input;
+                    worklist_s *current_input;
 
-                    filetype_compiler_spec = gFiletype_specs[remaining_inputs->parsed_file->filetype].compiler_specs;
-                    remaining_inputs->parsed_file->field_0xe = 0;
+                    filetype_compiler_spec = Sourceinfo[remaining_inputs->parsed_file->type].passes;
+                    remaining_inputs->parsed_file->batch_id = 0;
                     next_input = remaining_inputs->next;
                     current_input = remaining_inputs;
                     while (next_input != NULL &&
-                            gFiletype_specs[next_input->parsed_file->filetype].compiler_specs ==
+                            Sourceinfo[next_input->parsed_file->type].passes ==
                                     filetype_compiler_spec &&
-                            current_input->parsed_file->field_0xe < 259) {
-                        next_input->parsed_file->field_0xe = current_input->parsed_file->field_0xe + 1;
+                            current_input->parsed_file->batch_id < 259) {
+                        next_input->parsed_file->batch_id = current_input->parsed_file->batch_id + 1;
                         current_input = next_input;
                         next_input = next_input->next;
                     }
                     current_input->next = NULL;
-                    mre_result |= FUN_00403e26(app_data, remaining_inputs);
+                    mre_result |= compile_worklist(ctx, remaining_inputs);
                     remaining_inputs = next_input;
                 }
-                remaining_inputs = FUN_004038f0(app_data, &mr_state);
+                remaining_inputs = iterate_minrebuild(ctx, &mr_state);
                 if (remaining_inputs == NULL) {
                     break;
                 }
             }
         }
-        remaining_inputs = FUN_004038f0(app_data, &mr_state);
+        remaining_inputs = iterate_minrebuild(ctx, &mr_state);
         if (remaining_inputs == NULL) {
             break;
         }
     }
-    if (app_data->field_0x18 != NULL) {
-        WriteTextF(STDERR_FILENO, GetErrorMessage(330));
+    if (ctx->skiplist != NULL) {
+        print(STDERR_FILENO, get_message(330));
         NOT_IMPLEMENTED();
 #if 0
-        item_0x18 = app_data->field_0x18;
+        item_0x18 = ctx->field_0x18;
         while (item_0x18 != NULL) {
             char buffer[1024];
             next_0x18 = NULL;
             if (item_0x18 != NULL) {
                 next_0x18 = item_0x18->next;;
             }
-            WriteTextF(STDERR_FILENO, "%s\n", ExtractFilename(buffer, GET_HEAD(item_0x18)->path));
+            print(STDERR_FILENO, "%s\n", filename(buffer, GET_HEAD(item_0x18)->path));
             item_0x18->next = mr_state.field_0x0c;
             mr_state.field_0x0c = item_0x18;
             item_0x18 = next_0x18;
@@ -3812,49 +3801,49 @@ void FUN_004034c2(tApp_data *app_data)
 #endif
     }
     if (mre_result != 0) {
-        gExit_failure = mre_result;
+        Nerrors = mre_result;
         return;
     }
 
-    app_data->field_0x20 = app_data->field_0x10;
-    if (app_data->field_0x10 != NULL) {
-        tParsed_filepath *parsed_filepath = app_data->field_0x10;
+    ctx->current_source = ctx->field_0x10;
+    if (ctx->field_0x10 != NULL) {
+        source_s *parsed_filepath = ctx->field_0x10;
         while (parsed_filepath != NULL) {
-            if (parsed_filepath->filetype == eFiletype_obj) {
+            if (parsed_filepath->type == SOURCE_OBJ) {
                 break;
             }
             parsed_filepath = parsed_filepath->next;
         }
         if (parsed_filepath != NULL) {
-            app_data->field_0x20 = parsed_filepath;
+            ctx->current_source = parsed_filepath;
         }
     }
-    RunOptionActions(app_data);
-    gExit_failure = FUN_00404080(gFiletype_link_compiler_specs, app_data, FUN_00404471);
-    if (gExit_failure) {
+    cc_switches(ctx);
+    Nerrors = passes(Link_passes, ctx, link);
+    if (Nerrors) {
         return;
     }
-    if (gOutputExecutableFilepath != NULL) {
-        tParsed_filepath *exe_path = AllocateParsedFilepath(gOutputExecutableFilepath, eFiletype_exe);
-        exe_path->next = app_data->field_0x10->next;
-        app_data->field_0x10->next = exe_path;
+    if (Exefilename != NULL) {
+        source_s *exe_path = newsource(Exefilename, SOURCE_EXE);
+        exe_path->next = ctx->field_0x10->next;
+        ctx->field_0x10->next = exe_path;
     }
-    next_linker_output = app_data->field_0x10;
+    next_linker_output = ctx->field_0x10;
     for (;;) {
-        tParsed_filepath *linker_output;
+        source_s *linker_output;
         for (;;) {
             linker_output = next_linker_output;
             if (linker_output == NULL) {
                 return;
             }
             next_linker_output = linker_output->next;
-            if (gFiletype_specs[linker_output->filetype].stage == eOutput_linker) {
+            if (Sourceinfo[linker_output->type].phase == PHASE_POSTPROCESS) {
                 break;
             }
         }
-        app_data->field_0x20 = linker_output;
-        gExit_failure = FUN_00404080(gFiletype_specs[linker_output->filetype].compiler_specs, app_data, FUN_004040c9);
-        if (gExit_failure) {
+        ctx->current_source = linker_output;
+        Nerrors = passes(Sourceinfo[linker_output->type].passes, ctx, dopass);
+        if (Nerrors) {
             return;
         }
     }
@@ -3862,30 +3851,30 @@ void FUN_004034c2(tApp_data *app_data)
 
 // #define DEBUG_CL
 #ifdef DEBUG_CL
-void DumpAppData()
+void dump_context()
 {
-    tParsed_option *opt;
+    flag_s *opt;
     fflush(stderr);
     fflush(stdout);
-    printf("gApp_data->field_0x0 = {\n");
-    opt = gApp_data->field_0x0;
+    printf("Context->flags = {\n");
+    opt = Context->flags;
     for (int i = 0; opt != NULL; i++, opt = opt->next) {
-        const char *q = opt->arg_value ? "'" : "";
-        printf(" [%2d] = { key='%s', value=%s%s%s, field_0x8=%s},\n", i, opt->arg_keyonly, q, opt->arg_value, q,
+        const char *q = opt->arg ? "'" : "";
+        printf(" [%2d] = { base='%s', arg=%s%s%s, opt=%s},\n", i, opt->base, q, opt->arg, q,
                 opt->field_0x8);
     }
     printf("}\n");
-    printf("gApp_data->field_0x4 = {\n");
-    opt = gApp_data->field_0x4;
+    printf("Context->switches = {\n");
+    opt = Context->switches;
     for (int i = 0; opt != NULL; i++, opt = opt->next) {
-        const char *q = opt->arg_value ? "'" : "";
-        printf(" [%2d] = { key='%s', value=%s%s%s, field_0x8=%s},\n", i, opt->arg_keyonly, q, opt->arg_value, q,
-                opt->field_0x8);
+        const char *q = opt->arg ? "'" : "";
+        printf(" [%2d] = { opt='%s', arg=%s%s%s, base=%s},\n", i, opt->base, q, opt->arg, q,
+                opt->base);
     }
     printf("}\n");
 }
 #else
-# define DumpAppData() \
+# define dump_context() \
      do { \
      } while (0)
 #endif
@@ -3893,10 +3882,6 @@ void DumpAppData()
 // FUNCTION: CL 0x004017ff
 int main(int argc, char *argv[])
 {
-#if 0
-    setbuf(_p__iob() + 1, NULL);
-    setbuf(_p__iob() + 2, NULL);
-#endif
     const char *msc_ide_flags;
     const char *cl;
     const char *cl_;
@@ -3906,121 +3891,126 @@ int main(int argc, char *argv[])
     int count_cl_args;
     char **cl__args;
     int count_cl__args;
-    tParsed_option *opt;
-    tParsed_option *unkopt;
-    tParsed_filepath *input_path;
-    tCompile_filetype default_filetype;
+    flag_s *opt;
+    flag_s *unkopt;
+    source_s *input_path;
+    source_type default_filetype;
 
-    InstallConsoleHandlers();
+    setbuf(stdout, NULL);
+    setbuf(stderr, NULL);
+
+    OS_Init();
     msc_ide_flags = getenv("_MSC_IDE_FLAGS");
     cl = getenv("CL");
     cl_ = getenv("_CL_");
-    msc_ide_flags_args = CreateArgArray(msc_ide_flags, TRUE);
-    count_msc_ide_flags_args = GetArgsArraySize((const char **) msc_ide_flags_args);
-    cl_args = CreateArgArray(cl, TRUE);
-    count_cl_args = GetArgsArraySize((const char **) cl_args);
-    cl__args = CreateArgArray(cl_, TRUE);
-    count_cl__args = GetArgsArraySize((const char **) cl__args);
-    argv[0] = GetExecutableFilePath();
-    InitAppPaths(argv[0], gApp_data);
+    msc_ide_flags_args = sztoszv(msc_ide_flags, TRUE);
+    count_msc_ide_flags_args = argcount((const char **) msc_ide_flags_args);
+    cl_args = sztoszv(cl, TRUE);
+    count_cl_args = argcount((const char **) cl_args);
+    cl__args = sztoszv(cl_, TRUE);
+    count_cl__args = argcount((const char **) cl__args);
+    argv[0] = fullccpath();
+    build_context(argv[0], Context);
     if (argc == 1 && count_cl_args == 0) {
-        FatalUsageError();
+        usage();
     }
-    if (!ArgumentsContainNologo(argv + 1, argc - 1) && !ArgumentsContainNologo(cl_args, count_cl_args) &&
-            !ArgumentsContainNologo(cl__args, count_cl__args)) {
-        gShouldPrintLogoString = FALSE;
-        PrintLogoString();
+    if (!early_switch_scan(argv + 1, argc - 1) && !early_switch_scan(cl_args, count_cl_args) &&
+            !early_switch_scan(cl__args, count_cl__args)) {
+        Nologo = FALSE;
+        LOGO();
     }
-    ParseArguments(gBuiltInCompileOptions, GetArgsArraySize(gBuiltInCompileOptions));
-    ParseArguments(gBuiltInCompileDefinitions, GetArgsArraySize(gBuiltInCompileDefinitions));
-    for (opt = gApp_data->field_0x0; opt != NULL; opt = opt->next) {
-        opt->field_0x4 |= 0x1;
+    templates(DefaultOptions, argcount(DefaultOptions));
+    templates(DefaultMacros, argcount(DefaultMacros));
+    /* mark as defaults */
+    for (opt = Context->flags; opt != NULL; opt = opt->next) {
+        opt->info |= 0x1;
     }
-    for (opt = gApp_data->field_0x4; opt != NULL; opt = opt->next) {
-        opt->field_0x4 |= 0x1;
+    for (opt = Context->switches; opt != NULL; opt = opt->next) {
+        opt->info |= 0x1;
     }
-    gConsider_hat_options = FALSE;
+    DefPhase = FALSE;
     if (count_msc_ide_flags_args) {
-        ParseArguments((const char **) msc_ide_flags_args, count_msc_ide_flags_args);
+        templates((const char **) msc_ide_flags_args, count_msc_ide_flags_args);
     }
     if (count_cl_args > 0) {
-        ParseArguments((const char **) cl_args, count_cl_args);
+        templates((const char **) cl_args, count_cl_args);
     }
     if (argc > 1) {
-        ParseArguments((const char **) &argv[1], argc - 1);
+        templates((const char **) &argv[1], argc - 1);
     }
     if (count_cl__args > 0) {
-        ParseArguments((const char **) cl__args, count_cl__args);
+        templates((const char **) cl__args, count_cl__args);
     }
-    if (gPrinted_cl) {
-        WriteTextF(STDERR_FILENO, "\n");
+    if (RespEcho) {
+        print(STDERR_FILENO, "\n");
     }
-    FUN_00402bc0();
-    DumpAppData();
-    RunOptionActions(gApp_data);
-    CreateTempDir(gApp_data);
-    if (gPrintPaginatedClMessage) {
-        PrintPaginatedFileAndExit(JoinPathInExeSearchPath(gApp_data->exeDirectory, "cl32.msg"));
+    check_required();
+    dump_context();
+    cc_switches(Context);
+    maketempdir(Context);
+    if (Help) {
+        help(findpass(Context->exedir, "cl32.msg"));
     }
-    for (unkopt = gUnknown_options; unkopt != NULL; unkopt = unkopt->next) {
-        if (unkopt->arg_value != NULL) {
-            char *joinedstr = SafeMalloc(strlen(unkopt->arg_keyonly) + 1 + strlen(unkopt->arg_value) + 1);
-            SafeStrCpyOrKeep(SafeStrCpyOrKeep(joinedstr, unkopt->arg_keyonly), unkopt->arg_value);
-            EmitWarningF(4002, joinedstr);
-            SafeFree(joinedstr);
+    Help = 0;
+    for (unkopt = Unknown_; unkopt != NULL; unkopt = unkopt->next) {
+        if (unkopt->arg != NULL) {
+            char *joinedstr = xnew(strlen(unkopt->base) + 1 + strlen(unkopt->arg) + 1);
+            append(append(joinedstr, unkopt->base), unkopt->arg);
+            cmdwarn(4002, joinedstr);
+            xfree(joinedstr);
         } else {
-            EmitWarningF(4002, unkopt->arg_keyonly);
+            cmdwarn(4002, unkopt->base);
         }
     }
-    if (gApp_data->field_0x10 == NULL) {
-        FatalError(2003);
+    if (Context->field_0x10 == NULL) {
+        cmderr(2003);
     }
-    if (gOption_bt == NULL) {
-        default_filetype = eFiletype_none;
+    if (ForceType == NULL) {
+        default_filetype = SOURCE_UNKNOWN;
     } else {
-        switch (*gOption_bt) {
+        switch (*ForceType) {
         case 'C':
-            default_filetype = eFiletype_c;
+            default_filetype = SOURCE_C;
             break;
         case 'O':
-            default_filetype = eFiletype_obj;
+            default_filetype = SOURCE_OBJ;
             break;
         case 'P':
-            default_filetype = eFiletype_cpp;
+            default_filetype = SOURCE_CPP;
             break;
         default:
-            default_filetype = eFiletype_obj;
+            default_filetype = SOURCE_OBJ;
             break;
         }
     }
-    for (input_path = gApp_data->field_0x10; input_path != NULL; input_path = input_path->next) {
-        const tFiletype_compiler_spec *cspec;
+    for (input_path = Context->field_0x10; input_path != NULL; input_path = input_path->next) {
+        const passinfo_s *cspec;
 
-        if (default_filetype != eFiletype_none && !input_path->field_0xc) {
-            input_path->filetype = default_filetype;
-            input_path->field_0xc = 1;
-        } else if (input_path->filetype == eFiletype_none) {
-            if (gUnknownFilesAreC) {
-                input_path->filetype = eFiletype_c;
+        if (default_filetype != SOURCE_UNKNOWN && !input_path->fixed_type) {
+            input_path->type = default_filetype;
+            input_path->fixed_type = 1;
+        } else if (input_path->type == SOURCE_UNKNOWN) {
+            if (Preprocess) {
+                input_path->type = SOURCE_C;
             } else {
-                input_path->filetype = eFiletype_obj;
-                EmitWarningF(4024, input_path->path);
+                input_path->type = SOURCE_OBJ;
+                cmdwarn(4024, input_path->path);
             }
         }
-        for (cspec = gFiletype_specs[input_path->filetype].compiler_specs; cspec->compiler_filename != NULL; cspec++) {
-            if (cspec->field_0xc) {
+        for (cspec = Sourceinfo[input_path->type].passes; cspec->pass_filename != NULL; cspec++) {
+            if (cspec->is_active) {
                 break;
             }
         }
-        if (!cspec->field_0xc) {
-            EmitWarningF(4027, input_path->path);
+        if (!cspec->is_active) {
+            cmdwarn(4027, input_path->path);
         }
     }
     RedirectStdErrToStdOut();
-    FUN_004034c2(gApp_data);
-    gApp_data->field_0x20 = NULL;
-    if (!gAction_performed) {
-        EmitWarningF(4021);
+    compile(Context);
+    Context->current_source = NULL;
+    if (!Action) {
+        cmdwarn(4021);
     }
-    ExitCL(gExit_failure ? 2 : 0);
+    done(Nerrors ? 2 : 0);
 }

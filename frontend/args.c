@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 // CL: 0x00408578
-const tOption_spec gOption_specs[] = {
+const form_s Forms[] = {
     {
         "?",
         "D=bh",
@@ -144,7 +144,7 @@ const tOption_spec gOption_specs[] = {
         NULL,
         NULL,
         NULL,
-        {OnDCallback},
+        {Dargs},
     },
     {
         "d1!+",
@@ -536,7 +536,7 @@ const tOption_spec gOption_specs[] = {
         NULL,
         NULL,
         NULL,
-        {OnLinkCallback},
+        {ldargs},
     },
     {
         "LD",
@@ -809,21 +809,21 @@ const tOption_spec gOption_specs[] = {
         NULL,
         NULL,
         NULL,
-        {OnTcCallback},
+        {tcargs},
     },
     {
         "Tp!@",
         NULL,
         NULL,
         NULL,
-        {OnTpCallback},
+        {tpargs},
     },
     {
         "To!@",
         NULL,
         NULL,
         NULL,
-        {OnToCallback},
+        {toargs},
     },
     {
         "TC",

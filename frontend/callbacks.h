@@ -3,20 +3,20 @@
 
 #include "types.h"
 
-extern void OnbAOption(tParsed_option *option);
-extern void OnbaOption(tParsed_option *option);
-extern void OnbcOption(tParsed_option *option);
-extern void OnbdOption(tParsed_option *option);
-extern void OnboOption(tParsed_option *option);
-extern void OnbpOption(tParsed_option *option);
-extern void OnbUOption(tParsed_option *option);
-extern void OnbuOption(tParsed_option *option);
-extern void OnArgumentLDorLDd(tParsed_option *option);
+extern void configure_asmlist(flag_s *option);
+extern void activate_pass(flag_s *option);
+extern void copy_active_pass(flag_s *option);
+extern void deactivate_passes(flag_s *option);
+extern void check_compile_collide(flag_s *option);
+extern void alternate_pass(flag_s *option);
+extern void undef_one_stddef(flag_s *option);
+extern void undef_stddefs(flag_s *option);
+extern void link_dll(flag_s *option);
 
-extern int OnDCallback(const char **args, int *index);
-extern int OnLinkCallback(const char **args, int *index);
-extern int OnTcCallback(const char **args, int *index);
-extern int OnTpCallback(const char **args, int *index);
-extern int OnToCallback(const char **args, int *index);
+extern int Dargs(const char **args, int *index);
+extern int ldargs(const char **args, int *index);
+extern int tcargs(const char **args, int *index);
+extern int tpargs(const char **args, int *index);
+extern int toargs(const char **args, int *index);
 
 #endif
