@@ -5,142 +5,137 @@
 #include "types.h"
 
 #include <windows.h>
+#include <mspdb41.h>
 
-typedef struct tParsed_option tParsed_option;
-typedef struct tOption_spec tOption_spec;
-typedef struct tParsed_filepath tParsed_filepath;
+typedef struct flag_s flag_s;
+typedef struct form_s form_s;
+typedef struct source_s source_s;
 typedef enum tOption_action_type tOption_action_type;
-typedef struct tOption_action tOption_action;
-typedef struct tTemporary_file_spec tTemporary_file_spec;
-typedef struct tCompiler_input_file tCompiler_input_file;
-typedef struct tFiletype_compiler_spec tFiletype_compiler_spec;
+typedef struct cmd_s cmd_s;
+typedef struct ilsuffix_s ilsuffix_s;
+typedef struct worklist_s worklist_s;
+typedef struct passinfo_s passinfo_s;
 
-typedef struct tParsed_option {
-    tParsed_option *next;
-    undefined4 field_0x4;
-    char *field_0x8;
-    char *arg_keyonly;
-    char *arg_value;
+typedef struct flag_s {
+    flag_s *next;
+    int info;
+    char *passes;
+    char *base;
+    char *arg;
     union {
-        const void *void_parent;
-        const tOption_spec *parent_option_spec;
-        tParsed_option *parsed_option_parent;
+        const form_s *form;
+        flag_s *swtch;
     };
-} tParsed_option;
+} flag_s;
 
-typedef struct tOption_spec {
-    const char *field_0x0;
-    const char *field_0x4;
-    const char *field_0x8;
-    const char *field_0xc;
+typedef struct form_s {
+    const char *form;
+    const char *tmpl;
+    const char *conflict;
+    const char *override;
     union {
-        const void *void_0x10;
-        const char *str_0x10;
-        tParsed_option *(*cb_0x10)(const char **, int *);
+        const void *void_u;
+        const char *required;
+        flag_s *(*func_ret_2arg)(const char **, int *);
     };
-} tOption_spec;
+} form_s;
 
 typedef enum {
-    eFiletype_c = 0,
-    eFiletype_cpp = 1,
-    eFiletype_cxx = 2,
-    eFiletype_obj = 3,
-    eFiletype_lib = 4,
-    eFiletype_def = 5,
-    eFiletype_res = 6,
-    eFiletype_exp = 7,
-    eFiletype_none = 8,
-    eFiletype_exe = 9,
-} tCompile_filetype;
+    SOURCE_C = 0,
+    SOURCE_CPP = 1,
+    SOURCE_CXX = 2,
+    SOURCE_OBJ = 3,
+    SOURCE_LIB = 4,
+    SOURCE_DEF = 5,
+    SOURCE_RES = 6,
+    SOURCE_EXP = 7,
+    SOURCE_UNKNOWN = 8,
+    SOURCE_EXE = 9,
+} source_type;
 
-typedef struct tParsed_filepath {
-    tParsed_filepath *next;
+typedef struct source_s {
+    source_s *next;
     char *path;
-    tCompile_filetype filetype;
-    short field_0xc;
-    short field_0xe;
-} tParsed_filepath;
+    source_type type;
+    short fixed_type;
+    short batch_id;
+} source_s;
 
-typedef struct tCompiler_input_file {
-    tCompiler_input_file *next;
-    tParsed_filepath *parsed_file;
-    undefined4 field_0x08;
-    undefined4 field_0x0c;
-    BOOL is_cpp;
-    char *field_0x14;
-    char *field_0x18;
-    char *field_0x1c;
-    undefined4 field_0x20;
-    char *field_0x24;
-} tCompiler_input_file;
+typedef struct worklist_s {
+    worklist_s *next;
+    source_s *parsed_file;
+    BOOL had_error;
+    SRCTARG srctarg;
+    char *sbrfile;
+} worklist_s;
 
-typedef enum tOption_action_type {
-    eAction_invalid = 0,
-    eAction_setTrue = 1,
-    eAction_setFalse = 2,
-    eAction_setString = 3,
-    eAction_callback = 4,
-} tOption_action_type;
+typedef enum cmd_type {
+    CMD_UNKNOWN = 0,
+    CMD_TRUE = 1,
+    CMD_FALSE = 2,
+    CMD_STRING = 3,
+    CMD_FUNCTION = 4,
+} cmd_type;
 
-typedef struct tOption_action {
-    const char *key;
-    tOption_action_type action;
+typedef struct cmd_s {
+    const char *form;
+    cmd_type type;
     union {
-        void *void_pointer;
-        BOOL *boolean;
-        char **text;
-        void (*callback)(tParsed_option *);
+        void *dummy;
+        BOOL *flag;
+        char **string;
+        void (*function)(flag_s *);
     };
-} tOption_action;
+} cmd_s;
 
-typedef struct tTemporary_file_spec {
-    const char *filename;
-    BOOL remove;
-} tTemporary_file_spec;
+typedef struct ilsuffix_s {
+    const char *suffix;
+    BOOL compile_il;
+} ilsuffix_s;
 
 typedef struct {
-    tParsed_option *field_0x0;                    // offest 0x00
-    tParsed_option *field_0x4;                    // offest 0x04
-    int compiler_stage;                           // offset 0x08
-    tFiletype_compiler_spec *compiler_stage_spec; // offset 0x0c
-    tParsed_filepath *field_0x10;                 // offest 0x10
-    tCompiler_input_file *field_0x14;             // offest 0x14
-    void *field_0x18;                             // offest 0x18
-    void *field_0x1c;                             // offest 0x1c
-    tParsed_filepath *field_0x20;                 // offset 0x20
-    char *tempPath;                               // offset 0x24
-    char *includePaths;                           // offset 0x28
-    char *exeDirectory;                           // offset 0x2c
-    char *errorStringPath;                        // offset 0x30
-    char *compiler_paths[10][3];                  // offset 0x34
-    char *error_paths[10][3];                     // offset 0xac
-} tApp_data;
+    flag_s *flags;
+    flag_s *switches;
+    int current_pass;
+    passinfo_s *compiler_stage_spec;
+    source_s *field_0x10;
+    worklist_s *batchlist;
+    SRCTARG *skiplist;
+    SRCTARG **skiplistend;
+    source_s *current_source;
+    char *tempPath;
+    char *include;
+    char *exedir;
+    char *errorpath;
+    char *exepaths[10][3];
+    char *errorpaths[10][3];
+} context_s;
 
 typedef struct {
     const char *key;       // offset 0x0
     const char *valuespec; // offset 0x4
 } tSingle_arg_spec;
 
-typedef struct tFiletype_compiler_spec {
-    const char *compiler_filename;
+typedef struct passinfo_s {
+    const char *pass_filename;
     const char *error_filename;
-    const char *extra_env;
-    undefined4 field_0xc;
-    char field_0x10;
-    char field_0x11;
-} tFiletype_compiler_spec;
+    const char *environment_variable;
+    BOOL is_active;
+    char id;
+    char swchar;
+} passinfo_s;
 
 typedef enum {
-    eStage_invalid = -1,
-    eInput_compiler = 0,
-    eInput_linker = 1,
-    eOutput_linker = 2,
-} tCompile_filetype_stage;
+    PHASE_NOPHASE = -1,
+    PHASE_COMPILE = 0,
+    PHASE_LINK = 1,
+    PHASE_POSTPROCESS = 2,
+} driver_phases;
 
 typedef struct {
     const char *extension;
-    tCompile_filetype_stage stage;
-    tFiletype_compiler_spec *compiler_specs;
-} tFiletype_spec;
+    driver_phases phase;
+    passinfo_s *passes;
+} sourceinfo_s;
 
 #endif /* TYPES_H */

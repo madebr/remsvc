@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-extern const tOption_spec gOption_specs[];
+extern const form_s Forms[];
 
 #endif /* ARGS_H */
