@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: 'MSVC (4.2, x86)',    x86: true,   shell: 'sh',        setup-ninja: true,  setup-msvc420: true }
+          - { name: 'MSVC (4.2, x86)',    x86: true,   shell: 'sh',        setup-ninja: true,  setup-msvc420: true,    ninja-flags: '-j1' }
           - { name: 'MSVC (modern, x86)', x86: true,   shell: 'sh',        setup-ninja: true,  setup-msvc: 'amd64_x86' }
           - { name: 'MSVC (modern, x64)', x86: false,  shell: 'sh',        setup-ninja: true,  setup-msvc: 'amd64' }
           - { name: 'msys2 (x86)',        x86: true,   shell: 'msys2 {0}', msystem: mingw32,   msys-env: mingw-w64-i686 }
@@ -29,11 +29,13 @@ jobs:
             ${{ matrix.msys-env }}-cmake
             ${{ matrix.msys-env }}-ninja
 
+      - uses: actions/checkout@v6
+
       - name: Setup ninja
         if: ${{ matrix.setup-ninja }}
-        uses: ashutoshvarma/setup-ninja@master
+        uses: ./.github/actions/setup-ninja
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: ${{ matrix.setup-msvc420 }}
         with:
           repository: itsmattkc/msvc420
@@ -44,15 +46,22 @@ jobs:
           ws=$(echo "${{ github.workspace }}" | sed -e 's#\\#/#g')
           echo "LIB=${ws}/msvc420/lib;${ws}/msvc420/mfc/lib" >> $GITHUB_ENV
           echo "INCLUDE=${ws}/msvc420/include;${ws}/msvc420/mfc/include" >> $GITHUB_ENV
-          echo "${ws}/msvc420/" >> $GITHUB_PATH
+          echo "${ws}/msvc420/bin" >> $GITHUB_PATH
+          echo "${ws}/msvc420/debug" >> $GITHUB_PATH
+          echo "CMAKE_TOOLCHAIN_FILE=${ws}/MSVC42.cmake" >> $GITHUB_ENV
+          cat >"${ws}/MSVC42.cmake" <<EOF
+          set(CMAKE_SYSTEM_NAME "Windows")
+          set(CMAKE_C_COMPILER "${ws}/msvc420/bin/cl.exe")
+          set(CMAKE_CXX_COMPILER "${ws}/msvc420/bin/cl.exe")
+          set(CMAKE_LINKER "${ws}/msvc420/bin/link.exe")
+          set(CMAKE_LIB "${ws}/msvc420/bin/lib.exe")
+          EOF
 
       - name: Setup vcvars (modern MSVC)
         if: ${{ !!matrix.setup-msvc }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.setup-msvc }}
-
-      - uses: actions/checkout@v4
 
       - name: Configure (CMake)
         run: |
@@ -64,4 +73,4 @@ jobs:
             -Werror=dev
       - name: Build (CMake)
         run: |
-          cmake --build build --verbose -- -k0
+          cmake --build build --verbose -- ${{ matrix.ninja-flags }}
