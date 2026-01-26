@@ -64,8 +64,11 @@ set_property(TARGET redumpbin PROPERTY C_STANDARD 90)
 
 add_executable(recl
     frontend/frontend.rc
-    frontend/args.c
+    frontend/forms.c
     frontend/main.c
+    frontend/compile.c
+    frontend/util.c
+    frontend/dos.c
 )
 if(MINGW)
     target_link_libraries(recl PRIVATE msvcr90)

@@ -1,8 +1,65 @@
-#include "args.h"
+#include "forms.h"
 
 #include "callbacks.h"
 
 #include <stdlib.h>
+
+// GLOBAL: CL 0x00408510
+const combo_s Combos[] = {
+    {
+        "G",
+        "3:4:5:d:e:f:h*:i-:m-:p#:r:s*:t#:x-:y:z:A:B:D:E*:M:R-:X-",
+    },
+    {
+        "O",
+        "1:2:a-:b#:d:g-:i-:p-:s:t:w-:x:y-:V#",
+    },
+    {
+        "Z",
+        "7:a:d:e:g:i:l:m#:n:p#:s:B*:M-",
+    },
+    {
+        NULL,
+        NULL,
+    },
+};
+
+// GLOBAL: CL 0x00408530
+const ilsuffix_s Il_suffix[] = {
+    {
+        "ex",
+        TRUE,
+    },
+    {
+        "sy",
+        TRUE,
+    },
+    {
+        "gl",
+        TRUE,
+    },
+    {
+        "in",
+        TRUE,
+    },
+    {
+        "st",
+        TRUE,
+    },
+    {
+        "db",
+        TRUE,
+    },
+    {
+        "lk",
+        FALSE,
+    },
+    {
+        "df.def",
+        FALSE,
+    },
+    {NULL, FALSE},
+};
 
 // CL: 0x00408578
 const form_s Forms[] = {

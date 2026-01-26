@@ -1,0 +1,101 @@
+#ifndef RE_MAIN_H
+#define RE_MAIN_H
+
+#include "types.h"
+
+extern const cmd_s Cctab[];
+extern const sourceinfo_s Sourceinfo[];
+extern BOOL MinimalRebuild;
+extern BOOL BatchPassOK;
+extern BOOL Coff;
+extern BOOL DefInclude;
+extern BOOL DefPhase;
+extern BOOL Nologo;
+extern BOOL MinRebuildOK;
+extern BOOL BatchPasses;
+extern context_s *Context;
+extern passinfo_s PassInfo;
+extern BOOL RedirStderr;
+extern BOOL Time;
+extern flag_s *Flag_freelist;
+extern const char *DefaultMacros[];
+extern const char *DefaultOptions[];
+extern char VersionNumber[];
+extern passinfo_s C_passes[];
+extern passinfo_s Cxx_passes[];
+extern passinfo_s Link_passes[];
+extern passinfo_s Post_passes[];
+extern char Bigbuf[1024];
+extern char *ForceType;
+extern char *IdbFileName;
+extern char *Object;
+extern BOOL Nospawn;
+extern BOOL Verbose;
+extern BOOL Action;
+extern BOOL Preprocess;
+extern context_s CX;
+extern BOOL Reproducable;
+extern BOOL Mapfile;
+extern int SourceCount;
+extern flag_s *Unknown_;
+extern char *Mapfilename;
+extern BOOL RespEcho;
+extern char *Exefilename;
+extern char *SbrFileName;
+extern BOOL Nerrors;
+extern BOOL DllFlg;
+extern BOOL Help;
+extern BOOL Keepfiles;
+
+extern source_type source(const char *filepath);
+extern source_s *newsource(const char *path, source_type type);
+extern source_s *addsource(const char *path, source_type filetype, short fixed_type);
+#ifdef WITH_MSPDB
+extern char flag_these_pass_ids(flag_s *option, char *needles);
+#endif
+extern void validate_arg(const char *optkey, char *optval, const char *optspec);
+extern flag_s *domatch(const form_s *option_spec, const char **args, int *index);
+extern flag_s *newflag(const char *base, const char *arg, const char *passes, int info);
+extern BOOL flag_this_pass(flag_s *option, const passinfo_s *spec);
+extern int trymatch(const form_s *option_spec, const char **args, int index);
+extern const char *xoption(const char *spec, char *buffer, const char *key, const char **filename);
+extern const char *doexpand(const char *spec, char *buffer, const char *key);
+extern flag_s *expand(const char *implied_spec, const flag_s *option);
+extern void appendflag(flag_s **list, flag_s *opt);
+extern BOOL flagmatch(flag_s *opt1, flag_s *opt2);
+extern int main(int argc, char *argv[]);
+extern void templates(const char **args, int count);
+extern BOOL handlematch(const char **args, int *index);
+extern void freeflaglist(flag_s *opt);
+extern void freeflag(flag_s *opt);
+extern const form_s *findmatch(const char **args, int index);
+extern flag_s *conflict(flag_s **list, flag_s *implied_option, flag_s **list_arg3);
+extern flag_s *dupflag(flag_s *opt);
+extern flag_s *rmflag(flag_s **list, flag_s *item);
+extern void switcherr(int code, const flag_s *opt1, const flag_s *opt2);
+extern const combo_s *is_combo(const char *arg);
+extern void crack_combo(const combo_s *spec, const char *arg);
+extern BOOL prefix(const char *start, const char *str);
+extern int argcount(const char **args);
+extern BOOL early_switch_scan(char **argv, int argc);
+extern void build_context(const char *exePath, context_s *ctx);
+extern void maketempdir(context_s *ctx);
+extern char *fullccpath();
+extern void alternate_pass(flag_s *option);
+extern void activate_pass(flag_s *option);
+extern void deactivate_passes(flag_s *option);
+extern void copy_active_pass(flag_s *option);
+extern void undef_one_stddef(flag_s *option);
+extern void undef_stddefs(flag_s *option);
+extern void check_compile_collide(flag_s *option);
+extern void configure_asmlist(flag_s *option);
+extern void link_dll(flag_s *option);
+extern void cc_switches(context_s *ctx);
+extern void check_required();
+extern BOOL find_any_match(flag_s *const opts1, flag_s *const opts2);
+extern const char *complete_filename(const char *extension_spec, char *path, const char *filename);void usage();
+extern int ldargs(const char **args, int *index);
+extern int Dargs(const char **args, int *index);int toargs(const char **args, int *index);int tcargs(const char **args, int *index);int tpargs(const char **args, int *index);void other_sources(const char *optionPrefix, const char **args, int *index, source_type filetype);void LOGO(void);char *findpass(const char *dirpath, const char *filename);
+extern char *extract_path(const char *path);
+extern size_t walkpath(const char *filename, char *buffer, size_t bufferSize);
+#endif

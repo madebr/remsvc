@@ -42,8 +42,8 @@ typedef struct form_s {
 
 typedef enum {
     SOURCE_C = 0,
-    SOURCE_CPP = 1,
-    SOURCE_CXX = 2,
+    SOURCE_CXX = 1,
+    SOURCE_CPP = 2,
     SOURCE_OBJ = 3,
     SOURCE_LIB = 4,
     SOURCE_DEF = 5,
@@ -112,9 +112,9 @@ typedef struct {
 } context_s;
 
 typedef struct {
-    const char *key;       // offset 0x0
-    const char *valuespec; // offset 0x4
-} tSingle_arg_spec;
+    const char *combo;
+    const char *buddies;
+} combo_s;
 
 typedef struct passinfo_s {
     const char *pass_filename;
