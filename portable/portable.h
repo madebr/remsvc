@@ -1,5 +1,9 @@
 #pragma once
 
+#include <io.h>
+#include <process.h>
+#include <stdio.h>
+
 #ifndef STDOUT_FILENO
 # define STDOUT_FILENO 1
 #endif
@@ -21,10 +25,4 @@
 
 #define timeb __timeb32
 #define ftime _ftime32
-#endif
-
-#ifdef REMSVC_RECCMP
-#ifndef INT_MAX
-#define INT_MAX 0x7fffffff
-#endif
 #endif
