@@ -1,6 +1,9 @@
 #ifndef NHEAPALL_H
 #define NHEAPALL_H
 
+#include "c1_types.h"
+#include "decomp.h"
+
 // ??_7PCHHeap@@6B@
 // const PCHHeap::`vftable'
 
@@ -10,23 +13,11 @@
 // ?fMoveTheHeap@@3HA
 // int fMoveTheHeap
 
-// ?Cmd_ScaleMemory@VirtualHeap@@2HA
-// public: static int VirtualHeap::Cmd_ScaleMemory
-
 // ?result@?1??CanOSDoMemoryMapCorrectly@@YAHXZ@4HA
 // int `int __cdecl CanOSDoMemoryMapCorrectly(void)'::`2'::result
 
 // ??_C@_0N@IBKN@?4?2nheapall?4c?$AA@
 // ".\\nheapall.c"
-
-// ?ThePCH@HeapManager@@2VPCHHeapManager@@A
-// public: static class PCHHeapManager HeapManager::ThePCH
-
-// ?ActiveHeaps@HeapManager@@2PAVVirtualHeap@@A
-// public: static class VirtualHeap *HeapManager::ActiveHeaps
-
-// ?m_hMap@HeapManager@@0PAXA
-// private: static void *HeapManager::m_hMap
 
 // ??_B?1??CanOSDoMemoryMapCorrectly@@YAHXZ@51
 // `int __cdecl CanOSDoMemoryMapCorrectly(void)'::`2'::`local static guard'{2}
@@ -82,62 +73,103 @@
 // ?FixupSet@HeapSet@@QAEXJ@Z
 // public: void __thiscall HeapSet::FixupSet(long)
 
-// ?Initialize@AllSAClasses@@SAXXZ
-// public: static void __cdecl AllSAClasses::Initialize(void)
+struct AllSAClasses {
+    // ?Initialize@AllSAClasses@@SAXXZ
+    // public: static void __cdecl AllSAClasses::Initialize(void)
+    static void Initialize();
 
 // ?Reinitialize@AllSAClasses@@SAXXZ
 // public: static void __cdecl AllSAClasses::Reinitialize(void)
+};
 
 // ?GetCanOSDoMemoryMapCorrectly@@YAHXZ
 // int __cdecl GetCanOSDoMemoryMapCorrectly(void)
 
-// ?FigureHeapSize@VirtualHeap@@SAJPBUHeapParameters@1@@Z
-// public: static long __cdecl VirtualHeap::FigureHeapSize(struct VirtualHeap::HeapParameters const *)
-
-// ?FinishCreate@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::FinishCreate(void)
-
-// ?Create@VirtualHeap@@QAEHPBUHeapParameters@1@PAX@Z
-// public: int __thiscall VirtualHeap::Create(struct VirtualHeap::HeapParameters const *, void *)
-
-// ?Destroy@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::Destroy(void)
-
 // ?WhyIsHeapLow@@YAXXZ
 // void __cdecl WhyIsHeapLow(void)
 
-// ?HeapExtend@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::HeapExtend(void)
+// FUNCTION: C1 0x0040c1af
+size_t __fastcall MakeMultipleOf(size_t size, size_t increment);
 
-// ?Reset@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::Reset(void)
+class VirtualHeap {
+public:
+    struct HeapParameters {
+        lifetime_e poolName;
+        unsigned int maxSize;
+        unsigned int allocIncrement;
+        bool32 isSavedInPCH:1;
+        bool32 field_0xc_bit1:1;
+        bool32 field_0xc_bit2:1;
+        bool32 field_0xc_bit3:1;
+        bool32 field_0xc_bit4:1;
+        bool32 field_0xc_bit5:1;
+        // bool32 isRecyclable:1;
+        // bool32 doStats:1;
+        undefined4 field_0x10;
+    };
 
-// ?GetAlignedPages@VirtualHeap@@QAEPAXIPAI@Z
-// public: void * __thiscall VirtualHeap::GetAlignedPages(unsigned int, unsigned int *)
+    static int Cmd_ScaleMemory;
 
-// ??0SubAllocator@VirtualHeap@@QAE@IW4lifetime_e@@@Z
-// public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, enum lifetime_e)
+    // ?FigureHeapSize@VirtualHeap@@SAJPBUHeapParameters@1@@Z
+    static long __fastcall FigureHeapSize(const HeapParameters *parameters);
 
-// ??0SubAllocator@VirtualHeap@@QAE@IPAV1@@Z
-// public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, class VirtualHeap *)
+    // ?FinishCreate@VirtualHeap@@QAEXXZ
+    // public: void __thiscall VirtualHeap::FinishCreate(void)
 
-// ??0SubAllocator@VirtualHeap@@QAE@I@Z
-// public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int)
+    // ?Create@VirtualHeap@@QAEHPBUHeapParameters@1@PAX@Z
+    // public: int __thiscall VirtualHeap::Create(struct VirtualHeap::HeapParameters const *, void *)
+    bool32 Create(const HeapParameters *parameters, void *address);
 
-// ?Create@SubAllocator@VirtualHeap@@QAEXW4lifetime_e@@@Z
-// public: void __thiscall VirtualHeap::SubAllocator::Create(enum lifetime_e)
+    // ?Destroy@VirtualHeap@@QAEXXZ
+    // public: void __thiscall VirtualHeap::Destroy(void)
 
-// ?Create@SubAllocator@VirtualHeap@@QAEXPAV2@@Z
-// public: void __thiscall VirtualHeap::SubAllocator::Create(class VirtualHeap *)
+    // ?HeapExtend@VirtualHeap@@QAEXXZ
+    // public: void __thiscall VirtualHeap::HeapExtend(void)
 
-// ?Clear@SubAllocator@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::SubAllocator::Clear(void)
+    // ?Reset@VirtualHeap@@QAEXXZ
+    void Reset();
 
-// ?GetMemory@SubAllocator@VirtualHeap@@AAEXI@Z
-// private: void __thiscall VirtualHeap::SubAllocator::GetMemory(unsigned int)
+    // ?GetAlignedPages@VirtualHeap@@QAEPAXIPAI@Z
+    // public: void * __thiscall VirtualHeap::GetAlignedPages(unsigned int, unsigned int *)
 
-// ?Reallocate@VirtualHeap@@QAEPAXPAXII@Z
-// public: void * __thiscall VirtualHeap::Reallocate(void *, unsigned int, unsigned int)
+    // ??0SubAllocator@VirtualHeap@@QAE@IW4lifetime_e@@@Z
+    // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, enum lifetime_e)
+
+    // ??0SubAllocator@VirtualHeap@@QAE@IPAV1@@Z
+    // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, class VirtualHeap *)
+
+    // ??0SubAllocator@VirtualHeap@@QAE@I@Z
+    // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int)
+
+    // ?Create@SubAllocator@VirtualHeap@@QAEXW4lifetime_e@@@Z
+    // public: void __thiscall VirtualHeap::SubAllocator::Create(enum lifetime_e)
+
+    // ?Create@SubAllocator@VirtualHeap@@QAEXPAV2@@Z
+    // public: void __thiscall VirtualHeap::SubAllocator::Create(class VirtualHeap *)
+
+    // ?Clear@SubAllocator@VirtualHeap@@QAEXXZ
+    // public: void __thiscall VirtualHeap::SubAllocator::Clear(void)
+
+private:
+    // ?GetMemory@SubAllocator@VirtualHeap@@AAEXI@Z
+    // private: void __thiscall VirtualHeap::SubAllocator::GetMemory(unsigned int)
+
+public:
+    // ?Reallocate@VirtualHeap@@QAEPAXPAXII@Z
+    // public: void * __thiscall VirtualHeap::Reallocate(void *, unsigned int, unsigned int)
+
+    // ?Cmd_ScaleMemory@VirtualHeap@@2HA
+    // public: static int VirtualHeap::Cmd_ScaleMemory
+private:
+    void *fpFreeBlock;
+    void *fpFreeEnd;
+    void *fpBaseAddress;
+    uint lCurrentSize;
+    const HeapParameters *pParameters;
+    uint lMaxSize;
+    undefined4 field_0x18;
+    undefined4 field_0x1c;
+};
 
 // ??0PCHHeap@@IAE@W4Mode_e@0@PAVPCHHeapManager@@@Z
 // protected: __thiscall PCHHeap::PCHHeap(enum PCHHeap::Mode_e, class PCHHeapManager *)
@@ -262,26 +294,40 @@
 
 class HeapManager {
 public:
-// ?InitGlobalHeaps@HeapManager@@SAXXZ
-// public: static void __cdecl HeapManager::InitGlobalHeaps(void)
+    // ?InitGlobalHeaps@HeapManager@@SAXXZ
+    // public: static void __cdecl HeapManager::InitGlobalHeaps(void)
     static void InitGlobalHeaps();
 
+    // ?ActiveHeaps@HeapManager@@2PAVVirtualHeap@@A
+    // public: static class VirtualHeap *HeapManager::ActiveHeaps
+    static VirtualHeap ActiveHeaps[M_LIFEMAX];
+
 private:
-// ?InitPCHLifeHeaps@HeapManager@@CAXXZ
-// private: static void __cdecl HeapManager::InitPCHLifeHeaps(void)
+    // ?InitPCHLifeHeaps@HeapManager@@CAXXZ
+    // private: static void __cdecl HeapManager::InitPCHLifeHeaps(void)
+    static void InitPCHLifeHeaps();
 
-// ?DestroyPCHLifeHeaps@HeapManager@@CAXXZ
-// private: static void __cdecl HeapManager::DestroyPCHLifeHeaps(void)
+    // ?DestroyPCHLifeHeaps@HeapManager@@CAXXZ
+    // private: static void __cdecl HeapManager::DestroyPCHLifeHeaps(void)
 
-// ?ReleaseAllHeaps@HeapManager@@SAXXZ
-// public: static void __cdecl HeapManager::ReleaseAllHeaps(void)
+    // ?ReleaseAllHeaps@HeapManager@@SAXXZ
+    // public: static void __cdecl HeapManager::ReleaseAllHeaps(void)
 
-// ?CreatePCH@HeapManager@@SAXPAEK@Z
-// public: static void __cdecl HeapManager::CreatePCH(unsigned char *, unsigned long)
+    // ?CreatePCH@HeapManager@@SAXPAEK@Z
+    // public: static void __cdecl HeapManager::CreatePCH(unsigned char *, unsigned long)
 
-// ?LoadPCH@HeapManager@@SAHPAEK@Z
-// public: static int __cdecl HeapManager::LoadPCH(unsigned char *, unsigned long)
+    // ?LoadPCH@HeapManager@@SAHPAEK@Z
+    // public: static int __cdecl HeapManager::LoadPCH(unsigned char *, unsigned long)
+
+    // ?ThePCH@HeapManager@@2VPCHHeapManager@@A
+    // public: static class PCHHeapManager HeapManager::ThePCH
+
+    // ?m_hMap@HeapManager@@0PAXA
+    // private: static void *HeapManager::m_hMap
+
+    static const VirtualHeap::HeapParameters TheHeapParameters[M_LIFEMAX];
 };
+
 // ?QueryLocalHeap@LocalPCHHeap@@UAEPAV1@XZ
 // public: virtual class LocalPCHHeap * __thiscall LocalPCHHeap::QueryLocalHeap(void)
 

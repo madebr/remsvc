@@ -174,7 +174,7 @@ void PreParseArgs(char **argv)
                 if (*envstr == ' ' && !in_quotes) {
                     break;
                 }
-                uint8_t cls1 = Charmap[*envstr];
+                unsigned char cls1 = Charmap[*envstr];
                 if (cls1 == 0) {
                     if (*envstr == '?') {
                         *ptr_write++ = *envstr;

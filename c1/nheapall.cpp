@@ -1,6 +1,13 @@
 #include "nheapall.h"
 
 #include "decomp.h"
+#include "error.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#endif
 
 // GLOBAL: MSVC5_C1 0x00000538
 // ??_7PCHHeap@@6B@
@@ -16,7 +23,8 @@
 
 // GLOBAL: MSVC5_C1 0x00001980
 // ?Cmd_ScaleMemory@VirtualHeap@@2HA
-// public: static int VirtualHeap::Cmd_ScaleMemory
+// GLOBAL: C1 0x0045cb2c
+int VirtualHeap::Cmd_ScaleMemory = 100;
 
 // GLOBAL: MSVC5_C1 0x00001984
 // ?result@?1??CanOSDoMemoryMapCorrectly@@YAHXZ@4HA
@@ -32,7 +40,18 @@
 
 // GLOBAL: MSVC5_C1 0x00008fd0
 // ?ActiveHeaps@HeapManager@@2PAVVirtualHeap@@A
-// public: static class VirtualHeap *HeapManager::ActiveHeaps
+// GLOBAL: C1 0x0046a378
+VirtualHeap HeapManager::ActiveHeaps[M_LIFEMAX];
+
+// GLOBAL: C1 0x00457ec0
+const VirtualHeap::HeapParameters HeapManager::TheHeapParameters[M_LIFEMAX] = {
+    { M_LIFETIME0, 50 * 1024 * 1024, 64 * 1024, 1, 0, 0, 0, 0, 1, 1, },
+    { M_LIFETIME1, 10 * 1024 * 1024, 32 * 1024, 0, 0, 0, 0, 1, 0, 4, },
+    { M_LIFETIME2, 10 * 1024 * 1024, 32 * 1024, 0, 0, 0, 1, 1, 0, 4, },
+    { M_LIFETIME3,  5 * 1024 * 1024, 16 * 1024, 0, 0, 0, 1, 1, 0, 4, },
+    { M_LIFETIME4,  5 * 1024 * 1024, 32 * 1024, 0, 0, 0, 1, 1, 0, 4, },
+    { M_LIFETIME5,  5 * 1024 * 1024, 32 * 1024, 0, 0, 0, 1, 1, 0, 4, }
+};
 
 // GLOBAL: MSVC5_C1 0x00009090
 // ?m_hMap@HeapManager@@0PAXA
@@ -112,7 +131,11 @@
 
 // FUNCTION: MSVC5_C1 0x00045c60
 // ?Initialize@AllSAClasses@@SAXXZ
-// public: static void __cdecl AllSAClasses::Initialize(void)
+// FUNCTION: C1 0x0041a3b4
+void AllSAClasses::Initialize()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00045cd0
 // ?Reinitialize@AllSAClasses@@SAXXZ
@@ -124,7 +147,15 @@
 
 // FUNCTION: MSVC5_C1 0x00045db0
 // ?FigureHeapSize@VirtualHeap@@SAJPBUHeapParameters@1@@Z
-// public: static long __cdecl VirtualHeap::FigureHeapSize(struct VirtualHeap::HeapParameters const *)
+// FUNCTION: C1 0x0041a383
+long __fastcall VirtualHeap::FigureHeapSize(const VirtualHeap::HeapParameters *parameters) {
+    size_t size = (size_t)((float)parameters->maxSize * (float)Cmd_ScaleMemory / 100.f);
+    size = MakeMultipleOf(size, parameters->allocIncrement);
+    if (size == 0) {
+        size = parameters->allocIncrement;
+    }
+    return size;
+}
 
 // FUNCTION: MSVC5_C1 0x00045de0
 // ?FinishCreate@VirtualHeap@@QAEXXZ
@@ -132,7 +163,23 @@
 
 // FUNCTION: MSVC5_C1 0x00045e00
 // ?Create@VirtualHeap@@QAEHPBUHeapParameters@1@PAX@Z
-// public: int __thiscall VirtualHeap::Create(struct VirtualHeap::HeapParameters const *, void *)
+// FUNCTION: C1 0x0041a2f3
+bool32 VirtualHeap::Create(const VirtualHeap::HeapParameters *parameters, void *address)
+{
+    pParameters = parameters;
+    lMaxSize = FigureHeapSize(parameters);
+#ifdef _WIN32
+    fpBaseAddress = VirtualAlloc(address, lMaxSize, MEM_RESERVE, PAGE_READWRITE);
+#else
+    fpBaseAddress = mmap(address, lMaxSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
+    if (fpBaseAddress == NULL) {
+        return FALSE;
+    }
+    field_0x1c = 0;
+    Reset();
+    return TRUE;
+}
 
 // FUNCTION: MSVC5_C1 0x00045e60
 // ?Destroy@VirtualHeap@@QAEXXZ
@@ -142,13 +189,32 @@
 // ?WhyIsHeapLow@@YAXXZ
 // void __cdecl WhyIsHeapLow(void)
 
+// FUNCTION: C1 0x0040c1af
+size_t __fastcall MakeMultipleOf(size_t size, size_t increment)
+{
+    size_t result;
+
+    result = (size / increment) * increment;
+    if (size % increment > 0) {
+        result += increment;
+    }
+    return result;
+}
+
 // FUNCTION: MSVC5_C1 0x00045f50
 // ?HeapExtend@VirtualHeap@@QAEXXZ
 // public: void __thiscall VirtualHeap::HeapExtend(void)
 
 // FUNCTION: MSVC5_C1 0x00045fc0
 // ?Reset@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::Reset(void)
+// FUNCTION: C1 0x0041a372
+void VirtualHeap::Reset()
+{
+    lCurrentSize = 0;
+    fpFreeBlock = fpBaseAddress;
+    fpFreeEnd = fpBaseAddress;
+    field_0x18 = 0;
+}
 
 // FUNCTION: MSVC5_C1 0x00045ff0
 // ?GetAlignedPages@VirtualHeap@@QAEPAXIPAI@Z
@@ -352,15 +418,35 @@
 
 // FUNCTION: MSVC5_C1 0x00047910
 // ?InitGlobalHeaps@HeapManager@@SAXXZ
-// C1: FUNCTION 0x00419264
+// FUNCTION: C1 0x00419264
 void HeapManager::InitGlobalHeaps()
 {
-    NOT_IMPLEMENTED();
+    int i;
+
+    InitPCHLifeHeaps();
+    for (i = 0; i < arraysize(ActiveHeaps); i++) {
+        if (!TheHeapParameters[i].isSavedInPCH) {
+            if (!ActiveHeaps[i].Create(&TheHeapParameters[i], NULL)) {
+                fatal_varargs(C1060);
+            }
+        }
+    }
+    AllSAClasses::Initialize();
 }
 
 // FUNCTION: MSVC5_C1 0x00047960
 // ?InitPCHLifeHeaps@HeapManager@@CAXXZ
-// private: static void __cdecl HeapManager::InitPCHLifeHeaps(void)
+// FUNCTION: C1 0x004192ab
+void HeapManager::InitPCHLifeHeaps()
+{
+    int i;
+
+    for (i = 0; i < arraysize(ActiveHeaps); i++) {
+        if (!ActiveHeaps[i].Create(&TheHeapParameters[i], NULL)) {
+            fatal_varargs(C1060);
+        }
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x000479a0
 // ?DestroyPCHLifeHeaps@HeapManager@@CAXXZ

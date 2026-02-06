@@ -13,4 +13,15 @@ typedef enum {
     CES_Done            = 8
 } CompilerExecutionState_t;
 
+typedef enum lifetime_e {
+    M_LIFEMIN = 0,
+    M_LIFETIME0 = 0,
+    M_LIFETIME1 = 1,
+    M_LIFETIME2 = 2,
+    M_LIFETIME3 = 3,
+    M_LIFETIME4 = 4,
+    M_LIFETIME5 = 5,
+    M_LIFEMAX = 6
+} lifetime_e;
+
 #endif
