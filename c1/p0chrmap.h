@@ -4,7 +4,8 @@
 // void __cdecl InitLeadByte(void)
 
 // ?Charmap@@3PAEA
-// unsigned char *Charmap
+// GLBOAL: C1 0x0045b0b0
+extern unsigned char Charmap[256];
 
 // ?unInitLeadByte@@YAXXZ
 // void __cdecl unInitLeadByte(void)

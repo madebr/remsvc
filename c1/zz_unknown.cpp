@@ -8,6 +8,8 @@
 #include <string.h>
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/mman.h>
 #endif
 
 #ifdef _WIN32
@@ -92,7 +94,7 @@ unsigned char * __fastcall PreAllocateMemory(size_t reserveSize, size_t commitSi
     }
     return commitAddr;
 #else
-    NOT_IMPLEMENTED();
+    return (unsigned char *) mmap(NULL, reserveSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
 }
 

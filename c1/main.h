@@ -101,9 +101,10 @@ extern SYSTEM_INFO systemInfo;
 
 // ?gatherOneCommandLineNugget@preParseArgsHelpers@@CAPADPAD0I@Z
 // private: static char * __cdecl preParseArgsHelpers::gatherOneCommandLineNugget(char *, char *, unsigned int)
+extern int __fastcall gatherOneCommandLineNugget(char *arg, unsigned int state);
 
 // ?PreParseArgs@@YAXPAPAD@Z
-extern void PreParseArgs(char **args);
+extern void PreParseArgs(char **argv);
 
 // ?CallMain@@YAHHPAPAD@Z
 // int __cdecl CallMain(int, char **)

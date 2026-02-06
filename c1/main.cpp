@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "initmain.h"
 #include "nheapall.h"
+#include "p0chrmap.h"
 #include "p0macros.h"
 #include "timing.h"
 #include "zz_unknown.h"
@@ -138,13 +139,75 @@ SYSTEM_INFO systemInfo;
 // FUNCTION: MSVC5_C1 0x00036a00
 // ?gatherOneCommandLineNugget@preParseArgsHelpers@@CAPADPAD0I@Z
 // private: static char * __cdecl preParseArgsHelpers::gatherOneCommandLineNugget(char *, char *, unsigned int)
-
+// FUNCTION: C1 0x00419928
+int __fastcall gatherOneCommandLineNugget(char *arg, unsigned int state)
+{
+    NOT_IMPLEMENTED();
+}
 // FUNCTION: MSVC5_C1 0x00036ac0
 // ?PreParseArgs@@YAXPAPAD@Z
 // FUNCTION: C1 0x00419862
-void PreParseArgs(char **args)
+void PreParseArgs(char **argv)
 {
-    NOT_IMPLEMENTED();
+    int state = 0;
+    char **arg = argv + 1;
+
+    while (*arg != NULL) {
+        state = gatherOneCommandLineNugget(*arg, state);
+        arg++;
+    }
+
+    bool in_quotes = false;
+    state = 0;
+    char *envstr = getenv("MSC_CMD_FLAGS");
+    if (envstr != NULL) {
+        char buffer[512];
+        char *ptr_write = buffer;
+        while (*envstr != '\0') {
+            while (*envstr == ' ') {
+                envstr++;
+            }
+            if (*envstr == '\0') {
+                break;
+            }
+            for (;;) {
+                if (*envstr == ' ' && !in_quotes) {
+                    break;
+                }
+                uint8_t cls1 = Charmap[*envstr];
+                if (cls1 == 0) {
+                    if (*envstr == '?') {
+                        *ptr_write++ = *envstr;
+                    } else if (envstr[1] == '"') {
+                        *ptr_write++ = *envstr++;
+                    } else {
+                        *ptr_write++ = '\\';
+                        envstr++;
+                        if (*envstr != '\0' && (*envstr != ' ' || in_quotes)) {
+                            *ptr_write++ = *envstr++;
+                        }
+                    }
+                } else if (cls1 == 0x16) {
+                    in_quotes = !in_quotes;  // '"'
+                    envstr++;
+                } else {
+                    *ptr_write++ = *envstr++;
+                    if (cls1 == 0x23) {
+                        // ???
+                        NOT_IMPLEMENTED();
+                    }
+                }
+                if (*envstr == '\0') {
+                    break;
+                }
+            }
+            if (*envstr != '\0') {
+                envstr++;
+            }
+            *ptr_write = '\0';
+            state = gatherOneCommandLineNugget(buffer, state);
+        }
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x00036b60
