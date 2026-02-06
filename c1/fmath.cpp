@@ -1,0 +1,81 @@
+// FUNCTION: MSVC5_C1 0x0004b380
+// __FMadd
+
+// FUNCTION: MSVC5_C1 0x0004b380
+// $$$00001
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b3cb
+// __FMsub
+
+// FUNCTION: MSVC5_C1 0x0004b3cb
+// $$$00003
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b416
+// __FMmul
+
+// FUNCTION: MSVC5_C1 0x0004b416
+// $$$00005
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b461
+// __FMdiv
+
+// FUNCTION: MSVC5_C1 0x0004b461
+// $$$00007
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b4c1
+// __FMrt_r4
+
+// FUNCTION: MSVC5_C1 0x0004b4c1
+// $$$00009
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b4e8
+// __FMrt_r8
+
+// FUNCTION: MSVC5_C1 0x0004b4e8
+// $$$00011
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b50f
+// __FMrt_r10
+
+// FUNCTION: MSVC5_C1 0x0004b50f
+// $$$00013
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b532
+// __FMr4_rt
+
+// FUNCTION: MSVC5_C1 0x0004b532
+// $$$00015
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b554
+// __FMr8_rt
+
+// FUNCTION: MSVC5_C1 0x0004b554
+// $$$00017
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b576
+// __FMrt_i4
+
+// FUNCTION: MSVC5_C1 0x0004b576
+// $$$00019
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b5a2
+// __FMcompare
+
+// FUNCTION: MSVC5_C1 0x0004b5a2
+// $$$00021
+// static
+
+// FUNCTION: MSVC5_C1 0x0004b5ee
+// $$$00023
+// static
+

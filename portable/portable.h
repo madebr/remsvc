@@ -1,7 +1,9 @@
 #pragma once
 
+#ifdef _WIN32
 #include <io.h>
 #include <process.h>
+#endif
 #include <stdio.h>
 
 #ifndef STDOUT_FILENO

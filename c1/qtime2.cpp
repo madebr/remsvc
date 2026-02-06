@@ -1,0 +1,9 @@
+// FUNCTION: MSVC5_C1 0x00014960
+// _AscFtime
+
+// FUNCTION: MSVC5_C1 0x000149d0
+// _GetCurTime
+
+// FUNCTION: MSVC5_C1 0x000149e0
+// _GetFTime
+
