@@ -124,35 +124,44 @@ public:
     // public: void __thiscall VirtualHeap::Destroy(void)
 
     // ?HeapExtend@VirtualHeap@@QAEXXZ
-    // public: void __thiscall VirtualHeap::HeapExtend(void)
+    void HeapExtend(void);
 
     // ?Reset@VirtualHeap@@QAEXXZ
     void Reset();
 
     // ?GetAlignedPages@VirtualHeap@@QAEPAXIPAI@Z
-    // public: void * __thiscall VirtualHeap::GetAlignedPages(unsigned int, unsigned int *)
+    void * GetAlignedPages(size_t countPages, size_t *ptrFree);
 
-    // ??0SubAllocator@VirtualHeap@@QAE@IW4lifetime_e@@@Z
-    // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, enum lifetime_e)
+    class SubAllocator {
+    public:
 
-    // ??0SubAllocator@VirtualHeap@@QAE@IPAV1@@Z
-    // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, class VirtualHeap *)
+        // ??0SubAllocator@VirtualHeap@@QAE@IW4lifetime_e@@@Z
+        // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, enum lifetime_e)
 
-    // ??0SubAllocator@VirtualHeap@@QAE@I@Z
-    // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int)
+        // ??0SubAllocator@VirtualHeap@@QAE@IPAV1@@Z
+        // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int, class VirtualHeap *)
 
-    // ?Create@SubAllocator@VirtualHeap@@QAEXW4lifetime_e@@@Z
-    // public: void __thiscall VirtualHeap::SubAllocator::Create(enum lifetime_e)
+        // ??0SubAllocator@VirtualHeap@@QAE@I@Z
+        // public: __thiscall VirtualHeap::SubAllocator::SubAllocator(unsigned int)
 
-    // ?Create@SubAllocator@VirtualHeap@@QAEXPAV2@@Z
-    // public: void __thiscall VirtualHeap::SubAllocator::Create(class VirtualHeap *)
+        // ?Create@SubAllocator@VirtualHeap@@QAEXW4lifetime_e@@@Z
+        void Create(lifetime_e);
 
-    // ?Clear@SubAllocator@VirtualHeap@@QAEXXZ
-    // public: void __thiscall VirtualHeap::SubAllocator::Clear(void)
+        // ?Create@SubAllocator@VirtualHeap@@QAEXPAV2@@Z
+        // public: void __thiscall VirtualHeap::SubAllocator::Create(class VirtualHeap *)
 
-private:
-    // ?GetMemory@SubAllocator@VirtualHeap@@AAEXI@Z
-    // private: void __thiscall VirtualHeap::SubAllocator::GetMemory(unsigned int)
+        // ?Clear@SubAllocator@VirtualHeap@@QAEXXZ
+        // public: void __thiscall VirtualHeap::SubAllocator::Clear(void)
+
+    private:
+        // ?GetMemory@SubAllocator@VirtualHeap@@AAEXI@Z
+        void GetMemory(size_t amount);
+
+        void *fpFreeBlock;
+        size_t FreeSize;
+        size_t nPages;
+        VirtualHeap *pHeap;
+    };
 
 public:
     // ?Reallocate@VirtualHeap@@QAEPAXPAXII@Z
@@ -164,12 +173,31 @@ private:
     void *fpFreeBlock;
     void *fpFreeEnd;
     void *fpBaseAddress;
-    uint lCurrentSize;
+    size_t lCurrentSize;
     const HeapParameters *pParameters;
-    uint lMaxSize;
+    size_t lMaxSize;
     undefined4 field_0x18;
     undefined4 field_0x1c;
 };
+
+template <typename EntryType, unsigned Count=1>
+class SAClass {
+    static VirtualHeap::SubAllocator m_allocator;
+public:
+    static void Initialize(lifetime_e lifetime=M_LIFETIME0) {
+        m_allocator.Create(lifetime);
+    }
+};
+
+struct GeneralAllocator_t{};
+struct SymbolAllocator_t{};
+struct TypeEntry_t{};
+struct IndirEntry_t{};
+struct FlistEntry_t{};
+struct Assoc_t{};
+struct Id_t{};
+struct s_defn{};
+struct Token{};
 
 // ??0PCHHeap@@IAE@W4Mode_e@0@PAVPCHHeapManager@@@Z
 // protected: __thiscall PCHHeap::PCHHeap(enum PCHHeap::Mode_e, class PCHHeapManager *)

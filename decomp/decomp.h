@@ -1,6 +1,7 @@
 #ifndef DECOMP_H
 #define DECOMP_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifdef _WIN32
@@ -40,6 +41,26 @@ static void inline ExitProcess(int code)
 {
     exit(code);
 }
+
+typedef struct {
+    union {
+        uint32_t dwOemId;
+        struct {
+            uint16_t wProcessorArchitecture;
+            uint16_t wReserved;
+        };
+    };
+    uint32_t dwPageSize;
+    void *lpMinimumApplicationAddress;
+    void *lpMaximumApplicationAddress;
+    uintptr_t dwActiveProcessorMask;
+    uint32_t dwNumberOfProcessors;
+    uint32_t dwProcessorType;
+    uint32_t dwAllocationGranularity;
+    uint16_t wProcessorLevel;
+    uint16_t wProcessorRevision;
+} SYSTEM_INFO;
+
 #endif
 
 #define NOT_IMPLEMENTED() \

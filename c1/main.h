@@ -26,10 +26,8 @@
 // ?HandlingControlC@@3HA
 extern bool32 HandlingControlC;
 
-#ifdef _WIN32
 // ?systemInfo@@3U_SYSTEM_INFO@@A
 extern SYSTEM_INFO systemInfo;
-#endif
 
 // ?hSemaphore@@3PAXA
 // void *hSemaphore

@@ -38,12 +38,21 @@
 // GLOBAL: C1 0x0045c6cc
 bool32 HandlingControlC = 0;
 
-#ifdef _WIN32
 // GLOBAL: MSVC5_C1 0x00001518
 // ?systemInfo@@3U_SYSTEM_INFO@@A
 // GLOBAL: C1 0x0045c6d8
-SYSTEM_INFO systemInfo;
-#endif
+SYSTEM_INFO systemInfo = {
+    {0},
+    4096,    // dwPageSize
+    NULL,    // lpMinimumApplicationAddress
+    NULL,    // lpMaximumApplicationAddress
+    0,       // dwActiveProcessorMask
+    0,       // dwNumberOfProcessors
+    0,       // dwProcessorType
+    0x10000, // dwAllocationGranularity
+    0,       // wProcessorLevel
+    0,       // wProcessorRevision
+};
 
 // GLOBAL: MSVC5_C1 0x0000153c
 // ?hSemaphore@@3PAXA
@@ -231,6 +240,8 @@ int main(int argc, char *argv[])
     FUN_0041934f();
 #ifdef _WIN32
     GetSystemInfo(&systemInfo);
+#else
+    systemInfo.dwPageSize = getpagesize();
 #endif
     HeapManager::InitGlobalHeaps();
     init_main1(argc, argv);

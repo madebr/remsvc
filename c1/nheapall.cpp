@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "error.h"
+#include "main.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -134,7 +135,15 @@ const VirtualHeap::HeapParameters HeapManager::TheHeapParameters[M_LIFEMAX] = {
 // FUNCTION: C1 0x0041a3b4
 void AllSAClasses::Initialize()
 {
-    NOT_IMPLEMENTED();
+  SAClass<GeneralAllocator_t>::Initialize();
+  SAClass<SymbolAllocator_t>::Initialize();
+  SAClass<TypeEntry_t>::Initialize();
+  SAClass<IndirEntry_t>::Initialize();
+  SAClass<FlistEntry_t>::Initialize();
+  SAClass<Assoc_t,1 >::Initialize();
+  SAClass<Id_t>::Initialize();
+  SAClass<s_defn>::Initialize();
+  SAClass<Token>::Initialize();
 }
 
 // FUNCTION: MSVC5_C1 0x00045cd0
@@ -203,7 +212,10 @@ size_t __fastcall MakeMultipleOf(size_t size, size_t increment)
 
 // FUNCTION: MSVC5_C1 0x00045f50
 // ?HeapExtend@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::HeapExtend(void)
+// GLOBAL: C1 0x0040c1cf
+void VirtualHeap::HeapExtend() {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00045fc0
 // ?Reset@VirtualHeap@@QAEXXZ
@@ -218,7 +230,17 @@ void VirtualHeap::Reset()
 
 // FUNCTION: MSVC5_C1 0x00045ff0
 // ?GetAlignedPages@VirtualHeap@@QAEPAXIPAI@Z
-// public: void * __thiscall VirtualHeap::GetAlignedPages(unsigned int, unsigned int *)
+// FUNCTION: C1 0x0040c3bd
+void * VirtualHeap::GetAlignedPages(size_t countPages, size_t *ptrFree)
+{
+    void *result = fpFreeBlock;
+    *ptrFree = (uintptr_t)fpBaseAddress + MakeMultipleOf((uintptr_t)result - (uintptr_t)fpBaseAddress + countPages * systemInfo.dwPageSize, systemInfo.dwPageSize) - (uintptr_t)fpFreeBlock;
+    fpFreeBlock = (void *)((uintptr_t)fpFreeBlock + *ptrFree);
+    if (fpFreeBlock > fpFreeEnd) {
+        HeapExtend();
+    }
+    return result;
+}
 
 // FUNCTION: MSVC5_C1 0x00046040
 // ??0SubAllocator@VirtualHeap@@QAE@IW4lifetime_e@@@Z
@@ -234,7 +256,12 @@ void VirtualHeap::Reset()
 
 // FUNCTION: MSVC5_C1 0x000460d0
 // ?Create@SubAllocator@VirtualHeap@@QAEXW4lifetime_e@@@Z
-// public: void __thiscall VirtualHeap::SubAllocator::Create(enum lifetime_e)
+// FUNCTION: 0x0041a29e
+void VirtualHeap::SubAllocator::Create(lifetime_e lifetime) {
+
+    pHeap = &HeapManager::ActiveHeaps[lifetime];
+    GetMemory(1);
+}
 
 // FUNCTION: MSVC5_C1 0x000460f0
 // ?Create@SubAllocator@VirtualHeap@@QAEXPAV2@@Z
@@ -246,7 +273,15 @@ void VirtualHeap::Reset()
 
 // FUNCTION: MSVC5_C1 0x00046120
 // ?GetMemory@SubAllocator@VirtualHeap@@AAEXI@Z
-// private: void __thiscall VirtualHeap::SubAllocator::GetMemory(unsigned int)
+// FUNCTION: C1 0x0040c390
+void VirtualHeap::SubAllocator::GetMemory(size_t amount)
+{
+    size_t count_pages = (amount - 1) / systemInfo.dwPageSize + 1;
+    if (count_pages <= nPages) {
+        count_pages = nPages;
+    }
+    fpFreeBlock = pHeap->GetAlignedPages(count_pages, &FreeSize);
+}
 
 // FUNCTION: MSVC5_C1 0x00046150
 // ?Reallocate@VirtualHeap@@QAEPAXPAXII@Z

@@ -1,5 +1,7 @@
 #include "globals.h"
 
+#include "nheapall.h"
+
 // GLOBAL: MSVC5_C1 0x00000050
 // ?g_hDLLHandle@@3PAXA
 // void *g_hDLLHandle
@@ -350,7 +352,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00003d90
 // ?m_allocator@?$SAClass@UFlistEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<struct FlistEntry_t, 1>::m_allocator
+// GLOBAL: C1 0x00460998
+template <>
+VirtualHeap::SubAllocator SAClass<FlistEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00003da0
 // ?NParseErrors@@3HA
@@ -378,7 +382,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00004018
 // ?m_allocator@?$SAClass@VToken@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<class Token, 1>::m_allocator
+// GLOBAL: C1 0x00460a18
+template <>
+VirtualHeap::SubAllocator SAClass<Token>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004028
 // ?ZnFlag@@3HA
@@ -402,7 +408,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00004040
 // ?m_allocator@?$SAClass@UIndirEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<struct IndirEntry_t, 1>::m_allocator
+// GLOBAL: C1 0x00460a40
+template <>
+VirtualHeap::SubAllocator SAClass<IndirEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004050
 // ?ilsDB@@3VILSink@@A
@@ -454,7 +462,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00004a78
 // ?m_allocator@?$SAClass@Us_defn@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<struct s_defn, 1>::m_allocator
+// GLOBAL: C1 0x00466040
+template <>
+VirtualHeap::SubAllocator SAClass<s_defn>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004a88
 // ?TmpTypePool@@3PAVType_t@@A
@@ -466,7 +476,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00004b30
 // ?m_allocator@?$SAClass@UId_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<struct Id_t, 1>::m_allocator
+// GLOBAL: C1 0x004660f8
+template <>
+VirtualHeap::SubAllocator SAClass<Id_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004b40
 // ?C_value@@3Tu_value@@A
@@ -530,7 +542,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00004cb0
 // ?m_allocator@?$SAClass@UAssoc_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<struct Assoc_t, 1>::m_allocator
+// GLOBAL: C1 0x00466170
+template <>
+VirtualHeap::SubAllocator SAClass<Assoc_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004cc0
 // ?QnamedTypeForThisDepth@@3PAPAVSymbol_t@@A
@@ -566,7 +580,9 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00004dd8
 // ?m_allocator@?$SAClass@VGeneralAllocator_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<class GeneralAllocator_t, 1>::m_allocator
+// GLOBAL: C1 0x00466298
+template <>
+VirtualHeap::SubAllocator SAClass<GeneralAllocator_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004de8
 // ?Case@@3PAUs_stack@@A
@@ -691,7 +707,9 @@ int Nerrors = 0;
 
 // GLOBAL: MSVC5_C1 0x00005090
 // ?m_allocator@?$SAClass@UTypeEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<struct TypeEntry_t, 1>::m_allocator
+// GLOBAL: C1 0x00466468
+template <>
+VirtualHeap::SubAllocator SAClass<TypeEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x000050a0
 // ?CurrFormalListType@@3W4FormalListKind_e@GTBFormalList@@A
@@ -731,7 +749,9 @@ int Nerrors = 0;
 
 // GLOBAL: MSVC5_C1 0x000050c8
 // ?m_allocator@?$SAClass@VSymbolAllocator_t@@$00@@0USubAllocator@VirtualHeap@@A
-// private: static struct VirtualHeap::SubAllocator SAClass<class SymbolAllocator_t, 1>::m_allocator
+// GLOBAL: C1 0x004664a0
+template <>
+VirtualHeap::SubAllocator SAClass<SymbolAllocator_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x000050d8
 // ?WarnIsError@@3HA
