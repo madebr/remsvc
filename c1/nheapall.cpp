@@ -214,7 +214,21 @@ size_t __fastcall MakeMultipleOf(size_t size, size_t increment)
 // ?HeapExtend@VirtualHeap@@QAEXXZ
 // GLOBAL: C1 0x0040c1cf
 void VirtualHeap::HeapExtend() {
-    NOT_IMPLEMENTED();
+    if ((uintptr_t)fpFreeBlock - (uintptr_t)fpBaseAddress > lMaxSize) {
+        fatal_varargs(C1076);
+    }
+    size_t size = MakeMultipleOf((uintptr_t)fpFreeBlock - (uintptr_t)fpFreeEnd, pParameters->allocIncrement);
+    bool success;
+#ifdef _WIN32
+    success = VirtualAlloc(fpFreeEnd, size, MEM_COMMIT, PAGE_READWRITE) != NULL;
+#else
+    success = mmap(fpFreeEnd, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)  != MAP_FAILED;;
+#endif
+    if (!success) {
+        fatal_varargs(C1060);
+    }
+    fpFreeEnd = (void *)((uintptr_t)fpFreeEnd + size);
+    lCurrentSize += size;
 }
 
 // FUNCTION: MSVC5_C1 0x00045fc0
