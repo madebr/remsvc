@@ -1,8 +1,12 @@
 #ifndef INITMAIN_H
 #define INITMAIN_H
 
+#include "decomp.h"
+
+#include <stdlib.h>
+
 // ?Unknown@@3PADA
-// char *Unknown
+extern const char *Unknown_;
 
 // ?C7CompatCVInfo@@3HA
 // int C7CompatCVInfo
@@ -294,6 +298,7 @@ extern char **Argv;
 
 // ?SzCanonFullPath@@YAPADPADPBDI@Z
 // char * __cdecl SzCanonFullPath(char *, char const *, unsigned int)
+extern char * __fastcall SzCanonFullPath(char *buffer, char const *path, size_t bufferCap);
 
 // ?szRelToPdb@@YAPADPBD@Z
 // char * __cdecl szRelToPdb(char const *)
@@ -306,8 +311,5 @@ extern char **Argv;
 
 // ?init_main1@@YAXHPAPAD@Z
 extern void init_main1(int argc, char **argv);
-
-// ?InitCanonCharMap@@YAXXZ
-// void __cdecl InitCanonCharMap(void)
 
 #endif /* INITMAIN_H */

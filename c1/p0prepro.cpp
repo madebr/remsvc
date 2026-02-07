@@ -1,3 +1,5 @@
+#include "p0prepro.h"
+
 // GLOBAL: MSVC5_C1 0x00001124
 // ??_C@_03BNFD@?$CF?$CKc?$AA@
 // "%*c"
@@ -96,7 +98,11 @@
 
 // FUNCTION: MSVC5_C1 0x0000f860
 // ?fStrCleanCmp@@YAHPAE0@Z
-// int __cdecl fStrCleanCmp(unsigned char *, unsigned char *)
+// FUNCTION: C1 0x004236da
+bool32 __fastcall fStrCleanCmp(const char *str1, const char *str2)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0000f900
 // ?Allocate@SubAllocator@VirtualHeap@@QAEPAXI@Z

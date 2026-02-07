@@ -1,3 +1,5 @@
+#include "alloc.h"
+
 // GLOBAL: MSVC5_C1 0x000015ec
 // ?currentTreeLife@@3W4lifetime_e@@A
 // enum lifetime_e currentTreeLife
@@ -28,7 +30,11 @@
 
 // FUNCTION: MSVC5_C1 0x0003bca0
 // ?pstrdup@@YAPADPADW4lifetime_e@@@Z
-// char * __cdecl pstrdup(char *, enum lifetime_e)
+// FUNCTION C1: 0x00423857
+char * __fastcall pstrdup(char *text, lifetime_e lifetime)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003bd10
 // ?pstrndup@@YAPADPADW4lifetime_e@@H@Z

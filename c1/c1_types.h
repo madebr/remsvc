@@ -24,4 +24,9 @@ typedef enum lifetime_e {
     M_LIFEMAX = 6
 } lifetime_e;
 
+typedef struct {
+    int number;
+    int severity;
+} s_cmd_line_warning_t;
+
 #endif

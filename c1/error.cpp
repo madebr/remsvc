@@ -78,7 +78,11 @@ char gError_message_buffer[256];
 
 // FUNCTION: MSVC5_C1 0x0003bf10
 // ?fatal_io_CRT@@YAHHHPAE@Z
-// int __cdecl fatal_io_CRT(int, int, unsigned char *)
+// FUNCTION: C1 0x00448160
+int fatal_io_CRT(FatalNumber fatalCode, int category, const char *text)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003bf60
 // ?fatal_io_Win32@@YAHHHPAE@Z

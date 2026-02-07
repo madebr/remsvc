@@ -532,7 +532,7 @@ BOOL gOption_BMOVE = FALSE;
 BOOL gOption_BShowIncl = FALSE;
 
 // GLOBAL: C1 0x0045c588
-const char *Unknown = NULL;
+const char *Unknown_ = NULL;
 
 // GLOBAL: C1 0x0045f4b8
 const char *ErrString = NULL;
@@ -541,7 +541,7 @@ const char *ErrString = NULL;
 ISourceBrowser *pSbr;
 
 // GLOBAL: C1 0x00454d50
-const tArgument_char_spec gDebug_info_arg_specs[11] = {
+const subtab Ztab[11] = {
     { 'a', 0x5, { &gOption_Ze, }, },
     { 'e', 0x1, { &gOption_Ze, }, },
     { 'E', 0x1, { &PchC.option_ZE, }, },
@@ -588,7 +588,7 @@ cmdtab cmdtab[89] = {
     { "-ZBe", { &PchC.p_BigIntExtension }, true, 0x01, },
     { "-ZB", { &PchC.p_SizeOfBigInt }, true, 0x01, },
     { "-ZB*", { &PchC.p_SizeOfBigInt }, true, 0x24, },
-    { "-Z*", { &gDebug_info_arg_specs }, true, 0x23, },
+    { "-Z*", { &Ztab }, true, 0x23, },
     { "-ef#", { &gError_message_path }, true, 0x22, },
     { "-il$", { &Basename }, true, 0x22, },
     { "-xc", { &gOption_xc }, true, 0x01, },
@@ -640,11 +640,11 @@ cmdtab cmdtab[89] = {
     { "-G#", { &PchC.option_G }, true, 0x24, },
     { "-BMOVE", { &gOption_BMOVE }, true, 0x01, },
     { "-C9IL", { &PchC.option_C9IL }, true, 0x01, },
-    { "-SplitPdbs", { &PchC.option_SplitPdbs }, true, 0x01, },
-    { "-SplitPdbs-", { &PchC.option_SplitPdbs }, true, 0x05, },
+    { "-SplitPdbs", { &PchC.p_Cmd_splitPdbs }, true, 0x01, },
+    { "-SplitPdbs-", { &PchC.p_Cmd_splitPdbs }, true, 0x05, },
     { "-NoEHForNew", { &PchC.option_NoEHForNew }, true, 0x01, },
     { "-Bshow_incl", { &gOption_BShowIncl }, true, 0x01, },
-    { "*", { &Unknown }, false, 0x22, },
+    { "*", { &Unknown_ }, false, 0x22, },
     { 0 },
 };
 
@@ -2806,9 +2806,9 @@ void __fastcall init_main1(int argc, char **argv)
             }
         }
     }
-    listDefs = CreateStringVector(40, 1);
-    listIncludes = CreateStringVector(40, 1);
-    listForcedIncludes = CreateStringVector(40, 1);
+    listDefs = ListNewSize<void_*>(40, 1);
+    listIncludes = ListNewSize<void_*>(40, 1);
+    listForcedIncludes = ListNewSize<void_*>(40, 1);
     if (!PchC.option_C9IL) {
         crc32ClCmd.Update("C", 1);
     }
@@ -2832,7 +2832,7 @@ void __fastcall init_main1(int argc, char **argv)
     }
     PchC.option_C9IL |= !PchC.option_Gi;
     PchC.p_Cmd_fICCBrowse &= PchC.option_Gi;
-    if (PchC.option_SplitPdbs) {
+    if (PchC.p_Cmd_splitPdbs) {
         gPTR_00466458 = &gStruct_004664b0;
     } else {
         gPTR_00466458 = &gStruct_004662a8;
@@ -2850,8 +2850,8 @@ void __fastcall init_main1(int argc, char **argv)
         }
         strcpy(PchC.Yl_path, PchC.Yl_path);
     }
-    if (Unknown != NULL) {
-        FatalErrorF(7, Unknown, "c1");
+    if (Unknown_ != NULL) {
+        FatalErrorF(7, Unknown_, "c1");
     }
     if (Input_file == NULL) {
         fatal_varargs(8);

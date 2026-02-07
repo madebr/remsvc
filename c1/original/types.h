@@ -87,7 +87,7 @@ struct tStruct_0045c0a8 {
     BOOL option_GI;
     undefined4 field_0x3f8;
     BOOL p_Cmd_fICCBrowse;
-    BOOL option_SplitPdbs;
+    BOOL p_Cmd_splitPdbs;
     BOOL option_NoEHForNew;
 };
 
@@ -98,11 +98,11 @@ typedef struct tStringVector {
     const char **data;
 } tStringVector;
 
-typedef struct tArgument_char_spec {
+typedef struct subtab {
     char c;
     int32_t field_0x4;
     BOOL *ptr_bool;
-} tArgument_char_spec;
+} subtab;
 
 typedef struct cmdtab {
     const char *format;
@@ -112,7 +112,7 @@ typedef struct cmdtab {
         char **ptr_str;
         const char **ptr_cstr;
         int32_t *ptr_int;
-        const tArgument_char_spec *ptr_char_spec;
+        const subtab *ptr_char_spec;
         tStringVector **ptr_string_vector;
     };
     bool field_0x8;

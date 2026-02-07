@@ -2,7 +2,11 @@
 #define GLOBALS_H
 
 #include "c1_types.h"
+#include "crc32.h"
 #include "decomp.h"
+#include "getflags.h"
+#include "list.h"
+#include "pdbmgr.h"
 
 typedef struct {
     //uint LexIdentifier:1;
@@ -193,8 +197,8 @@ typedef struct PchC_s {
     // bool p_OptFlgPMMI;
     // bool p_OptFlgPMVI;
     // int p_OptFlgVtorDisp;
-    // bool p_Symbolic_debug_holder;
-    // bool p_PchDFlag;
+    bool32 p_Symbolic_debug_holder;
+    bool32 p_PchDFlag;
     // ushort p_ObjNamSize;
     // ushort p_SbrNamSize;
     // bool p_NoPoundLines;
@@ -208,6 +212,7 @@ typedef struct PchC_s {
     // bool p_Cmd_cdecl;
     // bool p_Cmd_stdcall;
     // bool p_Cmd_fastcall;
+    bool32 p_Cmd_Jd;
     // bool p_Cmd_ROStrPool;
     // bool p_ROStringPool;
     // bool p_CodeBasedStrings;
@@ -238,16 +243,17 @@ typedef struct PchC_s {
     // bool p_OptFlgSpeed;
     // bool p_OptFlgGlobCse;
     // bool p_OptFlgFrame;
-    // bool p_FUseTypeServer;
-    // uchar p_FdName[778];
-    // char p_szYlstring[778];
+    bool32 p_FUseTypeServer;
+    char p_FdName[256];
+    char p_szYlstring[256];
     // char p_szPchHeaderFile[778];
     // struct PDBSIG p_PchTPISig;
     // struct PDBSIG p_PchIDBSig;
-    // bool p_Cmd_fICC;
+    bool32 p_Cmd_C9IL;
+    bool32 p_Cmd_fICC;
     // bool p_Cmd_fICCForceParseAll;
     // bool p_Cmd_fICCGLValidate;
-    // bool p_Cmd_fICCBrowse;
+    bool32 p_Cmd_fICCBrowse;
     // bool p_fWarnPort64;
     // bool p_fNoDefaultLib;
     // int p_Warn_level;
@@ -268,10 +274,230 @@ typedef struct PchC_s {
     // bool p_Cmd_ShowContinuationNumbers;
     // bool p_Cmd_Import_No_Registry;
     // bool p_Cmd_Import_No_Path;
+    bool32 p_Cmd_splitPdbs;
 } PchC_t;
 
+typedef struct {
+    // struct Symbol_t *p_AsmDollarSign;
+    // struct Symbol_t *p_AsmLocalSize;
+    // struct DefdFuncsCluster_t *p_DefdFuncsHead;
+    // struct DefdFuncsCluster_t *p_DefdFuncsTail;
+    // struct DictionaryNoMoveToFront<Symbol_t_*,long,DictionaryBucket<Symbol_t_*,long,&bool___fastcall_BucketEq<Symbol_t_*>(Symbol_t_*,Symbol_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictInitPchOffset;
+    // struct DictionaryNoMoveToFront<Symbol_t_*,unsigned_long,DictionaryBucket<Symbol_t_*,unsigned_long,&bool___fastcall_BucketEq<Symbol_t_*>(Symbol_t_*,Symbol_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictExtraSize;
+    // struct s_defn **p_Defn_level_0;
+    // struct Type_t *p_Enum_head;
+    // struct FlistEntry_t **p_Flist_table;
+    // struct Id_t **p_IdTable;
+    // struct IndirEntry_t **p_Indir_table;
+    // struct s_StackOfPragmaItem_t *p_pPackStack;
+    // struct s_StackOfPragmaItem_t *p_pConformStack;
+    // struct s_StackOfPragmaItem_t *p_pManagedStack;
+    // struct s_StackOfPragmaItem_t *p_pDataSegStack;
+    // struct s_StackOfPragmaItem_t *p_pCodeSegStack;
+    // struct s_StackOfPragmaItem_t *p_pBssSegStack;
+    // struct s_StackOfPragmaItem_t *p_pConstSegStack;
+    // struct s_StackOfPragmaItem_t *p_pFPMControlStack;
+    // struct s_StackOfPragmaItem_t *p_pStrictGSCheckStack;
+    // struct PragmaItem_t *p_pPragmaStackFreeSpace;
+    // struct LifetimeStack *p_pLifetimeStackFreeSpace;
+    // struct s_StringSubstitution_t *p_PIncludeAliasList;
+    // struct s_list<void_*> *p_pchlistDefs;
+    // struct s_list<void_*> *p_pchlistIncludes;
+    // struct s_list<void_*> *p_pchlistAssemblyIncludes;
+    // struct Type_t *p_Ret_type;
+    // struct Symbol_t *p_Segment;
+    // struct Type_t *p_ST_BTcchar;
+    // struct Type_t *p_ST_BTcint;
+    // struct Type_t *p_ST_BTcuchar;
+    // struct Type_t *p_ST_BTcushort;
+    // struct Type_t *p_ST_BTcwchar_t;
+    // struct Type_t *p_ST_BTfloat;
+    // struct Type_t *p_ST_BTdouble;
+    // struct Type_t *p_ST_BTldouble;
+    // struct Type_t *p_ST_BTint;
+    // struct Type_t *p_ST_BTint64;
+    // struct Type_t *p_ST_BTuint64;
+    // struct Type_t *p_ST_BTarbint;
+    // struct Type_t *p_ST_BTlong;
+    // struct Type_t *p_ST_BTulong;
+    // struct Type_t *p_ST_BTsegment;
+    // struct Type_t *p_ST_BTshort;
+    // struct Type_t *p_ST_BTushort;
+    // struct Type_t *p_ST_BTchar;
+    // struct Type_t *p_ST_BTuchar;
+    // struct Type_t *p_ST_BTschar;
+    // struct Type_t *p_ST_BTuint;
+    // struct Type_t *p_ST_BTsize_t;
+    // struct Type_t *p_ST_BTptrdiff_t;
+    // struct Type_t *p_ST_BTundef;
+    // struct Type_t *p_ST_BTvoid;
+    // struct Type_t *p_ST_BTnullptr;
+    // struct Type_t *p_ST_function;
+    // struct Type_t *p_ST_pVoid;
+    // struct Type_t *p_ST_BTindex_t;
+    // struct Type_t *p_ST_BTUnknown;
+    // struct Type_t *p_ST_BTEllipsis;
+    // struct Symbol_t *p_pPureStub;
+    // struct SymbolTableManager_t *p_pSymbolTableManager;
+    // struct Type_t *p_pIndFunc[7][3];
+    // struct CommentPragma_t *p_CommentPragmaList;
+    // struct DictionaryNoMoveToFront<Symbol_t_*,unsigned_long,DictionaryBucket<Symbol_t_*,unsigned_long,&bool___fastcall_BucketEq<Symbol_t_*>(Symbol_t_*,Symbol_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictVarargFuncTokenCode;
+    // struct DictionaryNoMoveToFront<Symbol_t_*,ComPlusMetaData_t_*,DictionaryBucket<Symbol_t_*,ComPlusMetaData_t_*,&bool___fastcall_BucketEq<Symbol_t_*>(Symbol_t_*,Symbol_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictComPlusMetaData;
+    // struct s_dict_t *p_dictLocalsToGlobals;
+    // struct DictionaryNoMoveToFront<Type_t_const_*,Symbol_t_*,DictionaryBucket<Type_t_const_*,Symbol_t_*,&bool___fastcall_BucketEq<Type_t_const_*>(Type_t_const_*,Type_t_const_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictTypeTokenSyms;
+    // struct s_flist *p_pVoidList;
+    // struct s_flist *p_pExplicitVoidList;
+    // struct s_flist *p_pZeroParmList;
+    // struct Symbol_t *p_AnonTextSegment;
+    // struct Symbol_t *p_DefaultDataSegment;
+    // struct Symbol_t *p_DefaultCodeSegment;
+    // struct Symbol_t *p_DefaultFarDataSegment;
+    // struct Token *p_HardTokenArray[427];
+    // struct Token *p_defaultToken;
+    // struct DepData *p_pMRDependencies;
+    // struct Symbol_t *p_psym__LINE__Var;
+    // struct ExtensibleDictionaryNoMoveToFront<unsigned_long,Symbol_t_*,DictionaryBucket<unsigned_long,Symbol_t_*,&bool___fastcall_BucketEq<unsigned_long>(unsigned_long,unsigned_long),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_SegmentInfoDictionary;
+    // struct DictionaryNoMoveToFront<Symbol_t_const_*,Id_t_*,DictionaryBucket<Symbol_t_const_*,Id_t_*,&bool___fastcall_BucketEq<Symbol_t_const_*>(Symbol_t_const_*,Symbol_t_const_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_TextForDeprecatedDictionary;
+    // struct s_list<void_*> *p_ListOfGUIDInits;
+    unsigned char p_pWarningTable[1000];
+    // struct set<WarningNumber,std::less<WarningNumber>,stl::STLAlloc_t<WarningNumber,0>_> *p_pUsedOnceWarnings;
+    // struct SavedMacroList_t *p_pSavedMacros;
+    // struct Symbol_t *p_pGlobalVoidFormalSymbol;
+    // struct s_dict_t *p_AlignDictionary;
+    // struct Symbol_t *p_pUnknownFunction;
+    // struct DictionaryNoMoveToFront<unsigned_short,Id_t_*,DictionaryBucket<unsigned_short,Id_t_*,&bool___fastcall_BucketEq<unsigned_short>(unsigned_short,unsigned_short),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_NativeToManagedIdsDict;
+    // struct ExtensibleDictionaryNoMoveToFront<Symbol_t_*,GlobalObjectLifetimeKind_t,DictionaryBucket<Symbol_t_*,GlobalObjectLifetimeKind_t,&bool___fastcall_BucketEq<Symbol_t_*>(Symbol_t_*,Symbol_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictGlobalObjectLifetime;
+    // struct DictionaryNoMoveToFront<Id_t_*,Id_t_*,DictionaryBucket<Id_t_*,Id_t_*,&bool___fastcall_BucketEq<Id_t_*>(Id_t_*,Id_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_pNormalizedFileName;
+    // struct Id_t *p_PP_returnsudt;
+    // struct Id_t *p_PP_Boolean;
+    // struct Id_t *p_PP_Char;
+    // struct Id_t *p_PP_SByte;
+    // struct Id_t *p_PP_Byte;
+    // struct Id_t *p_PP_Int16;
+    // struct Id_t *p_PP_UInt16;
+    // struct Id_t *p_PP_Int32;
+    // struct Id_t *p_PP_UInt32;
+    // struct Id_t *p_PP_Int64;
+    // struct Id_t *p_PP_UInt64;
+    // struct Id_t *p_PP_Single;
+    // struct Id_t *p_PP_Double;
+    // struct Id_t *p_PP_Void;
+    // struct Id_t *p_PP_System;
+    // struct Id_t *p_PP_TypedByRef;
+    // struct Id_t *p_PP_IntPtr;
+    // struct Id_t *p_PP_UIntPtr;
+    // struct Id_t *p_PP_Array;
+    // struct Id_t *p_PP_ArgIterator;
+    // struct Id_t *p_PP_RuntimeArgumentHandle;
+    // struct Id_t *p_PP_Type;
+    // struct Id_t *p_PP_GetTypeFromHandle;
+    // struct Id_t *p_PP_COMPlus_ctor;
+    // struct Id_t *p_PP_IsCXXReferenceModifier;
+    // struct Id_t *p_PP_IsCXXPointerModifier;
+    // struct Id_t *p_PP_IsExplicitlyDereferenced;
+    // struct Id_t *p_PP_IsConstModifier;
+    // struct Id_t *p_PP_IsConst;
+    // struct Id_t *p_PP_IsVolatileModifier;
+    // struct Id_t *p_PP_IsVolatile;
+    // struct Id_t *p_PP_IsLongModifier;
+    // struct Id_t *p_PP_IsLong;
+    // struct Id_t *p_PP_NoSignSpecifiedModifier;
+    // struct Id_t *p_PP_IsSignUnspecifiedByte;
+    // struct Id_t *p_PP_IsCopyConstructed;
+    // struct Id_t *p_PP_DecoratedNameAttribute;
+    // struct Id_t *p_PP_MiscellaneousBitsAttribute;
+    // struct Id_t *p_PP_NativeCppClassAttribute;
+    // struct Id_t *p_PP_RequiredAttribute;
+    // struct Id_t *p_PP_DebugInfoInPDBAttribute;
+    // struct Id_t *p_PP_CLSCompliantAttribute;
+    // struct Id_t *p_PP_IsEnumModifier;
+    // struct Id_t *p_PP_va_list;
+    // struct Id_t *p_PP_MarshalWorkaround;
+    // struct Id_t *p_PP_CompilerMarshalOverride;
+    // struct Id_t *p_PP_BoxedModifier;
+    // struct Id_t *p_PP_IsBoxed;
+    // struct Id_t *p_PP_IntrinsicModifier;
+    // struct Id_t *p_PP_IsJitIntrinsic;
+    // struct Id_t *p_PP_CxxUdtReturnStyleModifier;
+    // struct Id_t *p_PP_IsUdtReturn;
+    // struct Id_t *p_PP_AllowMultiple;
+    // struct Id_t *p_PP_Inherited;
+    // struct Id_t *p_PP_ValidOn;
+    // struct Id_t *p_PP_CppImplementationDetails;
+    // struct Id_t *p_PP_CrtImplementationDetails;
+    // struct Id_t *p_PP_alloca;
+    // struct Id_t *p_PP_noop;
+    // struct Id_t *p_PP_defined;
+    // struct Id_t *p_PP_formal;
+    // struct Id_t *p_PP_ellipsis;
+    // struct Id_t *p_PP_cast;
+    // struct Id_t *p_PP_main;
+    // struct Id_t *p_PP_WinMain;
+    // struct Id_t *p_PP_LibMain;
+    // struct Id_t *p_PP_wmain;
+    // struct Id_t *p_PP_wWinMain;
+    // struct Id_t *p_PP_alignment;
+    // struct Id_t *p_PP_unnamedTag;
+    // struct Id_t *p_PP_unnamedSymbol;
+    // struct Id_t *p_PP_UDCTemplate;
+    // struct Id_t *p_PP_dollar;
+    // struct Id_t *p_PP_drectve;
+    // struct Id_t *p_PP_guard;
+    // struct Id_t *p_PP_thread_guard;
+    // struct Id_t *p_PP_setjmp;
+    // struct Id_t *p_PP_setjmpex;
+    // struct Id_t *p_PP_HRESULT;
+    // struct Id_t *p_PP_wchar_t;
+    // struct Id_t *p_PP_InternalPragmaState;
+    // struct Id_t *p_PP_localsize;
+    // struct Id_t *p_PP_va_alist;
+    // struct Id_t *p_PP__LINE__Var;
+    // struct Id_t *p_PP_size_t;
+    // struct Id_t *p_PP_ptrdiff_t;
+    // struct Id_t *p_PP__FUNCTION__;
+    // struct Id_t *p_PP__FUNCDNAME__;
+    // struct Id_t *p_PP__FUNCSIG__;
+    // struct Id_t *p_PP__FSTREXP;
+    // struct Id_t *p_PP__LPREFIX;
+    // struct Id_t *p_PP__APREFIX;
+    // struct Id_t *p_PP_m64;
+    // struct Id_t *p_PP_m128;
+    // struct Id_t *p_PP_vc_attributes;
+    // struct Id_t *p_PP_vc_helper_attributes;
+    // struct Id_t *p_PP_vc_atl_attributes;
+    // struct Id_t *p_PP_Invoke;
+    // struct Id_t *p_PP_BeginInvoke;
+    // struct Id_t *p_PP_EndInvoke;
+    // struct Id_t *p_PP_COMPlus_dtor;
+    // struct Id_t *p_PP_XML_ctor;
+    // struct Id_t *p_PP_XML_cctor;
+    // struct Id_t *p_PP_op_Subscript;
+    // struct Id_t *p_PP_LRBRACK;
+    // struct Id_t *p_PP_op_FunctionCall;
+    // struct Id_t *p_PP_op_Multiply;
+    // struct Id_t *p_PP_op_PointerDereference;
+    // struct Id_t *p_PP_delegate;
+    // struct Id_t *p_PP_event;
+    // struct Id_t *p_PP_gc;
+    // struct Id_t *p_PP_property;
+    // struct Id_t *p_PP_finally;
+    // struct Id_t *p_PP_initonly;
+    // struct Id_t *p_PP_internal;
+    // struct Id_t *p_PP_literal;
+    // struct Id_t *p_PP_ImageBase;
+    // struct Id_t *p_idCtorSeg;
+    // struct Symbol_t *p_pSym_vc_attributes;
+    // struct Symbol_t *p_pSym_vc_helper_attributes;
+    // struct Symbol_t *p_pSym_vc_atl_attributes;
+    // struct set<std::pair<Symbol_t_*,unsigned_long>,std::less<std::pair<Symbol_t_*,unsigned_long>_>,stl::STLAlloc_t<std::pair<Symbol_t_*,unsigned_long>,0>_> *p_pExportedTypes;
+    // struct map<long,long,std::less<long>,stl::STLAlloc_t<std::pair<long_const_,long>,0>_> *p_pDeclToDefTIMap;
+    // struct list<Type_t_const_*,stl::STLAlloc_t<Type_t_const_*,0>_> *p_pDeferredPTMTypes;
+    // struct set<long,std::less<long>,stl::STLAlloc_t<long,0>_> *p_pReferencedTIs;
+    // struct TypeEntry_t **p_Type_table;
+} pch_roots;
+
 typedef struct PchS_s {
-    // struct pch_roots rs;
+    pch_roots rs;
     // int p_PchAllBiopsCount;
     // uint p_CurClusterNdx;
     // ulong p_curIlKey;
@@ -282,12 +508,11 @@ typedef struct PchS_s {
     // int p_PchChksum;
     // ulong p_TypesOffset;
     // int p_PragmaVtorDisp;
-    // uint p_warnP2Min;
-    // uint p_warnP2Max;
+    unsigned int p_warnP2Min;
+    unsigned int p_warnP2Max;
     ParseFlags_t p_ParseFlags;
     // ulong p_PchTPIAge;
     // undefined;
-    bool32 p_Cmd_C9IL;
     // bool p_FpExcept;
     // bool p_FpPrecise;
     // ulong p_PchIDBAge;
@@ -303,7 +528,11 @@ typedef struct PchS_s {
 // void *g_hDLLHandle
 
 // ?TPIMgr@@3VPDBManager_t@@A
-// class PDBManager_t TPIMgr
+extern PDBManager_t TPIMgr;
+
+extern PDBManager_t SplitTPIMgr;
+
+extern PDBManager_t *p_TPIMgr;
 
 // ?fSkipPDBOpen@@3HA
 // int fSkipPDBOpen
@@ -327,16 +556,16 @@ extern PchC_t PchC;
 // int MemoryStatsLevel
 
 // ?PchUFlag@@3HA
-// int PchUFlag
+extern bool32 PchUFlag;
 
 // ?PchUFile@@3PAEA
-// unsigned char *PchUFile
+extern char *PchUFile;
 
 // ?PchCFlag@@3HA
-// int PchCFlag
+extern bool32 PchCFlag;
 
 // ?PchCFile@@3PAEA
-// unsigned char *PchCFile
+extern char *PchCFile;
 
 // ?PchXFlag@@3HA
 // int PchXFlag
@@ -345,7 +574,7 @@ extern PchC_t PchC;
 // unsigned char *PchXFile
 
 // ?szCmd_Ylstring@@3PADA
-// char *szCmd_Ylstring
+extern const char *szCmd_Ylstring;
 
 // ?PchPFile@@3PAEA
 // unsigned char *PchPFile
@@ -366,7 +595,7 @@ extern PchC_t PchC;
 // int PchFileNameFromCmdLine
 
 // ?fPersistentPch@@3HA
-// int fPersistentPch
+extern bool32 fPersistentPch;
 
 // ?PchReuseCVTypes@@3HA
 // int PchReuseCVTypes
@@ -399,7 +628,7 @@ extern PchC_t PchC;
 // char *OutFil
 
 // ?szPDBName@@3PADA
-// char *szPDBName
+extern const char *szPDBName;
 
 // ?StunDepth@@3HA
 // int StunDepth
@@ -603,13 +832,13 @@ extern CompilerExecutionState_t ExecutionState;
 // class ILSink ilsDB
 
 // ?listIncludes@@3PAUlist@@A
-// struct list *listIncludes
+extern list<void *> *listIncludes;
 
 // ?ParenDepth@@3HA
 // int ParenDepth
 
 // ?Input_file@@3PADA
-// char *Input_file
+extern const char *Input_file;
 
 // ?RecursiveParseFlags@@3PAUs_RecursiveParseFlags@@A
 // struct s_RecursiveParseFlags *RecursiveParseFlags
@@ -657,7 +886,7 @@ extern CompilerExecutionState_t ExecutionState;
 // short Asm_align
 
 // ?listForcedIncludes@@3PAUlist@@A
-// struct list *listForcedIncludes
+extern list<void *> *listForcedIncludes;
 
 // ?ShowIncludes@@3HA
 // int ShowIncludes
@@ -669,7 +898,7 @@ extern CompilerExecutionState_t ExecutionState;
 // union u_ivalue InternalUnaryTree_ivBasedInfo
 
 // ?listDefs@@3PAUlist@@A
-// struct list *listDefs
+extern list<void *> *listDefs;
 
 // ?SymbolLevel@@3EA
 // unsigned char SymbolLevel
@@ -684,7 +913,7 @@ extern CompilerExecutionState_t ExecutionState;
 // unsigned char *Optimize_string
 
 // ?Out_funcdef@@3HA
-// int Out_funcdef
+extern bool32 Out_funcdef;
 
 // ?EnumTag@@3PAVSymbol_t@@A
 // class Symbol_t *EnumTag
@@ -738,7 +967,7 @@ extern CompilerExecutionState_t ExecutionState;
 // int BadInternalClassErrors
 
 // ?crc32ClCmd@@3VCRC32@@A
-// class CRC32 crc32ClCmd
+extern CRC32 crc32ClCmd;
 
 // ?SourceBrowserExt@@3PADA
 // char *SourceBrowserExt
@@ -753,7 +982,7 @@ extern CompilerExecutionState_t ExecutionState;
 // int Cmd_inlineparsing
 
 // ?Prep@@3HA
-// int Prep
+extern bool32 Prep;
 
 // ?SourceBrowserNamFlg@@3PADA
 // char *SourceBrowserNamFlg
@@ -1015,5 +1244,17 @@ extern int Nerrors;
 // _$E117
 
 // _$E116
+
+extern s_cmd_line_warning_t CmdLineWarningList[];
+
+extern cmdtab_s cmdtab[];
+
+extern bool32 p_Embed_debug;
+
+extern const char *gYl_arg_path;
+
+extern const char *gYX_arg_path;
+
+extern bool32 gOption_YX;
 
 #endif /* GLOBALS_H */

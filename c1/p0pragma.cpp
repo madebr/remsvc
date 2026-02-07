@@ -1,3 +1,8 @@
+#include "p0pragma.h"
+
+#include "nheapall.h"
+
+
 // GLOBAL: MSVC5_C1 0x0000022c
 // ?Comment_type@@3HA
 // int Comment_type
@@ -302,3 +307,10 @@
 // ?szPchName@@YAPADPAE@Z
 // char * __cdecl szPchName(unsigned char *)
 
+// GLOBAL: 0x0045b5b8;
+s_StackOfPragmaItem_t *PragmaStack;
+
+// FUNCTION: C1 0x0041160c
+void CreatePragmaStack() {
+    NOT_IMPLEMENTED();
+}

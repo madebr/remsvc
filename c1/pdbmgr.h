@@ -1,5 +1,28 @@
 #ifndef PDBMGR_H
 #define PDBMGR_H
+
+#include "decomp.h"
+
+class PDBManager_t {
+public:
+    PDBManager_t()
+    : field_0x0(0)
+    , field_0x4(0)
+    , field_0x8(0)
+    , field_0xc(0)
+    , field_0x10(0) {
+    }
+    ~PDBManager_t() {
+    }
+
+private:
+    undefined4 field_0x0;
+    undefined4 field_0x4;
+    undefined4 field_0x8;
+    undefined4 field_0xc;
+    undefined4 field_0x10;
+};
+
 // ??_C@_0N@DKIG@?4?2pdbmgr?4cpp?$AA@
 // ".\\pdbmgr.cpp"
 

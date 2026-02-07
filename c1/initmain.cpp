@@ -1,10 +1,31 @@
 #include "initmain.h"
 
+#include "alloc.h"
+#include "chksum.h"
 #include "decomp.h"
+#include "error.h"
+#include "getflags.h"
+#include "globals.h"
+#include "p0chrmap.h"
+#include "p0prepro.h"
+#include "p0io.h"
+#include "p0pragma.h"
+#include "zz_diagnostic.h"
+
+#ifdef _WIN32
+#include <mbctype.h>
+#include <mbstring.h>
+#else
+#include <ctype.h>
+#endif
+#include <locale.h>
+#include <stdio.h>
+#include <string.h>
 
 // GLOBAL: MSVC5_C1 0x000013e0
 // ?Unknown@@3PADA
-// char *Unknown
+// GLOBAL: C1 0x0045c588
+const char *Unknown_ = NULL;
 
 // GLOBAL: MSVC5_C1 0x000013e4
 // ?C7CompatCVInfo@@3HA
@@ -394,7 +415,11 @@ char **Argv;
 
 // FUNCTION: MSVC5_C1 0x00020bc0
 // ?SzCanonFullPath@@YAPADPADPBDI@Z
-// char * __cdecl SzCanonFullPath(char *, char const *, unsigned int)
+// FUNCTION: C1 0x xxxx
+char * __fastcall SzCanonFullPath(char *buffer, char const *path, size_t bufferCap)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00020d40
 // ?szRelToPdb@@YAPADPBD@Z
@@ -409,16 +434,201 @@ char **Argv;
 // ?szStreamName@@YAPADPAD0@Z
 // char * __cdecl szStreamName(char *, char *)
 
+// FUNCTION: MSVC5_C1 0x00021420
+// ?InitCanonCharMap@@YAXXZ
+// FUNCTION: C1 0x0041a33a
+static void InitCanonCharMap()
+{
+    int i;
+#ifdef _WIN32
+    _setmbcp(_MB_CP_LOCALE);
+#endif
+
+    for (i = 0; i < arraysize(Charmap); i++) {
+        if (_ismbblead(i)) {
+            Charmap[i] = 0x23;
+            Contmap[i] |= 0x10;
+        }
+    }
+}
+
+// FUNCTION: C1 0x0043ee2c
+static void FUN_0043ee2c()
+{
+    int i;
+
+    for (i = 0; i < arraysize(Charmap); i++) {
+        if (Charmap[i] == 0x23) {
+            Charmap[i] = 0x21;
+            Contmap[i] &= 0xef;
+        }
+    }
+}
+
+// FUNCTION: C1 0x0041b0b2
+static void InitLowerMap()
+{
+    int i;
+
+    for (i = 0; i < arraysize(Lowermap); i++) {
+        if (Charmap[i] == 0x23) {
+            Lowermap[i] = -1;
+        } else {
+#ifdef _WIN32
+            Lowermap[i] = _mbctolower(i);
+#else
+            Lowermap[i] = tolower(i);
+#endif
+        }
+    }
+    Lowermap['/'] = '\\';
+}
+
+// FUNCTION: C1 0x0041b8af
+char *GetNextArgument()
+{
+    Argc -= 1;
+    if (Argc <= 0) {
+        return NULL;
+    }
+    Argv++;
+    return *Argv;
+}
+
 // FUNCTION: MSVC5_C1 0x00020f70
 // ?init_main1@@YAXHPAPAD@Z
 // C1: FUNCTION 0x0041b4b2
 void init_main1(int argc, char **argv)
 {
-    NOT_IMPLEMENTED();
-}
+    char buffer[2048];
+    int i;
 
-// FUNCTION: MSVC5_C1 0x00021420
-// ?InitCanonCharMap@@YAXXZ
-// void __cdecl InitCanonCharMap(void)
-// static
+    if (IncludeList == NULL) {
+        InitIncludeList();
+    }
+    InitCrc();
+    setlocale(LC_CTYPE, "");
+    InitCanonCharMap();
+    InitLowerMap();
+    if (argc > 1) {
+        if (argv[1][0] == '@') {
+            FILE *f = fopen(&argv[1][1], "rt");
+            if (f == NULL) {
+                fatal_io_CRT(C1084, 337, &argv[1][1]);
+                exit(1);
+            }
+            while (fgets(buffer, sizeof(buffer), f) != NULL) {
+                if (buffer[0] != ';') {
+                    size_t len_line = strlen(buffer);
+                    if (buffer[len_line - 1] == '\n') {
+                        buffer[len_line - 1] = '\0';
+                    }
+                    char *arg_start = buffer;
+                    if (buffer[0] == 'P' && buffer[1] == '1'&& buffer[2] == ':') {
+                        arg_start = &buffer[3];
+                    }
+                    unconcat(pstrdup(arg_start, M_LIFETIME1));
+                }
+            }
+            fclose(f);
+        }
+    }
+    unconcat(getenv("MSC_CMD_FLAGS"));
+    for (i = 0; CmdLineWarningList[i].number != 0; i++) {
+        int number = CmdLineWarningList[i].number;
+        PchS.rs.p_pWarningTable[number] = CmdLineWarningList[i].severity;
+        if (number >= 700 && number < 1000) {
+            if (number <= PchS.p_warnP2Min) {
+                PchS.p_warnP2Min = number;
+            }
+            if (number >= PchS.p_warnP2Max) {
+                PchS.p_warnP2Max = number;
+            }
+        }
+    }
+    listDefs = ListNewSize(40, M_LIFETIME1);
+    listIncludes = ListNewSize(40, M_LIFETIME1);
+    listForcedIncludes = ListNewSize(40, M_LIFETIME1);
+    if (!PchC.p_Cmd_C9IL) {
+        crc32ClCmd.Update("C");
+    }
+    for (;;) {
+        int state = 0;
+        state = crack_cmd(cmdtab, GetNextArgument(), GetNextArgument, state);
+        if (!state) {
+            break;
+        }
+    }
+    if (SzCanonFullPath(buffer, szPDBName, sizeof(buffer)) == NULL) {
+        fatal_varargs(C1083, 354, szPDBName, GetDiagnosticHelpString(355));
+    }
+    if (strlen(buffer) >= sizeof(PchC.p_FdName) - 1) {
+        fatal_varargs(C1005);
+    }
+    strcpy(PchC.p_FdName, buffer);
+    if (p_Embed_debug) {
+        PchC.p_Symbolic_debug_holder = TRUE;
+        PchC.p_FUseTypeServer = FALSE;
+    }
+    PchC.p_Cmd_C9IL |= !PchC.p_Cmd_fICC;
+    PchC.p_Cmd_fICCBrowse &= PchC.p_Cmd_fICC;
+    if (PchC.p_Cmd_splitPdbs) {
+        p_TPIMgr = &SplitTPIMgr;
+    } else {
+        p_TPIMgr = &TPIMgr;
+    }
+    PchC.p_FUseTypeServer &= PchC.p_Symbolic_debug_holder;
+    if (PchC.p_Cmd_Jd) {
+        FUN_0043ee2c();
+    }
+    if (PragmaStack == NULL) {
+        CreatePragmaStack();
+    }
+    if (szCmd_Ylstring != NULL) {
+        if (strlen(szCmd_Ylstring) >= sizeof(PchC.p_szYlstring)) {
+            fatal_varargs(C1005);
+        }
+        strcpy(PchC.p_szYlstring, szCmd_Ylstring);
+    }
+    if (Unknown_ != NULL) {
+        fatal_varargs(C1007, Unknown_, "c1");
+    }
+    if (Input_file == NULL) {
+        fatal(C1008);
+    }
+
+    if (PchCFile != NULL) {
+        PchCFlag = TRUE;
+        if (PchUFile != NULL) {
+            if (fStrCleanCmp(PchCFile, PchUFile)) {
+                PchUFlag = FALSE;
+                PchUFile = NULL;
+            }
+        }
+    }
+    if (!PchCFlag) {
+        fPersistentPch = FALSE;
+    }
+    if (PchUFile != NULL) {
+        PchUFlag = TRUE;
+    }
+    if (gYX_arg_path != NULL) {
+        gOption_YX = TRUE;
+    }
+    PchC.p_PchDFlag |= gOption_YX;
+    if (Prep || Out_funcdef) {
+        gOption_YX = FALSE;
+        gOption_YX = FALSE;
+        PchCFlag = FALSE;
+        PchCFile = NULL;
+        PchUFlag = FALSE;
+        PchUFile = NULL;
+        PchC.p_PchDFlag = FALSE;
+        fPersistentPch = FALSE;
+    }
+    if (NewArgv != NULL) {
+        StdFree(NewArgv);
+        NewArgv = NULL;
+    }
+}
 

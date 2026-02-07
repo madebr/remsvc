@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
     HeapManager::InitGlobalHeaps();
     init_main1(argc, argv);
     AddTiming("init1");
-    if (PchS.p_Cmd_C9IL) {
+    if (PchC.p_Cmd_C9IL) {
         PchS.p_ParseFlags.field_0x8_bit13 = 1;
     } else {
         PchS.p_ParseFlags.field_0x8_bit13 = 0;

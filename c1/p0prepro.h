@@ -1,5 +1,8 @@
 #ifndef P0PREPRO_H
 #define P0PREPRO_H
+
+#include "decomp.h"
+
 // ??_C@_03BNFD@?$CF?$CKc?$AA@
 // "%*c"
 
@@ -74,6 +77,7 @@
 
 // ?fStrCleanCmp@@YAHPAE0@Z
 // int __cdecl fStrCleanCmp(unsigned char *, unsigned char *)
+extern bool32 __fastcall fStrCleanCmp(const char *str1, const char *str2);
 
 // ?Allocate@SubAllocator@VirtualHeap@@QAEPAXI@Z
 // public: void * __thiscall VirtualHeap::SubAllocator::Allocate(unsigned int)

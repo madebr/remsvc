@@ -17,7 +17,9 @@ typedef uint16_t undefined2;
 typedef uint32_t undefined4;
 typedef uint64_t undefined8;
 
+#define __cdecl
 #define __fastcall
+#define __stdcall
 
 #endif
 
@@ -40,6 +42,10 @@ static inline unsigned int GetTickCount()
 static void inline ExitProcess(int code)
 {
     exit(code);
+}
+
+static int _ismbblead(int c) {
+    return 0;
 }
 
 typedef struct {

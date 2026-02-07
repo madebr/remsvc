@@ -163,6 +163,15 @@ public:
         VirtualHeap *pHeap;
     };
 
+    void * Allocate(size_t size) {
+        void *result = fpFreeBlock;
+        fpFreeBlock = (void *)((uintptr_t)fpFreeBlock + size);
+        if (fpFreeBlock > fpFreeEnd) {
+            HeapExtend();
+        }
+        return result;
+    }
+
 public:
     // ?Reallocate@VirtualHeap@@QAEPAXPAXII@Z
     // public: void * __thiscall VirtualHeap::Reallocate(void *, unsigned int, unsigned int)
@@ -329,6 +338,14 @@ public:
     // ?ActiveHeaps@HeapManager@@2PAVVirtualHeap@@A
     // public: static class VirtualHeap *HeapManager::ActiveHeaps
     static VirtualHeap ActiveHeaps[M_LIFEMAX];
+
+    static void *Allocate(size_t size, lifetime_e lifetime) {
+        return ActiveHeaps[lifetime].Allocate(size);
+    }
+    template<typename Type>
+    static Type *Allocate(lifetime_e lifetime) {
+        return static_cast<Type *>(ActiveHeaps[lifetime].Allocate(sizeof(Type)));
+    }
 
 private:
     // ?InitPCHLifeHeaps@HeapManager@@CAXXZ

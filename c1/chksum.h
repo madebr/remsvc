@@ -1,16 +1,19 @@
 #ifndef CHKSUM_H
 #define CHKSUM_H
-// ?crcTea@@3PAEA
-// unsigned char *crcTea
 
-// ?crcTh@@3PAEA
-// unsigned char *crcTh
+#include <stdint.h>
+
+// ?crcTea@@3PAEA
+extern uint8_t crcTea[256];
+
+// // ?crcTh@@3PAEA
+extern uint8_t crcTh[256];
 
 // ?crcTl@@3PAEA
-// unsigned char *crcTl
+extern uint8_t crcTl[256];
 
 // ?InitCrc@@YGXXZ
-// void __stdcall InitCrc(void)
+extern void InitCrc();
 
 // ?Crc16@@YGIPAEII@Z
 // unsigned int __stdcall Crc16(unsigned char *, unsigned int, unsigned int)

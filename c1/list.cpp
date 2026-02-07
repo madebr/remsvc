@@ -1,10 +1,24 @@
+#include "list.h"
+
+#include "decomp.h"
+#include "nheapall.h"
+
 // FUNCTION: MSVC5_C1 0x00024aa0
 // ?FListInvariants@@YAHQAUlist@@@Z
 // int __cdecl FListInvariants(struct list *const)
 
 // FUNCTION: MSVC5_C1 0x00024ae0
 // ?ListNewSize@@YAPAUlist@@FW4lifetime_e@@@Z
-// struct list * __cdecl ListNewSize(short, enum lifetime_e)
+// FUNCTION: C1 0x00411ea0
+list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime)
+{
+    list<void *> *result = HeapManager::Allocate<list<void *>>(lifetime);
+    result->size = 0;
+    result->capacity = capacity;
+    result->lifetime = lifetime;
+    result->data = (void **)HeapManager::Allocate(capacity, lifetime);
+    return result;
+}
 
 // FUNCTION: MSVC5_C1 0x00024b50
 // ?ListGrow@@YAPAUlist@@PAU1@@Z
@@ -46,3 +60,8 @@
 // ?FListIterInvariants@@YAHPBUlistIter_t@@@Z
 // int __cdecl FListIterInvariants(struct listIter_t const *)
 
+// FUNCTION: C1 0x00411f38
+void __fastcall StdFree(void *pointer)
+{
+    free(pointer);
+}

@@ -1,10 +1,22 @@
 #ifndef LIST_H
 #define LIST_H
+
+#include "c1_types.h"
+#include "decomp.h"
+
+template <typename Type>
+struct list {
+    unsigned short size;
+    unsigned short capacity;
+    lifetime_e lifetime;
+    Type *data;
+};
+
 // ?FListInvariants@@YAHQAUlist@@@Z
 // int __cdecl FListInvariants(struct list *const)
 
 // ?ListNewSize@@YAPAUlist@@FW4lifetime_e@@@Z
-// struct list * __cdecl ListNewSize(short, enum lifetime_e)
+extern list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime);
 
 // ?ListGrow@@YAPAUlist@@PAU1@@Z
 // struct list * __cdecl ListGrow(struct list *)
@@ -35,5 +47,7 @@
 
 // ?FListIterInvariants@@YAHPBUlistIter_t@@@Z
 // int __cdecl FListIterInvariants(struct listIter_t const *)
+
+extern void __fastcall StdFree(void *pointer);
 
 #endif /* LIST_H */

@@ -1,5 +1,33 @@
 #ifndef P0PRAGMA_H
 #define P0PRAGMA_H
+
+#include "decomp.h"
+
+struct s_StackOfPragmaPackItem_t {
+    // ??2s_StackOfPragmaPackItem_t@@SAPAXI@Z
+    // public: static void * __cdecl s_StackOfPragmaPackItem_t::operator new(unsigned int)
+
+    // ?PushStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEPAUs_PragmaPackItem@@XZ
+    // public: struct s_PragmaPackItem * __thiscall s_StackOfPragmaPackItem_t::PushStackOfPragmaPackItem_t(void)
+
+    // ?PopStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEXXZ
+    // public: void __thiscall s_StackOfPragmaPackItem_t::PopStackOfPragmaPackItem_t(void)
+
+    // ?FindPointersInPragmaStack@s_StackOfPragmaPackItem_t@@QAEXXZ
+    // public: void __thiscall s_StackOfPragmaPackItem_t::FindPointersInPragmaStack(void)
+};
+
+struct PragmaItem_t {
+    PragmaItem_t *pNext;
+    undefined4 field_0x4; // struct Id_t *pPushId;
+    undefined4 field_0x8; // union PragmaItem_t_u_8 field2_0x8;
+};
+
+struct s_StackOfPragmaItem_t {
+    PragmaItem_t *pTopOfStack;
+    PragmaItem_t *pTopOfFreeStack;
+};
+
 // ?Comment_type@@3HA
 // int Comment_type
 
@@ -105,6 +133,8 @@
 // ??_C@_04FOLL@?4pch?$AA@
 // ".pch"
 
+extern s_StackOfPragmaItem_t *PragmaStack;
+
 // ?checkAnyToken@ParsePragma@@CAPBVToken@@E@Z
 // private: static class Token const * __cdecl ParsePragma::checkAnyToken(unsigned char)
 
@@ -168,18 +198,6 @@
 // ?ParsePragmaDirective@@YAPBVToken@@XZ
 // class Token const * __cdecl ParsePragmaDirective(void)
 
-// ??2s_StackOfPragmaPackItem_t@@SAPAXI@Z
-// public: static void * __cdecl s_StackOfPragmaPackItem_t::operator new(unsigned int)
-
-// ?PushStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEPAUs_PragmaPackItem@@XZ
-// public: struct s_PragmaPackItem * __thiscall s_StackOfPragmaPackItem_t::PushStackOfPragmaPackItem_t(void)
-
-// ?PopStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEXXZ
-// public: void __thiscall s_StackOfPragmaPackItem_t::PopStackOfPragmaPackItem_t(void)
-
-// ?FindPointersInPragmaStack@s_StackOfPragmaPackItem_t@@QAEXXZ
-// public: void __thiscall s_StackOfPragmaPackItem_t::FindPointersInPragmaStack(void)
-
 // ?InitPackSize@@YAXXZ
 // void __cdecl InitPackSize(void)
 
@@ -227,5 +245,7 @@
 
 // ?szPchName@@YAPADPAE@Z
 // char * __cdecl szPchName(unsigned char *)
+
+extern void CreatePragmaStack();
 
 #endif /* P0PRAGMA_H */

@@ -1,5 +1,9 @@
 #ifndef ALLOC_H
 #define ALLOC_H
+
+#include "c1_types.h"
+#include "decomp.h"
+
 // ?currentTreeLife@@3W4lifetime_e@@A
 // enum lifetime_e currentTreeLife
 
@@ -22,7 +26,7 @@
 // void __cdecl FinishMalloc(void)
 
 // ?pstrdup@@YAPADPADW4lifetime_e@@@Z
-// char * __cdecl pstrdup(char *, enum lifetime_e)
+extern char * __fastcall pstrdup(char *text, lifetime_e lifetime);
 
 // ?pstrndup@@YAPADPADW4lifetime_e@@H@Z
 // char * __cdecl pstrndup(char *, enum lifetime_e, int)

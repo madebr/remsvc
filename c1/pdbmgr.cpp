@@ -1,3 +1,5 @@
+#include "pdbmgr.h"
+
 // GLOBAL: MSVC5_C1 0x00005aa0
 // ??_C@_0N@DKIG@?4?2pdbmgr?4cpp?$AA@
 // ".\\pdbmgr.cpp"

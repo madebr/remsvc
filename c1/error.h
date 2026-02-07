@@ -205,7 +205,7 @@ typedef enum {
 // char * __stdcall get_err(int)
 
 // ?fatal_io_CRT@@YAHHHPAE@Z
-// int __cdecl fatal_io_CRT(int, int, unsigned char *)
+extern int fatal_io_CRT(FatalNumber fatalCode, int category, const char *text);
 
 // ?fatal_io_Win32@@YAHHHPAE@Z
 // int __cdecl fatal_io_Win32(int, int, unsigned char *)

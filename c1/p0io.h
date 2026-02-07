@@ -1,5 +1,15 @@
 #ifndef P0IO_H
 #define P0IO_H
+
+#include "decomp.h"
+
+struct s_IncludeList {
+    undefined4 field_0x0;
+};
+
+
+extern s_IncludeList *IncludeList;
+
 // ??_C@_0M@JAPN@__LINE__Var?$AA@
 // "__LINE__Var"
 
@@ -167,5 +177,7 @@
 
 // ?getFileName@Position@@QBEPAEXZ
 // public: unsigned char * __thiscall Position::getFileName(void) const
+
+extern void InitIncludeList();
 
 #endif /* P0IO_H */

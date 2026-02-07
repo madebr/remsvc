@@ -1,3 +1,10 @@
+#include "p0io.h"
+
+#include "nheapall.h"
+
+// GLOBAL: C1 0x0045b5bc
+s_IncludeList *IncludeList;
+
 // GLOBAL: MSVC5_C1 0x000000b0
 // ??_C@_0M@JAPN@__LINE__Var?$AA@
 // "__LINE__Var"
@@ -222,3 +229,8 @@
 // ?getFileName@Position@@QBEPAEXZ
 // public: unsigned char * __thiscall Position::getFileName(void) const
 
+// GLOBAL: C1 0x0041c211
+void InitIncludeList()
+{
+    IncludeList = HeapManager::Allocate<s_IncludeList>(M_LIFETIME0);
+}

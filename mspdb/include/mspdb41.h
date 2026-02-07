@@ -1,6 +1,7 @@
 #pragma once
 
-#include <windows.h>
+#include "decomp.h"
+
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -13,7 +14,7 @@ typedef struct SRCTARG SRCTARG;
 
 typedef struct SRCTARG {
     SRCTARG *psrctargNext;
-    BOOL fCpp;
+    bool32 fCpp;
     char *szSrc;
     char *szTarg;
     char *szOptions;
@@ -28,14 +29,14 @@ typedef struct CAList {
     SRCTARG *pstError;
 } CAList;
 
-BOOL __stdcall MREFOpenByName(
-        MREngine **engine, char *pdbPath, int *code, char *actualPdbPathOut, BOOL repro, BOOL write);
+bool32 __stdcall MREFOpenByName(
+        MREngine **engine, char *pdbPath, int *code, char *actualPdbPathOut, bool32 repro, bool32 write);
 void __stdcall MREQueryMreDrv(MREngine *engine, MREDriver **driver);
-BOOL __stdcall MREDrvOneTimeInit(MREDriver *driver);
-BOOL __stdcall MREDrvFRelease(MREDriver *driver);
-BOOL __stdcall MREFClose(MREngine *engine, BOOL arg2);
-BOOL __stdcall MREDrvFFilesOutOfDate(MREDriver *driver, CAList *state);
-unsigned int __cdecl SigForPbCb(const void *data, size_t size, unsigned int hash);
+bool32 __stdcall MREDrvOneTimeInit(MREDriver *driver);
+bool32 __stdcall MREDrvFRelease(MREDriver *driver);
+bool32 __stdcall MREFClose(MREngine *engine, bool32 arg2);
+bool32 __stdcall MREDrvFFilesOutOfDate(MREDriver *driver, CAList *state);
+uint32_t __cdecl SigForPbCb(const void *data, size_t size, uint32_t hash);
 
 #ifdef __cplusplus
 }
