@@ -9,8 +9,8 @@
 
 extern struct timeb Endtime;
 extern struct timeb Starttime;
-extern BOOL GotCtrlC;
-extern BOOL Spawning;
+extern bool32 GotCtrlC;
+extern bool32 Spawning;
 
 extern int execute(driver_phases phase, const char *cmdName, const char *cmd_env_name, char **argv);
 extern void OS_Init();

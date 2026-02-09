@@ -6,7 +6,10 @@
 #include "types.h"
 
 #include <limits.h>
+#ifdef _WIN32
 #include <mbstring.h>
+#endif
+#include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -185,7 +188,7 @@ const char *strrchars(const char *text, const char *needles)
 }
 
 // FUNCTION: CL 0x00405246
-char **sztoszv(const char *text, BOOL cleanUpSlash)
+char **sztoszv(const char *text, bool32 cleanUpSlash)
 {
     const char *src_ptr;
     char *clean_str;
@@ -276,7 +279,7 @@ char **sztoszv(const char *text, BOOL cleanUpSlash)
 }
 
 // FUNCTION: CL 0x00405483
-void rm_il(BOOL arg1)
+void rm_il(bool32 arg1)
 {
     source_s *original_field_0x20;
     int i;
@@ -444,10 +447,18 @@ void echoprintf(FILE *stream, const char *fmt, ...)
     text = format(&len, fmt, ap);
     va_end(ap);
     if (stream != NULL) {
+#ifdef _WIN32
         _write(_fileno(stream), text, len);
+#else
+    fwrite(text, len, 1, stream);
+#endif
     }
     if (Verbose) {
+#ifdef _WIN32
         _write(STDERR_FILENO, text, len);
+#else
+    fwrite(text, len, 1, stdout);
+#endif
     }
 }
 

@@ -5,12 +5,19 @@
 #include "os.h"
 #include "util.h"
 
+#ifdef _WIN32
 #include <io.h>
 #include <mbstring.h>
+#else
+#include <unistd.h>
+#endif
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef _WIN32
 #include <windows.h>
+#else
+#endif
 
 #include "portable.h"
 
@@ -243,28 +250,28 @@ const sourceinfo_s Sourceinfo[] = {
 };
 
 // GLOBAL: CL 0x0040a020
-BOOL MinimalRebuild = TRUE;
+bool32 MinimalRebuild = TRUE;
 
 // GLOBAL: CL 0x0040a02c
-BOOL BatchPassOK = TRUE;
+bool32 BatchPassOK = TRUE;
 
 // GLOBAL: CL 0x0040a010
-BOOL Coff = TRUE;
+bool32 Coff = TRUE;
 
 // GLOBAL: CL 0x0040a014
-BOOL DefInclude = TRUE;
+bool32 DefInclude = TRUE;
 
 // GLOBAL: CL 0x0040a018
-BOOL DefPhase = TRUE;
+bool32 DefPhase = TRUE;
 
 // GLOBAL: CL 0x0040a01c
-BOOL Nologo = TRUE;
+bool32 Nologo = TRUE;
 
 // GLOBAL: CL 0x0040a024
-BOOL MinRebuildOK = TRUE;
+bool32 MinRebuildOK = TRUE;
 
 // GLOBAL: CL 0x0040a028
-BOOL BatchPasses = FALSE;
+bool32 BatchPasses = FALSE;
 
 // GLOBAL: CL 0x0040a030
 context_s *Context = &CX;
@@ -281,10 +288,10 @@ passinfo_s PassInfo =
 };
 
 // GLOBAL: CL 0x0040a04c
-BOOL RedirStderr = TRUE;
+bool32 RedirStderr = TRUE;
 
 // GLOBAL: CL 0x0040a050
-BOOL Time = FALSE;
+bool32 Time = FALSE;
 
 // GLOBAL: CL 0x0040a054
 flag_s *Flag_freelist = NULL;
@@ -434,25 +441,25 @@ char *IdbFileName = NULL;
 char *Object = NULL;
 
 // GLOBAL: CL 0x0040a60c
-BOOL Nospawn = FALSE;
+bool32 Nospawn = FALSE;
 
 // GLOBAL: CL 0x0040a610
-BOOL Verbose = FALSE;
+bool32 Verbose = FALSE;
 
 // GLOBAL: CL 0x0040a614
-BOOL Action = FALSE;
+bool32 Action = FALSE;
 
 // GLOBAL: CL 0x0040a618
-BOOL Preprocess = FALSE;
+bool32 Preprocess = FALSE;
 
 // GLOBAL: CL 0x0040a620
 context_s CX = {0};
 
 // GLOBAL: CL 0x0040a744
-BOOL Reproducable = FALSE;
+bool32 Reproducable = FALSE;
 
 // GLOBAL: CL 0x0040a74c
-BOOL Mapfile = FALSE;
+bool32 Mapfile = FALSE;
 
 // GLOBAL: CL 0x0040a770
 int SourceCount = 0;
@@ -464,7 +471,7 @@ flag_s *Unknown_ = NULL;
 char *Mapfilename = NULL;
 
 // GLOBAL: CL 0x0040a77c
-BOOL RespEcho = FALSE;
+bool32 RespEcho = FALSE;
 
 // GLOBAL: CL 0x0040a784
 char *Exefilename = NULL;
@@ -473,16 +480,16 @@ char *Exefilename = NULL;
 char *SbrFileName = NULL;
 
 // GLOBAL: CL 0x0040a78c
-BOOL Nerrors = FALSE;
+bool32 Nerrors = FALSE;
 
 // GLOBAL: CL 0x0040a794
-BOOL DllFlg = FALSE;
+bool32 DllFlg = FALSE;
 
 // GLOBAL: CL 0x0040a798
-BOOL Help = FALSE;
+bool32 Help = FALSE;
 
 // GLOBAL: CL 0x0040a7a0
-BOOL Keepfiles = FALSE;
+bool32 Keepfiles = FALSE;
 
 // FUNCTION: CL 0x00401000
 source_type source(const char *filepath)
@@ -613,7 +620,7 @@ flag_s *domatch(const form_s *option_spec, const char **args, int *index)
     char *optkey_ptr = optkey_buffer;
     const char *arg = args[*index];
     const char *optkey_spec_ptr = option_spec->form;
-    BOOL arg_is_optional;
+    bool32 arg_is_optional;
     int optflags;
     int a1;
     int a2;
@@ -720,7 +727,7 @@ flag_s *newflag(const char *base, const char *arg, const char *passes, int info)
 }
 
 // FUNCTION: CL 0x004010e8
-BOOL flag_this_pass(flag_s *option, const passinfo_s *spec)
+bool32 flag_this_pass(flag_s *option, const passinfo_s *spec)
 {
     return strchr(option->passes, spec->id) != NULL;
 }
@@ -887,7 +894,7 @@ void appendflag(flag_s **list, flag_s *opt)
 }
 
 // FUNCTION: CL 0x00401711
-BOOL flagmatch(flag_s *opt1, flag_s *opt2)
+bool32 flagmatch(flag_s *opt1, flag_s *opt2)
 {
     size_t l1;
     size_t l2;
@@ -1110,9 +1117,9 @@ int main(int argc, char *argv[])
 void templates(const char **args, int count)
 {
     // GLOBAL: CL 0x0040a058
-    static BOOL seen_src_flag = FALSE;
+    static bool32 seen_src_flag = FALSE;
     // GLOBAL: CL 0x0040a05c
-    static BOOL already_warned = FALSE;
+    static bool32 already_warned = FALSE;
     int i;
 
     for (i = 0; i < count;) {
@@ -1120,17 +1127,18 @@ void templates(const char **args, int count)
         const char *arg = args[i];
         if (arg[0] == '@') {
             response_file(&arg[1]);
+            i++;
             continue;
         }
         if (arg[0] == '-' || arg[0] == '/') {
             const combo_s *single_arg_spec = is_combo(&arg[1]);
+            if (single_arg_spec != NULL && arg[strlen(single_arg_spec->combo) + 1] != '\0') {
+                crack_combo(single_arg_spec, arg);
+                i++;
+            } else {
+                handlematch(args, &i);
+            }
             if (SourceCount != 0 && original_count == SourceCount) {
-                if (single_arg_spec != NULL && arg[strlen(single_arg_spec->combo) + 1] != '\0') {
-                    crack_combo(single_arg_spec, arg);
-                    i++;
-                } else {
-                    handlematch(args, &i);
-                }
                 seen_src_flag = TRUE;
             }
         } else {
@@ -1145,7 +1153,7 @@ void templates(const char **args, int count)
 }
 
 // FUNCTION: CL 0x00401d71
-BOOL handlematch(const char **args, int *index)
+bool32 handlematch(const char **args, int *index)
 {
     const form_s *option_spec = findmatch(args, *index);
     flag_s *option;
@@ -1361,7 +1369,7 @@ void switcherr(int code, const flag_s *opt1, const flag_s *opt2)
 const combo_s *is_combo(const char *arg)
 {
     int i;
-    for (i = 0; Combos[i].combo != NULL; i++) {
+    for (i = 0; Combos[i].buddies != NULL; i++) {
         if (prefix(Combos[i].combo, arg)) {
             return &Combos[i];
         }
@@ -1392,7 +1400,7 @@ void crack_combo(const combo_s *spec, const char *arg)
         }
     }
     while (*arg_value != '\0') {
-        const char *valuespec = strchr(spec->buddies, *arg);
+        const char *valuespec = strchr(spec->buddies, *arg_value);
         char *buffer_ptr;
         int multi_arg;
 
@@ -1423,7 +1431,7 @@ void crack_combo(const combo_s *spec, const char *arg)
 }
 
 // FUNCTION: CL 0x00402387
-BOOL prefix(const char *start, const char *str)
+bool32 prefix(const char *start, const char *str)
 {
     while (1) {
         if (*start == '\0') {
@@ -1451,7 +1459,7 @@ int argcount(const char **args)
 }
 
 // FUNCTION: CL 0x004023c4
-BOOL early_switch_scan(char **argv, int argc)
+bool32 early_switch_scan(char **argv, int argc)
 {
     char line[1024];
     int i;
@@ -1462,7 +1470,7 @@ BOOL early_switch_scan(char **argv, int argc)
             return TRUE;
         }
         if (*arg == '@') {
-            BOOL found = FALSE;
+            bool32 found = FALSE;
             FILE *f = fopen(&arg[1], "r");
             if (f != NULL) {
                 if (fgets(line, sizeof(line) - 1, f) != NULL) {
@@ -1581,7 +1589,7 @@ void copy_active_pass(flag_s *option)
 {
     char a2 = option->arg[1];
     bool found = false;
-    BOOL active;
+    bool32 active;
     const sourceinfo_s *filetype_spec = Sourceinfo;
 
     while (!found && filetype_spec->phase != PHASE_NOPHASE) {
@@ -1623,7 +1631,7 @@ void undef_one_stddef(flag_s *option)
 void undef_stddefs(flag_s *option)
 {
     // GLOBAL: CL 0x0040a060
-    static BOOL first = TRUE;
+    static bool32 first = TRUE;
     flag_s *p;
 
     (void) option;
@@ -1741,7 +1749,7 @@ void configure_asmlist(flag_s *option)
 // FUNCTION: CL 0x00402a59
 void link_dll(flag_s *option)
 {
-    static BOOL first = TRUE;
+    static bool32 first = TRUE;
 
     (void) option;
 
@@ -1882,7 +1890,7 @@ void check_required()
 }
 
 // FUNCTION: CL 0x00402d5d
-BOOL find_any_match(flag_s *const opts1, flag_s *const opts2)
+bool32 find_any_match(flag_s *const opts1, flag_s *const opts2)
 {
     flag_s *opt1;
     for (opt1 = opts1; opt1 != NULL; opt1 = opt1->next) {

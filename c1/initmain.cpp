@@ -12,6 +12,10 @@
 #include "p0pragma.h"
 #include "zz_diagnostic.h"
 
+#ifndef _WIN32
+#include "portable.h"
+#endif
+
 #ifdef _WIN32
 #include <mbctype.h>
 #include <mbstring.h>

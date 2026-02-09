@@ -1,10 +1,14 @@
 #ifndef CL_UTIL_H
 #define CL_UTIL_H
 
+#include "decomp.h"
+
 #include <stddef.h>
 #include <stdio.h>
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 extern char *basename(char *buffer, const char *path);
 extern char *filename(char *dest, const char *path);
@@ -21,9 +25,9 @@ extern char *strqcpy(char *dest, const char *path);
 
 extern const char *strrchars(const char *text, const char *needles);
 
-extern char **sztoszv(const char *text, BOOL cleanUpSlash);
+extern char **sztoszv(const char *text, bool32 cleanUpSlash);
 
-extern void rm_il(BOOL arg1);
+extern void rm_il(bool32 arg1);
 extern void rm_one_il(int index);
 
 extern void done(int exitcode);

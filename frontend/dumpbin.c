@@ -1,4 +1,8 @@
+#ifdef _WIN32
 #include <process.h>
+#else
+#include "portable.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

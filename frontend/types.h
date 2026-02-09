@@ -4,7 +4,9 @@
 #include "decomp.h"
 #include "types.h"
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 #include <mspdb41.h>
 
 typedef struct flag_s flag_s;
@@ -64,7 +66,7 @@ typedef struct source_s {
 typedef struct worklist_s {
     worklist_s *next;
     source_s *parsed_file;
-    BOOL had_error;
+    bool32 had_error;
     SRCTARG srctarg;
     char *sbrfile;
 } worklist_s;
@@ -82,7 +84,7 @@ typedef struct cmd_s {
     cmd_type type;
     union {
         void *dummy;
-        BOOL *flag;
+        bool32 *flag;
         char **string;
         void (*function)(flag_s *);
     };
@@ -90,7 +92,7 @@ typedef struct cmd_s {
 
 typedef struct ilsuffix_s {
     const char *suffix;
-    BOOL compile_il;
+    bool32 compile_il;
 } ilsuffix_s;
 
 typedef struct {
@@ -120,7 +122,7 @@ typedef struct passinfo_s {
     const char *pass_filename;
     const char *error_filename;
     const char *environment_variable;
-    BOOL is_active;
+    bool32 is_active;
     char id;
     char swchar;
 } passinfo_s;

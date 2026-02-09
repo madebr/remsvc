@@ -3,7 +3,9 @@
 #include "main.h"
 #include "util.h"
 
+#ifdef _WIN32
 #include <mbstring.h>
+#endif
 #include <stdbool.h>
 
 #include "portable.h"
@@ -33,7 +35,7 @@ void response_file(const char *path)
     char *line;
 
     // GLOBAL: CL 0x0040a06c
-    static BOOL first = TRUE;
+    static bool32 first = TRUE;
 
     // GLOBAL: CL 0x0040a068
     int nesting = 0;
@@ -158,7 +160,7 @@ void compile(context_s *ctx)
         }
     }
     cc_switches(ctx);
-    Nerrors = passes(Link_passes, ctx, link);
+    Nerrors = passes(Link_passes, ctx, link_);
     if (Nerrors) {
         return;
     }
@@ -449,7 +451,7 @@ unsigned int compile_worklist(context_s *ctx, worklist_s *input_file)
     bool do_stage_per_stage;
 
     // GLOBAL: CL 0x0040a1bc
-    BOOL first = TRUE;
+    bool32 first = TRUE;
 
     for (stage = 0; input_compiler_spec[stage].pass_filename != NULL; stage++) {
         if (input_compiler_spec[stage].is_active) {
@@ -720,7 +722,7 @@ int dopass(context_s *ctx)
 }
 
 // FUNCTION: CL 0x00404471
-int link(context_s *ctx)
+int link_(context_s *ctx)
 {
     char buffer[2048];
     char *argument_string;

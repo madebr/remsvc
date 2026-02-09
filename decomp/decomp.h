@@ -33,6 +33,8 @@ typedef unsigned int bool32;
 #define FALSE 0
 #define TRUE 1
 
+typedef uint32_t DWORD;
+
 static inline unsigned int GetTickCount()
 {
     struct timespec ts;
@@ -43,14 +45,6 @@ static inline unsigned int GetTickCount()
 static void inline ExitProcess(int code)
 {
     exit(code);
-}
-
-static int _ismbblead(int c) {
-    return 0;
-}
-
-static const unsigned char *_mbsstr(const unsigned char *str, const unsigned char *strSearch) {
-    return (unsigned char *)strstr((const char *)str, (const char *)strSearch);
 }
 
 typedef struct {

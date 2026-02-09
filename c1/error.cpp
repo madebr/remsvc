@@ -14,7 +14,9 @@
 #ifdef _WIN32
 #include <io.h>
 #else
+#include <errno.h>
 #include <inttypes.h>
+#include <string.h>
 #include <unistd.h>
 #endif
 
@@ -100,7 +102,13 @@ int __fastcall fatal_io_CRT_position(FatalNumber code,int category,const char *t
         if (text == NULL) {
             text = "";
         }
-        fatal_varargs(code, category,text, strerror(NULL), file, lineno);
+        const char *msg;
+#ifdef _WIN32
+        msg = _strerror(NULL);
+#else
+        msg = strerror(errno);
+#endif
+        fatal_varargs(code, category,text, msg, file, lineno);
     }
     return 0;
 }

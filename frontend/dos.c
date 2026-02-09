@@ -3,7 +3,11 @@
 #include "main.h"
 #include "util.h"
 
+#ifdef _WIN32
 #include <io.h>
+#else
+#include <limits.h>
+#endif
 
 // GLOBAL: CL 0x0040afa8
 struct timeb Endtime;
@@ -12,10 +16,10 @@ struct timeb Endtime;
 struct timeb Starttime;
 
 // GLOBAL: CL 0x0040afc4
-BOOL GotCtrlC;
+bool32 GotCtrlC;
 
 // GLOBAL: CL 0x0040afc8
-BOOL Spawning;
+bool32 Spawning;
 
 // FUNCTION: CL 0x00405c21
 int execute(driver_phases phase, const char *cmdName, const char *cmd_env_name, char **argv)
@@ -55,7 +59,11 @@ int execute(driver_phases phase, const char *cmdName, const char *cmd_env_name, 
         cmderr(0);
         break;
     }
+#ifdef _WIN32
     _flushall();
+#else
+    fflush(stdout);
+#endif
     *_errno() = 0;
     Spawning = TRUE;
     GotCtrlC = FALSE;
@@ -76,8 +84,9 @@ int execute(driver_phases phase, const char *cmdName, const char *cmd_env_name, 
     return result;
 }
 
+#ifdef _WIN32
 // FUNCTION: CL 0x00405db3
-static BOOL WINAPI NT_handling_function(DWORD CtrlType)
+static bool32 WINAPI NT_handling_function(DWORD CtrlType)
 {
     (void) CtrlType;
     GotCtrlC = TRUE;
@@ -87,11 +96,14 @@ static BOOL WINAPI NT_handling_function(DWORD CtrlType)
     }
     return 1;
 }
+#endif
 
 // FUNCTION: CL 0x00405da5
 void OS_Init()
 {
+#ifdef _WIN32
     SetConsoleCtrlHandler(NT_handling_function, TRUE);
+#endif
 }
 
 // FUNCTION: CL 0x00405de2
@@ -105,9 +117,10 @@ void RedirectStdErrToStdOut()
 // FUNCTION: CL 0x00405df9
 int screen_length()
 {
+#ifdef _WIN32
     HANDLE conHandle;
     CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
-    BOOL success;
+    bool32 success;
     int height;
 
     conHandle = CreateFile("CONOUT$", GENERIC_READ | GENERIC_WRITE, 0, NULL, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, NULL);
@@ -124,4 +137,7 @@ int screen_length()
         return 1;
     }
     return height;
+#else
+    return INT_MAX;
+#endif
 }

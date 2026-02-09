@@ -20,7 +20,7 @@ extern unsigned int compile_worklist(context_s *ctx, worklist_s *input_file);
 extern worklist_s *reverse_worklist(worklist_s *input_file);
 extern int passes(passinfo_s *passes, context_s *ctx, int (*exec)(context_s *));
 extern int dopass(context_s *ctx);
-extern int link(context_s *ctx);
+extern int link_(context_s *ctx);
 extern void OmfResponseFile(context_s *ctx);
 extern void CoffResponseFile(context_s *ctx);
 extern const char *mapfile(char *buffer, const char *exePath);
