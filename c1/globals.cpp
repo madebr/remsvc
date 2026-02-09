@@ -1,6 +1,11 @@
 #include "globals.h"
 
+#include "decomp.h"
 #include "nheapall.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 // GLOBAL: MSVC5_C1 0x00000050
 // ?g_hDLLHandle@@3PAXA
@@ -208,7 +213,8 @@ const char *szPDBName = "vc40.pdb";
 
 // GLOBAL: MSVC5_C1 0x000013a8
 // ?Cmd_pack_size@@3HA
-// int Cmd_pack_size
+// GLOBAL: C1 0x0045c548
+int Cmd_pack_size = -1;
 
 // GLOBAL: MSVC5_C1 0x000013ac
 // ?iTryBlockLevel@@3HA
@@ -1138,7 +1144,7 @@ cmdtab_s cmdtab[] = {
     // { "-ZB", { &PchC.p_SizeOfBigInt }, true, 0x01, },
     // { "-ZB*", { &PchC.p_SizeOfBigInt }, true, 0x24, },
     // { "-Z*", { &Ztab }, true, 0x23, },
-    // { "-ef#", { &gError_message_path }, true, 0x22, },
+    // { "-ef#", { &gDiagnostic_messages_path }, true, 0x22, },
     // { "-il$", { &Basename }, true, 0x22, },
     // { "-xc", { &gOption_xc }, true, 0x01, },
     // { "-V#", { &gOption_V_path }, true, 0x22, },

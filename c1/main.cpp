@@ -4,9 +4,12 @@
 #include "error.h"
 #include "globals.h"
 #include "initmain.h"
+#include "nbrowser.h"
 #include "nheapall.h"
 #include "p0chrmap.h"
+#include "p0io.h"
 #include "p0macros.h"
+#include "pch.h"
 #include "timing.h"
 #include "zz_unknown.h"
 
@@ -56,7 +59,10 @@ SYSTEM_INFO systemInfo = {
 
 // GLOBAL: MSVC5_C1 0x0000153c
 // ?hSemaphore@@3PAXA
-// void *hSemaphore
+#ifdef _WIN32
+// GLOBAL: C1 0x0045c6fc
+HANDLE hSemaphore;
+#endif
 
 // GLOBAL: MSVC5_C1 0x0000199c
 // ?FrontendDataEnd@@3HA
@@ -299,7 +305,23 @@ int main_compile()
 
 // FUNCTION: MSVC5_C1 0x000373e0
 // ?ErrorCleanup@@YAXXZ
-// void __cdecl ErrorCleanup(void)
+// GLOBAL: C1 0x00445a14
+void ErrorCleanup()
+{
+    CloseAllSources();
+    PchInterrupt();
+    SBR::Interrupt();
+    TPIMgr.Cleanup();
+    if (p_TPIMgr != (PDBManager_t *)0x0) {
+        p_TPIMgr->Cleanup();
+    }
+    CleanupMemory();
+    ExecutionState = CES_Done;
+    /* calls OKToHandleCtrlC() */
+    if (HandlingControlC) {
+        OKToHandleCtrlC();
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00037430
 // ?ErrorCleanupGuard@@YAXW4CompilerExecutionState_t@@@Z
@@ -311,7 +333,28 @@ int main_compile()
 
 // FUNCTION: MSVC5_C1 0x00037480
 // ?OKToHandleCtrlC@@YAXXZ
-// void __cdecl OKToHandleCtrlC(void)
+// FUNCTION: C1 0x
+void OKToHandleCtrlC()
+{
+    if (ExecutionState != CES_Done) {
+        if (ExecutionState == CES_AbortCleanup) {
+            return;
+        }
+        limit_recursion(CES_AbortCleanup);
+        ErrorCleanup();
+    }
+#ifdef _WIN32
+    if (hSemaphore != NULL) {
+        ReleaseSemaphore(hSemaphore, 1, NULL);
+    }
+    Sleep(0);
+#endif
+#ifdef _WIN32
+    ExitProcess(0x8000);
+#else
+    exit(255);
+#endif
+}
 
 // FUNCTION: C1 0x00445a9b
 void __fastcall limit_recursion(CompilerExecutionState_t state)
@@ -324,14 +367,6 @@ void __fastcall limit_recursion(CompilerExecutionState_t state)
     }
     ExecutionState = state;
 }
-
-// FUNCTION: C1 0x00445a14
-void ReleaseEverythingUponError()
-{
-    NOT_IMPLEMENTED();
-
-}
-
 
 // FUNCTION: MSVC5_C1 0x000374d0
 // _AbortCompilerPass@4

@@ -1,7 +1,11 @@
 #include "p0pragma.h"
 
+#include "globals.h"
 #include "nheapall.h"
+#include "original/types.h"
 
+// GLOBAL: 0x0045b5b8;
+s_StackOfPragmaPackItem_t *Pragma_stack;
 
 // GLOBAL: MSVC5_C1 0x0000022c
 // ?Comment_type@@3HA
@@ -233,7 +237,19 @@
 
 // FUNCTION: MSVC5_C1 0x0000c270
 // ?PushStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEPAUs_PragmaPackItem@@XZ
-// public: struct s_PragmaPackItem * __thiscall s_StackOfPragmaPackItem_t::PushStackOfPragmaPackItem_t(void)
+// FUNCTION: C1 0x
+s_PragmaPackItem * s_StackOfPragmaPackItem_t::PushStackOfPragmaPackItem_t()
+{
+    s_PragmaPackItem *item = pTopOfFreeStack;
+    if (pTopOfFreeStack != NULL) {
+        pTopOfFreeStack = item->pNext;
+    } else {
+        item = HeapManager::Allocate<s_PragmaPackItem>(M_LIFETIME0);
+    }
+    item->pNext = pTopOfStack;
+    pTopOfStack = item;
+    return item;
+}
 
 // FUNCTION: MSVC5_C1 0x0000c2d0
 // ?PopStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEXXZ
@@ -307,10 +323,27 @@
 // ?szPchName@@YAPADPAE@Z
 // char * __cdecl szPchName(unsigned char *)
 
-// GLOBAL: 0x0045b5b8;
-s_StackOfPragmaItem_t *PragmaStack;
+// FUNCTION: C1 0x00411655
+static void __fastcall SetTopPragmaPackItemValues(int opt_value, int extra)
+{
+    if (opt_value == 0) {
+        opt_value = Pragma_stack->pTopOfStack->value;
+    }
+    s_PragmaPackItem *item = Pragma_stack->PushStackOfPragmaPackItem_t();
+    item->value = opt_value;
+    item->field_0x8 = extra;
+}
 
 // FUNCTION: C1 0x0041160c
-void CreatePragmaStack() {
-    NOT_IMPLEMENTED();
+void CreatePragmaStack()
+{
+    Pragma_stack = new s_StackOfPragmaPackItem_t;
+    s_PragmaPackItem *item = Pragma_stack->PushStackOfPragmaPackItem_t();
+    if (Cmd_pack_size != -1) {
+        item->value = Cmd_pack_size;
+    } else {
+        item->value = 8;
+    }
+    item->field_0x8 = 0;
+    SetTopPragmaPackItemValues(0, 0);
 }

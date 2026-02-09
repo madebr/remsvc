@@ -186,7 +186,7 @@
 // void __cdecl PchCreate(void)
 
 // ?PchInterrupt@@YAXXZ
-// void __cdecl PchInterrupt(void)
+extern void PchInterrupt();
 
 // ?PchCopyFile@@YAJPAU_iobuf@@0J@Z
 // long __cdecl PchCopyFile(struct _iobuf *, struct _iobuf *, long)

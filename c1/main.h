@@ -134,7 +134,7 @@ extern int main_compile();
 // void __cdecl CleanupMemory(void)
 
 // ?ErrorCleanup@@YAXXZ
-// void __cdecl ErrorCleanup(void)
+extern void ErrorCleanup();
 
 // ?ErrorCleanupGuard@@YAXW4CompilerExecutionState_t@@@Z
 // void __cdecl ErrorCleanupGuard(enum CompilerExecutionState_t)
@@ -143,11 +143,9 @@ extern int main_compile();
 // void __cdecl ExitPass(int, int)
 
 // ?OKToHandleCtrlC@@YAXXZ
-// void __cdecl OKToHandleCtrlC(void)
+extern void OKToHandleCtrlC();
 
 extern void __fastcall limit_recursion(CompilerExecutionState_t state);
-
-extern void ReleaseEverythingUponError();
 
 // _AbortCompilerPass@4
 

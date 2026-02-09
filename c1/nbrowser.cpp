@@ -1,3 +1,7 @@
+#include "nbrowser.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00000090
 // ??_7SBRDisabled@@6B@
 // const SBRDisabled::`vftable'
@@ -166,7 +170,11 @@
 
 // FUNCTION: MSVC5_C1 0x000193c0
 // ?Interrupt@SBR@@SAXXZ
-// public: static void __cdecl SBR::Interrupt(void)
+// FUNCTION: C1 0x00442a47
+void  SBR::Interrupt()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019420
 // ?interrupt@SBREnabled@@EAEXXZ

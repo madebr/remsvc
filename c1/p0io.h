@@ -7,8 +7,34 @@ struct s_IncludeList {
     undefined4 field_0x0;
 };
 
+struct Position {
+    int line;
+    undefined4 *stream;
+    // FIXME: unknown size
+
+    const char *GetFilename();
+};
+
+struct TokenStreamStackElement {
+    Position position;
+    // FIXME: unknown size
+
+    // struct TokenStream *pStream;
+    // struct TokenStreamStackElement *pPreviousElement;
+    // struct Position popToPosition;
+    // enum PushMode pushMode;
+    // void (*popNotification)(void);
+};
+
+struct s_filelist {
+    int fileno;
+    undefined field_0x4[0x28];
+    s_filelist *prev;
+};
 
 extern s_IncludeList *IncludeList;
+
+extern TokenStreamStackElement tokenInputStack;
 
 // ??_C@_0M@JAPN@__LINE__Var?$AA@
 // "__LINE__Var"
@@ -89,7 +115,7 @@ extern s_IncludeList *IncludeList;
 // ""
 
 // ?Ftop@@3PAUs_filelist@@A
-// struct s_filelist *Ftop
+extern s_filelist *Ftop;
 
 // ?Fbottom@@3PAUs_filelist@@A
 // struct s_filelist *Fbottom
@@ -128,7 +154,7 @@ extern s_IncludeList *IncludeList;
 // void __cdecl UseInlineFile(int)
 
 // ?CloseAllSources@@YAXXZ
-// void __cdecl CloseAllSources(void)
+extern void CloseAllSources();
 
 // ?fpop@@YAHXZ
 // int __cdecl fpop(void)

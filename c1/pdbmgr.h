@@ -15,6 +15,42 @@ public:
     ~PDBManager_t() {
     }
 
+    // ?OpenPDBFile@PDBManager_t@@QAEHPADPAK1J0@Z
+    // public: int __thiscall PDBManager_t::OpenPDBFile(char *, unsigned long *, unsigned long *, long, char *)
+
+    // ?OpenSomePDB@PDBManager_t@@AAEHPADPAPAUPDB@@HJ0@Z
+    // private: int __thiscall PDBManager_t::OpenSomePDB(char *, struct PDB **, int, long, char *)
+
+    // ?CloseNameServer@PDBManager_t@@QAEXXZ
+    // public: void __thiscall PDBManager_t::CloseNameServer(void)
+
+    // ?OpenTypeServer@PDBManager_t@@QAEHXZ
+    // public: int __thiscall PDBManager_t::OpenTypeServer(void)
+
+    // ?CloseTypeServer@PDBManager_t@@QAEXXZ
+    // public: void __thiscall PDBManager_t::CloseTypeServer(void)
+
+    // ?OpenMREngine@PDBManager_t@@QAEHAAV1@@Z
+    // public: int __thiscall PDBManager_t::OpenMREngine(class PDBManager_t &)
+
+    // ?CloseMREngine@PDBManager_t@@QAEXH@Z
+    // public: void __thiscall PDBManager_t::CloseMREngine(int)
+
+    // ?Cleanup@PDBManager_t@@QAEXXZ
+    void Cleanup();
+
+    // ?OpenPCHContribDB@PDBManager_t@@AAEHXZ
+    // private: int __thiscall PDBManager_t::OpenPCHContribDB(void)
+
+    // ?QueryPCHContributor@PDBManager_t@@QAEHPBDPAJ@Z
+    // public: int __thiscall PDBManager_t::QueryPCHContributor(char const *, long *)
+
+    // ?RecordPCHContributor@PDBManager_t@@QAEXPBDJ@Z
+    // public: void __thiscall PDBManager_t::RecordPCHContributor(char const *, long)
+
+    // ?Commit@PDBManager_t@@QAEHXZ
+    // public: int __thiscall PDBManager_t::Commit(void)
+
 private:
     undefined4 field_0x0;
     undefined4 field_0x4;
@@ -34,42 +70,6 @@ private:
 
 // ??_C@_04NNLB@?4idb?$AA@
 // ".idb"
-
-// ?OpenPDBFile@PDBManager_t@@QAEHPADPAK1J0@Z
-// public: int __thiscall PDBManager_t::OpenPDBFile(char *, unsigned long *, unsigned long *, long, char *)
-
-// ?OpenSomePDB@PDBManager_t@@AAEHPADPAPAUPDB@@HJ0@Z
-// private: int __thiscall PDBManager_t::OpenSomePDB(char *, struct PDB **, int, long, char *)
-
-// ?CloseNameServer@PDBManager_t@@QAEXXZ
-// public: void __thiscall PDBManager_t::CloseNameServer(void)
-
-// ?OpenTypeServer@PDBManager_t@@QAEHXZ
-// public: int __thiscall PDBManager_t::OpenTypeServer(void)
-
-// ?CloseTypeServer@PDBManager_t@@QAEXXZ
-// public: void __thiscall PDBManager_t::CloseTypeServer(void)
-
-// ?OpenMREngine@PDBManager_t@@QAEHAAV1@@Z
-// public: int __thiscall PDBManager_t::OpenMREngine(class PDBManager_t &)
-
-// ?CloseMREngine@PDBManager_t@@QAEXH@Z
-// public: void __thiscall PDBManager_t::CloseMREngine(int)
-
-// ?Cleanup@PDBManager_t@@QAEXXZ
-// public: void __thiscall PDBManager_t::Cleanup(void)
-
-// ?OpenPCHContribDB@PDBManager_t@@AAEHXZ
-// private: int __thiscall PDBManager_t::OpenPCHContribDB(void)
-
-// ?QueryPCHContributor@PDBManager_t@@QAEHPBDPAJ@Z
-// public: int __thiscall PDBManager_t::QueryPCHContributor(char const *, long *)
-
-// ?RecordPCHContributor@PDBManager_t@@QAEXPBDJ@Z
-// public: void __thiscall PDBManager_t::RecordPCHContributor(char const *, long)
-
-// ?Commit@PDBManager_t@@QAEHXZ
-// public: int __thiscall PDBManager_t::Commit(void)
 
 // ?Open@ContribDB@@SAHPAUPDB@@PBDPAPAV1@@Z
 // public: static int __cdecl ContribDB::Open(struct PDB *, char const *, class ContribDB **)

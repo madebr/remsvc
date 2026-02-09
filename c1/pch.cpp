@@ -1,3 +1,7 @@
+#include "pch.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00001548
 // ?PchHd@@3UPchHd_t@@A
 // struct PchHd_t PchHd
@@ -247,7 +251,10 @@
 
 // FUNCTION: MSVC5_C1 0x0003a900
 // ?PchInterrupt@@YAXXZ
-// void __cdecl PchInterrupt(void)
+// FUNCTION: C1 0x0041f15f
+void PchInterrupt() {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003aa40
 // ?PchCopyFile@@YAJPAU_iobuf@@0J@Z

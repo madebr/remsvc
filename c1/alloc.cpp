@@ -1,5 +1,9 @@
 #include "alloc.h"
 
+#include "nheapall.h"
+
+#include <string.h>
+
 // GLOBAL: MSVC5_C1 0x000015ec
 // ?currentTreeLife@@3W4lifetime_e@@A
 // enum lifetime_e currentTreeLife
@@ -31,9 +35,11 @@
 // FUNCTION: MSVC5_C1 0x0003bca0
 // ?pstrdup@@YAPADPADW4lifetime_e@@@Z
 // FUNCTION C1: 0x00423857
-char * __fastcall pstrdup(char *text, lifetime_e lifetime)
+char * __fastcall pstrdup(const char *text, lifetime_e lifetime)
 {
-    NOT_IMPLEMENTED();
+    char *result = static_cast<char *>(HeapManager::Allocate(strlen(text) + 1, lifetime));
+    strcpy(result, text);
+    return result;
 }
 
 // FUNCTION: MSVC5_C1 0x0003bd10

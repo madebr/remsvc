@@ -2,8 +2,17 @@
 
 #include "nheapall.h"
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 // GLOBAL: C1 0x0045b5bc
 s_IncludeList *IncludeList;
+
+// GLOBAL: C1 0x0045e450
+TokenStreamStackElement tokenInputStack;
 
 // GLOBAL: MSVC5_C1 0x000000b0
 // ??_C@_0M@JAPN@__LINE__Var?$AA@
@@ -111,7 +120,8 @@ s_IncludeList *IncludeList;
 
 // GLOBAL: MSVC5_C1 0x00000218
 // ?Ftop@@3PAUs_filelist@@A
-// struct s_filelist *Ftop
+// GLOBAL: C1 0x0045b3c0
+s_filelist *Ftop = NULL;
 
 // GLOBAL: MSVC5_C1 0x0000021c
 // ?Fbottom@@3PAUs_filelist@@A
@@ -163,7 +173,14 @@ s_IncludeList *IncludeList;
 
 // FUNCTION: MSVC5_C1 0x00005010
 // ?CloseAllSources@@YAXXZ
-// void __cdecl CloseAllSources(void)
+// FUNCTION: C1 0x0043f132
+void CloseAllSources() {
+    for (; Ftop != NULL; Ftop = Ftop->prev) {
+        if (Ftop->fileno != -1) {
+            close(Ftop->fileno);
+        }
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005040
 // ?fpop@@YAHXZ
@@ -233,4 +250,10 @@ s_IncludeList *IncludeList;
 void InitIncludeList()
 {
     IncludeList = HeapManager::Allocate<s_IncludeList>(M_LIFETIME0);
+}
+
+// FUNCTION: C1 0x0040551c
+const char * Position::GetFilename()
+{
+    NOT_IMPLEMENTED();
 }

@@ -229,6 +229,8 @@ add_executable(rec1
     c1/zeegee.cpp
     c1/zeegee.h
 
+    c1/util.cpp
+    c1/util.h
     c1/zz_diagnostic.cpp
     c1/zz_diagnostic.h
     c1/zz_unknown.cpp

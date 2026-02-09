@@ -4,6 +4,7 @@
 #include "decomp.h"
 
 #include <stdarg.h>
+#include <stdio.h>
 
 typedef enum {
     C1000 = 0,
@@ -162,6 +163,10 @@ typedef enum {
     C1999 = 999
 } FatalNumber;
 
+extern FILE *gFile_er;
+
+extern bool32 gWrite_er;
+
 // ?__MSGTAB@@3PAU_message@@A
 // struct _message *__MSGTAB
 
@@ -235,13 +240,13 @@ extern void fatal_varargs(FatalNumber code, ...);
 // void __cdecl OutputDiagnosticString(char *)
 
 // ?message@@YAXHHPAD0@Z
-extern void message(int category, int code, char *format, va_list ap);
+extern void message(int category, int code, const char *format_str, va_list ap);
 
 // ?format@@YAHPAD0HZZ
-// int __cdecl format(char *, char *, int, ...)
+extern int format(char *buffer, const char *format_str, size_t buffer_size, ...);
 
 // ?do_format@@YAHPADPBDH0@Z
-// int __cdecl do_format(char *, char const *, int, char *)
+extern int do_format(char *buffer, char const *format_str, size_t buffer_size, va_list ap);
 
 // ?GetWarnLevel@@YA?AW4warn_t@@I@Z
 // enum warn_t __cdecl GetWarnLevel(unsigned int)

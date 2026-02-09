@@ -46,7 +46,11 @@
 
 // FUNCTION: MSVC5_C1 0x0004a380
 // ?Cleanup@PDBManager_t@@QAEXXZ
-// public: void __thiscall PDBManager_t::Cleanup(void)
+// FUNCTION: C1 0x0044e8b0
+void PDBManager_t::Cleanup()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0004a3c0
 // ?OpenPCHContribDB@PDBManager_t@@AAEHXZ

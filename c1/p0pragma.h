@@ -2,30 +2,34 @@
 #define P0PRAGMA_H
 
 #include "decomp.h"
+#include "nheapall.h"
+
+#include <stdlib.h>
+
+struct s_PragmaPackItem {
+    s_PragmaPackItem *pNext;
+    int value; // struct Id_t *pPushId;
+    undefined4 field_0x8; // union PragmaItem_t_u_8 field2_0x8;
+};
 
 struct s_StackOfPragmaPackItem_t {
     // ??2s_StackOfPragmaPackItem_t@@SAPAXI@Z
     // public: static void * __cdecl s_StackOfPragmaPackItem_t::operator new(unsigned int)
+    static void *operator new(size_t size) {
+        return HeapManager::Allocate(size, M_LIFETIME0);
+    }
 
     // ?PushStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEPAUs_PragmaPackItem@@XZ
-    // public: struct s_PragmaPackItem * __thiscall s_StackOfPragmaPackItem_t::PushStackOfPragmaPackItem_t(void)
+    s_PragmaPackItem * PushStackOfPragmaPackItem_t();
 
     // ?PopStackOfPragmaPackItem_t@s_StackOfPragmaPackItem_t@@QAEXXZ
     // public: void __thiscall s_StackOfPragmaPackItem_t::PopStackOfPragmaPackItem_t(void)
 
     // ?FindPointersInPragmaStack@s_StackOfPragmaPackItem_t@@QAEXXZ
     // public: void __thiscall s_StackOfPragmaPackItem_t::FindPointersInPragmaStack(void)
-};
 
-struct PragmaItem_t {
-    PragmaItem_t *pNext;
-    undefined4 field_0x4; // struct Id_t *pPushId;
-    undefined4 field_0x8; // union PragmaItem_t_u_8 field2_0x8;
-};
-
-struct s_StackOfPragmaItem_t {
-    PragmaItem_t *pTopOfStack;
-    PragmaItem_t *pTopOfFreeStack;
+    s_PragmaPackItem *pTopOfStack;
+    s_PragmaPackItem *pTopOfFreeStack;
 };
 
 // ?Comment_type@@3HA
@@ -133,7 +137,7 @@ struct s_StackOfPragmaItem_t {
 // ??_C@_04FOLL@?4pch?$AA@
 // ".pch"
 
-extern s_StackOfPragmaItem_t *PragmaStack;
+extern s_StackOfPragmaPackItem_t *Pragma_stack;
 
 // ?checkAnyToken@ParsePragma@@CAPBVToken@@E@Z
 // private: static class Token const * __cdecl ParsePragma::checkAnyToken(unsigned char)

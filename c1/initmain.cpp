@@ -15,6 +15,8 @@
 #ifdef _WIN32
 #include <mbctype.h>
 #include <mbstring.h>
+#include <stdlib.h>
+#include <windows.h>
 #else
 #include <ctype.h>
 #endif
@@ -407,18 +409,81 @@ char **Argv;
 
 // FUNCTION: MSVC5_C1 0x00020b40
 // ?nextword@@YAPADXZ
-// char * __cdecl nextword(void)
+// FUNCTION: C1 0x0041b8af
+const char *nextword()
+{
+    Argc -= 1;
+    if (Argc <= 0) {
+        return NULL;
+    }
+    Argv++;
+    return *Argv;
+}
 
 // FUNCTION: MSVC5_C1 0x00020b70
 // ?SzCanonFilename@canonFullPathHelperClass@@CAPADPAD@Z
 // private: static char * __cdecl canonFullPathHelperClass::SzCanonFilename(char *)
+// FUNCTION: C1 0x00411f5a
+char * __fastcall SzCanonFilename(char *path)
+{
+    char *ptr = path;
+    while (*ptr != '\0') {
+        if (Lowermap[(unsigned char)*ptr] == -1) {
+            ptr++;
+        } else {
+            *ptr = Lowermap[(unsigned char)*ptr];
+        }
+        ptr++;
+    }
+    return path;
+}
 
 // FUNCTION: MSVC5_C1 0x00020bc0
 // ?SzCanonFullPath@@YAPADPADPBDI@Z
-// FUNCTION: C1 0x xxxx
-char * __fastcall SzCanonFullPath(char *buffer, char const *path, size_t bufferCap)
+// FUNCTION: C1 0x00411f86
+char * __fastcall SzCanonFullPath(char *dest, char const *path, size_t destSize)
 {
-    NOT_IMPLEMENTED();
+#ifdef _WIN32
+    unsigned char buffer[260];
+    bool no_fullpath = false;
+
+    strcpy((char *)buffer, path);
+    if (strlen((const char *)buffer) >= 3) {
+        SzCanonFilename((char *)buffer);
+        if (!_ismbblead(buffer[0])) {
+            bool absolute = false;
+            bool network = false;
+
+            if (buffer[0] == '\\' && buffer[1] == '\\') {
+                network = absolute = true;
+            } else if (buffer[0] < 0x80 && buffer[1] == ':') {
+                absolute = true;
+            }
+            if (absolute) {
+                no_fullpath = _mbsstr(buffer, (const unsigned char *)".\\") == NULL;
+                if (no_fullpath && !network) {
+                    no_fullpath = _mbsstr(buffer, (const unsigned char *)":\\") != NULL;
+                }
+            }
+        }
+    }
+    bool full_path_succes = false;
+    if (!no_fullpath) {
+        char *r = _fullpath(dest, path, destSize);
+        full_path_succes = r != NULL;
+    }
+    if (!full_path_succes) {
+        strcpy(dest, path);
+    }
+    return SzCanonFilename(dest);
+#else
+    if (path[0] != '/') {
+        realpath(path, dest);
+    } else {
+        strcpy(dest, canonicalize_file_name(path));
+    }
+    return dest;
+#endif
 }
 
 // FUNCTION: MSVC5_C1 0x00020d40
@@ -484,17 +549,6 @@ static void InitLowerMap()
     Lowermap['/'] = '\\';
 }
 
-// FUNCTION: C1 0x0041b8af
-char *GetNextArgument()
-{
-    Argc -= 1;
-    if (Argc <= 0) {
-        return NULL;
-    }
-    Argv++;
-    return *Argv;
-}
-
 // FUNCTION: MSVC5_C1 0x00020f70
 // ?init_main1@@YAXHPAPAD@Z
 // C1: FUNCTION 0x0041b4b2
@@ -554,7 +608,7 @@ void init_main1(int argc, char **argv)
     }
     for (;;) {
         int state = 0;
-        state = crack_cmd(cmdtab, GetNextArgument(), GetNextArgument, state);
+        state = crack_cmd(cmdtab, nextword(), nextword, state);
         if (!state) {
             break;
         }
@@ -581,7 +635,7 @@ void init_main1(int argc, char **argv)
     if (PchC.p_Cmd_Jd) {
         FUN_0043ee2c();
     }
-    if (PragmaStack == NULL) {
+    if (Pragma_stack == NULL) {
         CreatePragmaStack();
     }
     if (szCmd_Ylstring != NULL) {

@@ -15,21 +15,6 @@
 // ?last_line@@3JA
 // long last_line
 
-// ?emission@SBR@@1W4SbrEmission@@A
-// protected: static enum SbrEmission SBR::emission
-
-// ?offPastModule@SBR@@1JA
-// protected: static long SBR::offPastModule
-
-// ?pSbr@@3PAVSBR@@A
-// class SBR *pSbr
-
-// ?pSbrEnabled@SBR@@0PAVSBREnabled@@A
-// private: static class SBREnabled *SBR::pSbrEnabled
-
-// ?pSbrDisabled@SBR@@0PAVSBRDisabled@@A
-// private: static class SBRDisabled *SBR::pSbrDisabled
-
 // ??_C@_03KBID@w?$CLb?$AA@
 // "w+b"
 
@@ -50,9 +35,6 @@
 
 // ?PCHMarkEmitted@@3HA
 // int PCHMarkEmitted
-
-// ?lineStart@SBR@@1GA
-// protected: static unsigned short SBR::lineStart
 
 // ?GetStr@@YAPADXZ
 // char * __cdecl GetStr(void)
@@ -105,23 +87,46 @@
 // ?LazyEnqueue@@YAXEPAVSymbol_t@@@Z
 // void __cdecl LazyEnqueue(unsigned char, class Symbol_t *)
 
-// ?Enable@SBR@@SAPAV1@XZ
-// public: static class SBR * __cdecl SBR::Enable(void)
+struct SBR {
+    // ?Enable@SBR@@SAPAV1@XZ
+    // public: static class SBR * __cdecl SBR::Enable(void)
 
-// ?Disable@SBR@@SAPAV1@XZ
-// public: static class SBR * __cdecl SBR::Disable(void)
+    // ?Disable@SBR@@SAPAV1@XZ
+    // public: static class SBR * __cdecl SBR::Disable(void)
 
-// ?Open@SBR@@SAPAV1@PAD@Z
-// public: static class SBR * __cdecl SBR::Open(char *)
+    // ?Open@SBR@@SAPAV1@PAD@Z
+    // public: static class SBR * __cdecl SBR::Open(char *)
 
-// ?Close@SBR@@SAXXZ
-// public: static void __cdecl SBR::Close(void)
+    // ?Close@SBR@@SAXXZ
+    // public: static void __cdecl SBR::Close(void)
+
+    // ?StartRgn@SBR@@QAEXH@Z
+    // public: void __thiscall SBR::StartRgn(int)
+
+    // ?Interrupt@SBR@@SAXXZ
+    static void Interrupt();
+
+    // ?emission@SBR@@1W4SbrEmission@@A
+    // protected: static enum SbrEmission SBR::emission
+
+    // ?offPastModule@SBR@@1JA
+    // protected: static long SBR::offPastModule
+
+    // ?pSbrEnabled@SBR@@0PAVSBREnabled@@A
+    // private: static class SBREnabled *SBR::pSbrEnabled
+
+    // ?pSbrDisabled@SBR@@0PAVSBRDisabled@@A
+    // private: static class SBRDisabled *SBR::pSbrDisabled
+
+    // ?lineStart@SBR@@1GA
+    // protected: static unsigned short SBR::lineStart
+};
+
+// ?pSbr@@3PAVSBR@@A
+// class SBR *pSbr
 
 // ?Finish@SBREnabled@@UAEXXZ
 // public: virtual void __thiscall SBREnabled::Finish(void)
-
-// ?Interrupt@SBR@@SAXXZ
-// public: static void __cdecl SBR::Interrupt(void)
 
 // ?interrupt@SBREnabled@@EAEXXZ
 // private: virtual void __thiscall SBREnabled::interrupt(void)
@@ -131,9 +136,6 @@
 
 // ?OpenIcc@SBREnabled@@UAEHXZ
 // public: virtual int __thiscall SBREnabled::OpenIcc(void)
-
-// ?StartRgn@SBR@@QAEXH@Z
-// public: void __thiscall SBR::StartRgn(int)
 
 // ?IncCurSbrPatch@@YAXXZ
 // void __cdecl IncCurSbrPatch(void)

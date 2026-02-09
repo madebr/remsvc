@@ -30,20 +30,19 @@ struct cmdtab_s {
 // ?NewArgv@@3PAPADA
 extern char **NewArgv;
 
-// ??_C@_02HPLL@?9?1?$AA@
-// "-/"
+extern const char *ErrString;
 
 // ?crack_cmd@@YAHPBUcmdtab@@PADP6APADXZH@Z
-extern int __fastcall crack_cmd(const cmdtab_s *cmd, char *argument, char * (* get_next_argument)(), int state);
+extern int __fastcall crack_cmd(const cmdtab_s *cmds, const char *argument, const char * (* get_next_argument)(), int state);
 
 // ?substr@@YAXPBUcmdtab@@PADH@Z
-// void __cdecl substr(struct cmdtab const *, char *, int)
+extern void __fastcall substr(cmdtab_s const *cmds, const char *value, bool32 dupe);
 
 // ?getnumber@@YAHPAD@Z
 // int __cdecl getnumber(char *)
 
 // ?tailmatch@@YAHPAD0H@Z
-// int __cdecl tailmatch(char *, char *, int)
+extern bool32 tailmatch(const char *str, const char *tail);
 
 // ?unconcat@@YAXPAE@Z
 extern void __fastcall unconcat(char *argstr);

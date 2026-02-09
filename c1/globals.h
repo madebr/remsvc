@@ -670,7 +670,7 @@ extern const char *szPDBName;
 // char *Basename
 
 // ?Cmd_pack_size@@3HA
-// int Cmd_pack_size
+extern int Cmd_pack_size;
 
 // ?iTryBlockLevel@@3HA
 // int iTryBlockLevel

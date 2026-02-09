@@ -27,6 +27,7 @@ typedef unsigned int bool32;
 
 #ifndef _WIN32
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define FALSE 0
@@ -46,6 +47,10 @@ static void inline ExitProcess(int code)
 
 static int _ismbblead(int c) {
     return 0;
+}
+
+static const unsigned char *_mbsstr(const unsigned char *str, const unsigned char *strSearch) {
+    return (unsigned char *)strstr((const char *)str, (const char *)strSearch);
 }
 
 typedef struct {

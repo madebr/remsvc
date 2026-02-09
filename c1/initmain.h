@@ -291,14 +291,15 @@ extern char **Argv;
 // char *DummyArg
 
 // ?nextword@@YAPADXZ
-// char * __cdecl nextword(void)
+extern const char * nextword(void);
 
 // ?SzCanonFilename@canonFullPathHelperClass@@CAPADPAD@Z
 // private: static char * __cdecl canonFullPathHelperClass::SzCanonFilename(char *)
+extern char * __fastcall SzCanonFilename(char *path);
 
 // ?SzCanonFullPath@@YAPADPADPBDI@Z
 // char * __cdecl SzCanonFullPath(char *, char const *, unsigned int)
-extern char * __fastcall SzCanonFullPath(char *buffer, char const *path, size_t bufferCap);
+extern char * __fastcall SzCanonFullPath(char *dest, char const *path, size_t destSize);
 
 // ?szRelToPdb@@YAPADPBD@Z
 // char * __cdecl szRelToPdb(char const *)

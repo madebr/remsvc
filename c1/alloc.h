@@ -26,7 +26,7 @@
 // void __cdecl FinishMalloc(void)
 
 // ?pstrdup@@YAPADPADW4lifetime_e@@@Z
-extern char * __fastcall pstrdup(char *text, lifetime_e lifetime);
+extern char * __fastcall pstrdup(const char *text, lifetime_e lifetime);
 
 // ?pstrndup@@YAPADPADW4lifetime_e@@H@Z
 // char * __cdecl pstrndup(char *, enum lifetime_e, int)

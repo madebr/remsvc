@@ -322,7 +322,7 @@ BOOL gOption_nologo = FALSE;
 BOOL gOption_FAT = FALSE;
 
 // GLOBAL: C1 0x00466500
-BOOL gBOOL_00466500 = FALSE;
+BOOL gWrite_er = FALSE;
 
 // GLOBAL: C1 0x0045c53c
 const char *gOption_pc_map = "\\:/";
@@ -457,7 +457,7 @@ BOOL Out_funcdef = FALSE;
 BOOL gOption_ZI = FALSE;
 
 // GLOBAL: C1 0x0045c540
-const char *gError_message_path = "c1.err";
+const char *gDiagnostic_messages_path = "c1.err";
 
 // GLOBAL: C1 0x0045c544
 const char *Basename = "";
@@ -589,7 +589,7 @@ cmdtab cmdtab[89] = {
     { "-ZB", { &PchC.p_SizeOfBigInt }, true, 0x01, },
     { "-ZB*", { &PchC.p_SizeOfBigInt }, true, 0x24, },
     { "-Z*", { &Ztab }, true, 0x23, },
-    { "-ef#", { &gError_message_path }, true, 0x22, },
+    { "-ef#", { &gDiagnostic_messages_path }, true, 0x22, },
     { "-il$", { &Basename }, true, 0x22, },
     { "-xc", { &gOption_xc }, true, 0x01, },
     { "-V#", { &gOption_V_path }, true, 0x22, },
@@ -652,19 +652,19 @@ cmdtab cmdtab[89] = {
 tPragma_stack *gPragma_stack = NULL;
 
 // GLOBAL: C1 0x0046644c
-FILE *gError_message_file = NULL;
+FILE *gDiagnostics_file = NULL;
 
 // GLOBAL: C1 0x00469208
 char gError_message_buffer[256];
 
 // GLOBAL: C1 0x00469168
-tDiagnostic_file_offset gCached_diagnostic_file_offsets[20];
+tDiagnostic_file_offset gDiagnostic_file_offsets[20];
 
 // GLOBAL: C1 0x0045c7b0
 int gError_message_file_pos = 0;
 
 // GLOBAL: C1 0x0045c7b4
-BOOL gDiagnostic_help_strings_initialized = FALSE;
+BOOL gDiagnostic_strings_initialized = FALSE;
 
 // GLOBAL: C1 0x0045c7b8
 tDiagnostic_code_text gDiagnostic_help_strings[83] = {
@@ -1262,7 +1262,7 @@ extern void OKToHandleCtrlC();
 
 extern void * __fastcall xnew(size_t s);
 
-extern void * __fastcall StdLibSafeRealloc(void *mem, size_t s);
+extern void * __fastcall xrealloc(void *mem, size_t s);
 
 extern void __fastcall fatal_varargs(int code);
 
@@ -1388,8 +1388,8 @@ void CacheDiagnosticFileOFfset(int offset, int code)
 {
     int i;
 
-    for (i = 0; i < arraysize(gCached_diagnostic_file_offsets); i++) {
-        tDiagnostic_file_offset *file_offset = &gCached_diagnostic_file_offsets[i];
+    for (i = 0; i < arraysize(gDiagnostic_file_offsets); i++) {
+        tDiagnostic_file_offset *file_offset = &gDiagnostic_file_offsets[i];
         if (file_offset->code == 0) {
             file_offset->code = code;
             file_offset->offset = offset;
@@ -1411,11 +1411,11 @@ char *ReadDiagnosticString(int code, char *buffer, size_t bufferSize, BOOL arg4)
 
         for (;;) {
             if (!arg4) {
-                offset = (int32_t)ftell(gError_message_file);
+                offset = (int32_t)ftell(gDiagnostics_file);
             }
-            if (fgets(buffer, bufferSize, gError_message_file) == NULL) {
+            if (fgets(buffer, bufferSize, gDiagnostics_file) == NULL) {
                 if (!arg4) {
-                    fatal_io_CRT(83, 314, gError_message_path);
+                    fatal_io_CRT(83, 314, gDiagnostic_messages_path);
                     exit(68);
                 }
                 return NULL;
@@ -1431,7 +1431,7 @@ char *ReadDiagnosticString(int code, char *buffer, size_t bufferSize, BOOL arg4)
             }
             return RemoveEscapedCharactersInDiagnosticString(text_start);
         } else if (line_code / -1000 == code / -1000) {
-            fseek(gError_message_file, 0, SEEK_SET);
+            fseek(gDiagnostics_file, 0, SEEK_SET);
             return RemoveEscapedCharactersInDiagnosticString(text_start);
         }
     }
@@ -1449,10 +1449,10 @@ const char *__fastcall LookupDiagnosticHelpString(int code)
     return diagnostic_code_text->text;
 }
 
-// GLOBAL: C1 0x00423937
+// FUNCTION: C1 0x00423937
 const char *__fastcall GetDiagnosticHelpString(int code)
 {
-    if (!gDiagnostic_help_strings_initialized) {
+    if (!gDiagnostic_strings_initialized) {
         tDiagnostic_code_text *diagnostic_code_text = &gDiagnostic_help_strings[0];
         for (;diagnostic_code_text->code != 0; diagnostic_code_text++) {
             const char *text = GetDiagnosticString(diagnostic_code_text->code, TRUE);
@@ -1466,17 +1466,17 @@ const char *__fastcall GetDiagnosticHelpString(int code)
                 if (diagnostic_code_text->code == 315) {
                     diagnostic_code_text->text = "fatal error";
                 }
-                if (gError_message_file != (FILE*)(uintptr_t)-1) {
-                    fseek(gError_message_file, 0, SEEK_SET);
+                if (gDiagnostics_file != (FILE*)(uintptr_t)-1) {
+                    fseek(gDiagnostics_file, 0, SEEK_SET);
                 }
             } else {
                 diagnostic_code_text->text = pstrdup(text, 1);
             }
         }
-        if (gError_message_file != (FILE*)(uintptr_t)-1) {
-            gError_message_file_pos = ftell(gError_message_file);
+        if (gDiagnostics_file != (FILE*)(uintptr_t)-1) {
+            gError_message_file_pos = ftell(gDiagnostics_file);
         }
-        gDiagnostic_help_strings_initialized = TRUE;
+        gDiagnostic_strings_initialized = TRUE;
     }
     return LookupDiagnosticHelpString(code);
 }
@@ -1488,8 +1488,8 @@ int GetBestErrorFileMessageOffset(int code)
     int best_diff = SHRT_MAX;
     int i;
 
-    for (i = 0; i < arraysize(gCached_diagnostic_file_offsets); i++) {
-        int current_code = gCached_diagnostic_file_offsets[i].code;
+    for (i = 0; i < arraysize(gDiagnostic_file_offsets); i++) {
+        int current_code = gDiagnostic_file_offsets[i].code;
         if (current_code == 0) {
             break;
         }
@@ -1506,31 +1506,31 @@ int GetBestErrorFileMessageOffset(int code)
     if (best_index < 0) {
         return gError_message_file_pos;
     }
-    return gCached_diagnostic_file_offsets[best_index].offset;
+    return gDiagnostic_file_offsets[best_index].offset;
 }
 
 // FUNCTION: C1 0x004238b7
 const char *__stdcall GetDiagnosticString(int code, BOOL arg2)
 {
-    if (gError_message_file == NULL) {
-        if (gDiagnostic_help_strings_initialized  || arg2) {
-            if (gError_message_path == NULL) {
-                gError_message_file = (FILE *)(uintptr_t)-1;
+    if (gDiagnostics_file == NULL) {
+        if (gDiagnostic_strings_initialized  || arg2) {
+            if (gDiagnostic_messages_path == NULL) {
+                gDiagnostics_file = (FILE *)(uintptr_t)-1;
                 return "";
             }
-            FILE * f = fopen(gError_message_path, "r");
+            FILE * f = fopen(gDiagnostic_messages_path, "r");
             if (f == NULL) {
-                gError_message_file = (FILE *)(uintptr_t)-1;
+                gDiagnostics_file = (FILE *)(uintptr_t)-1;
                 return "";
             }
         }
         GetDiagnosticHelpString(303);
     }
-    if (gError_message_file == (FILE *)(uintptr_t)-1) {
+    if (gDiagnostics_file == (FILE *)(uintptr_t)-1) {
         return "";
     }
     if (!arg2) {
-        fseek(gError_message_file, GetBestErrorFileMessageOffset(code), SEEK_SET);
+        fseek(gDiagnostics_file, GetBestErrorFileMessageOffset(code), SEEK_SET);
     }
     return ReadDiagnosticString(code, gError_message_buffer, sizeof(gError_message_buffer), arg2);
 }
@@ -1556,7 +1556,7 @@ undefined4 FUN_0041545b()
         if (gPTR_0045c6c0 == NULL) {
             gPTR_0045c6c0 = (tStruct_0045c6c0 *)xnew(64 * sizeof(tStruct_0045c6c0));
         } else {
-            gPTR_0045c6c0 = (tStruct_0045c6c0 *)StdLibSafeRealloc(gPTR_0045c6c0, (gINT_0045c6c4 + 64) * sizeof(tStruct_0045c6c0));
+            gPTR_0045c6c0 = (tStruct_0045c6c0 *)xrealloc(gPTR_0045c6c0, (gINT_0045c6c4 + 64) * sizeof(tStruct_0045c6c0));
         }
         if (gPTR_0045c6c0 == NULL) {
             fatal_varargs(60);
@@ -1719,7 +1719,7 @@ void __fastcall PrintDiagnosticV(int category, int code, const char *format, va_
     DiagnosticVSprintf(ptr_message, format, buffer + sizeof(buffer) - ptr_message, ap);
     fwrite(buffer, strlen(buffer), 1, stderr);
     fwrite("\n", 1, 1, stderr);
-    if (gBOOL_00466500 != 0 && gFile_er != NULL) {
+    if (gWrite_er != 0 && gFile_er != NULL) {
         fwrite(buffer, strlen(buffer), 1, stderr);
         fwrite("\n", 1, 1, stderr);
         fflush(gFile_er);
@@ -1891,7 +1891,7 @@ void * __fastcall xnew(size_t s)
 }
 
 // FUNCTION: C1 0x00447fc2
-void * __fastcall StdLibSafeRealloc(void *mem, size_t s)
+void * __fastcall xrealloc(void *mem, size_t s)
 {
     void *res = realloc(mem, s);
     if (res == NULL) {
@@ -2421,7 +2421,7 @@ void __fastcall unconcat(char *arg_string)
 }
 
 // FUNCTION: C1 0x0041b8af
-char *GetNextArgument()
+const char *GetNextArgument()
 {
     Argc -= 1;
     if (Argc <= 0) {
@@ -3488,7 +3488,7 @@ void init_main2()
     CreateKeywordHashmap();
     InitKeywords();
     FUN_004193d4();
-    if (gBOOL_00466500 && !Out_funcdef) {
+    if (gWrite_er && !Out_funcdef) {
         gFile_er = OpenFileInDirectory(Basename, "er", "w");
         gFile_lp = OpenFileInDirectory(Basename, "lp", "w");
     }
