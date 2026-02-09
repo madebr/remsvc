@@ -1,6 +1,15 @@
 #include "pch.h"
 
 #include "decomp.h"
+#include "error.h"
+#include "globals.h"
+#include "ilsink.h"
+
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 // GLOBAL: MSVC5_C1 0x00001548
 // ?PchHd@@3UPchHd_t@@A
@@ -48,11 +57,13 @@
 
 // GLOBAL: MSVC5_C1 0x000015d8
 // ?NewPchPFile@@3HA
-// int NewPchPFile
+// GLOBAL: C1 0x0045c790
+bool32 NewPchPFile = FALSE;
 
 // GLOBAL: MSVC5_C1 0x000015dc
 // ?New2PchPFile@@3HA
-// int New2PchPFile
+// GLOBAL: C1 0x0045c794
+bool32 New2PchPFile = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00004d48
 // ?PchXFilename@@3PBDB
@@ -131,7 +142,8 @@
 
 // GLOBAL: MSVC5_C1 0x00007a48
 // ?Newfp@@3PAU_iobuf@@A
-// struct _iobuf *Newfp
+// GLOBAL: C1 0x00468d48
+FILE *Newfp = NULL;
 
 // GLOBAL: MSVC5_C1 0x00007a50
 // ?locPchC@@3UPchC_t@@A
@@ -253,7 +265,41 @@
 // ?PchInterrupt@@YAXXZ
 // FUNCTION: C1 0x0041f15f
 void PchInterrupt() {
-    NOT_IMPLEMENTED();
+    // GLOBAL: C1 0x0045c798
+    static bool32 guard = FALSE;
+
+    if (!guard) {
+        if ((PchMustCreate && (WarnIsError > 1) + Nerrors != 0) || PchFileNameFromCmdLine || New2PchPFile || NewPchPFile != 0) {
+            guard = 1;
+            if (NewPchPFile) {
+                IOGlobalVal = fclose(I_pchfp);
+                if (IOGlobalVal == -1) {
+                    fatal_io_CRT_position(C1082, 344, PchPFile, "pch.c", 2299);
+                }
+                I_pchfp = NULL;
+            } else if (New2PchPFile == 0) {
+                IOGlobalVal = fclose(Newfp);
+                if (IOGlobalVal == -1) {
+                    fatal_io_CRT_position(C1082, 344, PchPFile, "pch.c",0x8ff);
+                }
+                Newfp = NULL;
+            } else if (PchFileNameFromCmdLine) {
+                IOGlobalVal = ilsExp.fclose();
+                if (IOGlobalVal == -1) {
+                    fatal_io_CRT_position(C1082,344,PchPFile,"pch.c",0x903);
+                }
+            } else {
+                guard = TRUE;
+                return;
+            }
+            if (unlink(PchPFile)) {
+                fatal_io_CRT(C1083,340, PchPFile);
+            }
+            PchFileNameFromCmdLine = FALSE;
+            New2PchPFile = FALSE;
+            NewPchPFile = FALSE;
+        }
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x0003aa40

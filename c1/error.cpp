@@ -49,7 +49,8 @@ bool32 gWrite_er = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00007e58
 // ?IOGlobalVal@@3JA
-// long IOGlobalVal
+// GLOBAL: C1 0x00469160
+int IOGlobalVal = 0;
 
 // GLOBAL: MSVC5_C1 0x00007e60
 // ?Errbuff@@3PADA
@@ -92,6 +93,17 @@ int fatal_io_CRT(FatalNumber fatalCode, int category, const char *text)
     NOT_IMPLEMENTED();
 }
 
+// FUNCTION: C1 0x0044810e
+int __fastcall fatal_io_CRT_position(FatalNumber code,int category,const char *text, const char *file, int lineno)
+{
+    if (ExecutionState != CES_ErrorCleanup && ExecutionState != CES_AbortCleanup) {
+        if (text == NULL) {
+            text = "";
+        }
+        fatal_varargs(code, category,text, strerror(NULL), file, lineno);
+    }
+    return 0;
+}
 // FUNCTION: MSVC5_C1 0x0003bf60
 // ?fatal_io_Win32@@YAHHHPAE@Z
 // int __cdecl fatal_io_Win32(int, int, unsigned char *)

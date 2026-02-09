@@ -1,3 +1,7 @@
+#include "ilsink.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00001950
 // ?ppdb@ILSink@@0PAUPDB@@A
 // private: static struct PDB *ILSink::ppdb
@@ -32,7 +36,11 @@
 
 // FUNCTION: MSVC5_C1 0x0003e120
 // ?fclose@ILSink@@QAEHXZ
-// public: int __thiscall ILSink::fclose(void)
+// FUNCTION: C1 0x0041f36c
+int ILSink::fclose()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003e170
 // ?flushFile@ILSink@@QAEXXZ

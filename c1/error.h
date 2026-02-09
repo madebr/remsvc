@@ -183,7 +183,7 @@ extern bool32 gWrite_er;
 // "%s(%d) : "
 
 // ?IOGlobalVal@@3JA
-// long IOGlobalVal
+extern int IOGlobalVal;
 
 // ?Errbuff@@3PADA
 // char *Errbuff
@@ -208,6 +208,8 @@ extern bool32 gWrite_er;
 
 // ?get_err@@YGPADH@Z
 // char * __stdcall get_err(int)
+
+extern int __fastcall fatal_io_CRT_position(FatalNumber code,int category,const char *text, const char *file, int lineno);
 
 // ?fatal_io_CRT@@YAHHHPAE@Z
 extern int fatal_io_CRT(FatalNumber fatalCode, int category, const char *text);

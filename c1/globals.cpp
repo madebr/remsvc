@@ -87,7 +87,8 @@ const char *szCmd_Ylstring;
 
 // GLOBAL: MSVC5_C1 0x00001324
 // ?PchPFile@@3PAEA
-// unsigned char *PchPFile
+// GLOBAL: C1 0x0045c4d0
+char *PchPFile = NULL;
 
 // GLOBAL: MSVC5_C1 0x00001328
 // ?PchFinalFileName@@3PAEA
@@ -103,11 +104,13 @@ const char *szCmd_Ylstring;
 
 // GLOBAL: MSVC5_C1 0x00001334
 // ?PchMustCreate@@3HA
-// int PchMustCreate
+// GLOBAL: C1 0x0045c4e0
+bool32 PchMustCreate = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00001338
 // ?PchFileNameFromCmdLine@@3HA
-// int PchFileNameFromCmdLine
+// GLOBAL: C1 0x0045c4e4
+bool32 PchFileNameFromCmdLine = FALSE;
 
 // GLOBAL: MSVC5_C1 0x0000133c
 // ?fPersistentPch@@3HA
@@ -476,7 +479,8 @@ const char *Input_file = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004940
 // ?ilsExp@@3VILSink@@A
-// class ILSink ilsExp
+// GLOBAL: C1 0x00466010
+ILSink ilsExp;
 
 // GLOBAL: MSVC5_C1 0x00004a70
 // ?ZfExtension@@3HA
@@ -768,7 +772,8 @@ VirtualHeap::SubAllocator SAClass<TypeEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x000050bc
 // ?I_pchfp@@3PAU_iobuf@@A
-// struct _iobuf *I_pchfp
+// GLOBAL: C1 0x00466490
+FILE *I_pchfp = NULL;
 
 // GLOBAL: MSVC5_C1 0x000050c0
 // ?Stack_depth@@3HA
@@ -782,7 +787,8 @@ VirtualHeap::SubAllocator SAClass<SymbolAllocator_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x000050d8
 // ?WarnIsError@@3HA
-// int WarnIsError
+// GLOBAL: C1 0x004664c4
+int WarnIsError = 0;
 
 // GLOBAL: MSVC5_C1 0x000050dc
 // ?pSymBitTemp@@3PAVSymbol_t@@A

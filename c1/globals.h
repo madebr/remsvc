@@ -5,8 +5,11 @@
 #include "crc32.h"
 #include "decomp.h"
 #include "getflags.h"
+#include "ilsink.h"
 #include "list.h"
 #include "pdbmgr.h"
+
+#include <stdio.h>
 
 typedef struct {
     //uint LexIdentifier:1;
@@ -577,7 +580,7 @@ extern char *PchCFile;
 extern const char *szCmd_Ylstring;
 
 // ?PchPFile@@3PAEA
-// unsigned char *PchPFile
+extern char *PchPFile;
 
 // ?PchFinalFileName@@3PAEA
 // unsigned char *PchFinalFileName
@@ -589,10 +592,10 @@ extern const char *szCmd_Ylstring;
 // int PchFileCreated
 
 // ?PchMustCreate@@3HA
-// int PchMustCreate
+extern bool32 PchMustCreate;
 
 // ?PchFileNameFromCmdLine@@3HA
-// int PchFileNameFromCmdLine
+extern bool32 PchFileNameFromCmdLine;
 
 // ?fPersistentPch@@3HA
 extern bool32 fPersistentPch;
@@ -859,7 +862,7 @@ extern const char *Input_file;
 // class ILSink ilsInitStrings
 
 // ?ilsExp@@3VILSink@@A
-// class ILSink ilsExp
+extern ILSink ilsExp;
 
 // ?ZfExtension@@3HA
 // int ZfExtension
@@ -1066,7 +1069,7 @@ extern int Nerrors;
 // class DLSymbolList_t *XformedFormalList
 
 // ?I_pchfp@@3PAU_iobuf@@A
-// struct _iobuf *I_pchfp
+extern FILE *I_pchfp;
 
 // ?Stack_depth@@3HA
 // int Stack_depth
@@ -1075,7 +1078,7 @@ extern int Nerrors;
 // private: static struct VirtualHeap::SubAllocator SAClass<class SymbolAllocator_t, 1>::m_allocator
 
 // ?WarnIsError@@3HA
-// int WarnIsError
+extern int WarnIsError;
 
 // ?pSymBitTemp@@3PAVSymbol_t@@A
 // class Symbol_t *pSymBitTemp

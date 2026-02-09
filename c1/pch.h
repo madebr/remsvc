@@ -1,5 +1,10 @@
 #ifndef PCH_H
 #define PCH_H
+
+#include "decomp.h"
+
+#include <stdio.h>
+
 // ?PchHd@@3UPchHd_t@@A
 // struct PchHd_t PchHd
 
@@ -34,10 +39,10 @@
 // private: static long CapturePdb::cRunLen
 
 // ?NewPchPFile@@3HA
-// int NewPchPFile
+extern bool32 NewPchPFile;
 
 // ?New2PchPFile@@3HA
-// int New2PchPFile
+extern bool32 New2PchPFile;
 
 // ?PchXFilename@@3PBDB
 // char const *PchXFilename
@@ -96,7 +101,7 @@
 // struct PchDir_t *PchDirectives
 
 // ?Newfp@@3PAU_iobuf@@A
-// struct _iobuf *Newfp
+extern FILE *Newfp;
 
 // ?locPchC@@3UPchC_t@@A
 // struct PchC_t locPchC

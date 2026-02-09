@@ -171,7 +171,7 @@
 // FUNCTION: MSVC5_C1 0x000193c0
 // ?Interrupt@SBR@@SAXXZ
 // FUNCTION: C1 0x00442a47
-void  SBR::Interrupt()
+void SBR::Interrupt()
 {
     NOT_IMPLEMENTED();
 }
