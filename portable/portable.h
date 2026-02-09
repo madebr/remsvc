@@ -220,12 +220,14 @@ static inline intptr_t _spawnvp(int mode, const char *cmdname, const char * cons
     } else {
         abort();
     }
-    if (WIFSIGNALED(status)) {
+    if (WIFEXITED(status)) {
+        return WEXITSTATUS(status);
+    } else if (WIFSIGNALED(status)) {
         int signal = WTERMSIG(status);
-        SIG_IGN;
-        return signal;
+        return -256 - signal;
+    } else {
+        return -1;
     }
-    return WEXITSTATUS(status);
 }
 
 static inline intptr_t _spawnv(int mode, const char *cmdname, const char *const *argv) {
