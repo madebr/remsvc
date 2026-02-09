@@ -3,11 +3,13 @@
 #ifdef _WIN32
 #include <io.h>
 #include <process.h>
+#define PATH_JOIN_CHAR '\\'
 #else
 #include <errno.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#define PATH_JOIN_CHAR '/'
 #endif
 #include <ctype.h>
 #include <stdio.h>
@@ -111,7 +113,7 @@ static inline void _makepath(char *path, const char *drive, const char *dir, con
     if (dir) {
         strcpy(path, dir);
         path += strlen(dir);
-        if (fname || ext) {
+        if (*dir && (fname || ext)) {
             *path++ = '/';
         }
     }
@@ -181,7 +183,10 @@ static inline unsigned char *_mbschr(unsigned char *str, unsigned int c) {
 static inline char * _mktemp(char *templ) {
     int result = mkstemp(templ);
     if (result == -1) {
+#if 0
+        /* Always fails on my system? */
         return NULL;
+#endif
     }
     return templ;
 }
@@ -198,16 +203,27 @@ static inline const unsigned char *_mbsstr(const unsigned char *str, const unsig
     return (unsigned char *)strstr((const char *)str, (const char *)strSearch);
 }
 
-static inline intptr_t _spawnvp(int mode, const char *cmdname, const char *const *argv) {
+static inline intptr_t _spawnvp(int mode, const char *cmdname, const char * const *argv) {
+    fflush(stdout);
     pid_t p = fork();
     if (p == 0) {
         execvp(cmdname, (char * const *)argv);
+        exit(0);
+        abort();
     }
-    int status;
+    int status = -1;
     if (mode == _P_WAIT) {
-        waitpid(p, &status, 0);;
+        int waitpid_result = waitpid(p, &status, 0);
+        if (waitpid_result != p) {
+            return -1;
+        }
     } else {
         abort();
+    }
+    if (WIFSIGNALED(status)) {
+        int signal = WTERMSIG(status);
+        SIG_IGN;
+        return signal;
     }
     return WEXITSTATUS(status);
 }

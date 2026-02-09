@@ -328,6 +328,7 @@ const char *DefaultOptions[] = {
     NULL,
 };
 
+// GLOBAL: CL 0x0040a0d8
 char VersionNumber[] = "10.20.6166";
 
 // GLOBAL: CL 0x0040a0e8
@@ -1521,7 +1522,7 @@ void maketempdir(context_s *ctx)
         len_buffer = strlen(buffer);
         final_c = buffer[len_buffer - 1];
         if (final_c != '\\' && final_c != ':' && final_c != '/') {
-            buffer[len_buffer + 0] = '\\';
+            buffer[len_buffer + 0] = PATH_JOIN_CHAR;
             buffer[len_buffer + 1] = '\0';
         }
         ctx->tempPath = catinate(buffer, "XXXXXX");
@@ -2101,7 +2102,7 @@ char *extract_path(const char *path)
     _splitpath(path, drive, dir, basename, ext);
     len_dir = strlen(dir);
     if (len_dir > 0 && dir[len_dir - 1] != '\\' && dir[len_dir - 1] != ';' && dir[len_dir - 1] != '/') {
-        dir[len_dir + 0] = '\\';
+        dir[len_dir + 0] = PATH_JOIN_CHAR;
         dir[len_dir + 1] = '\0';
     }
     drive_dir = strcat(drive, dir);
