@@ -205,11 +205,10 @@ static inline const unsigned char *_mbsstr(const unsigned char *str, const unsig
 
 static inline intptr_t _spawnvp(int mode, const char *cmdname, const char * const *argv) {
     fflush(stdout);
-    pid_t p = fork();
+    pid_t p = vfork();
     if (p == 0) {
         execvp(cmdname, (char * const *)argv);
-        exit(0);
-        abort();
+        exit(255);
     }
     int status = -1;
     if (mode == _P_WAIT) {
@@ -221,6 +220,9 @@ static inline intptr_t _spawnvp(int mode, const char *cmdname, const char * cons
         abort();
     }
     if (WIFEXITED(status)) {
+        if (WEXITSTATUS(status) == 255) {
+            return -1;
+        }
         return WEXITSTATUS(status);
     } else if (WIFSIGNALED(status)) {
         int signal = WTERMSIG(status);
