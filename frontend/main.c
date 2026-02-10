@@ -334,7 +334,11 @@ char VersionNumber[] = "10.20.6166";
 // GLOBAL: CL 0x0040a0e8
 passinfo_s C_passes[] = {
     {
+#ifdef _WIN32
         "c1.exe",
+#else
+        "rec1",
+#endif
         "c1.err",
         "MSC_CMD_FLAGS=",
         1,
@@ -342,7 +346,11 @@ passinfo_s C_passes[] = {
         '-',
     },
     {
+#ifdef _WIN32
         "c2.exe",
+#else
+        "rec2",
+#endif
         "c23.err",
         "MSC_CMD_FLAGS=",
         1,
@@ -363,7 +371,11 @@ passinfo_s C_passes[] = {
 passinfo_s Cxx_passes[] =
 {
     {
+#ifdef _WIN32
         "c1xx.exe",
+#else
+        "rec1xx",
+#endif
         "c1.err",
         "MSC_CMD_FLAGS=",
         1,
@@ -371,7 +383,11 @@ passinfo_s Cxx_passes[] =
         '-',
     },
     {
+#ifdef _WIN32
         "c2.exe",
+#else
+        "rec2",
+#endif
         "c23.err",
         "MSC_CMD_FLAGS=",
         1,
@@ -392,7 +408,11 @@ passinfo_s Cxx_passes[] =
 passinfo_s Link_passes[] =
 {
     {
+#ifdef _WIN32
         "link386.exe",
+#else
+        "relink386",
+#endif
         NULL,
         NULL,
         0,
@@ -400,7 +420,11 @@ passinfo_s Link_passes[] =
         '/',
     },
     {
+#ifdef _WIN32
         "link.exe",
+#else
+        "relink",
+#endif
         NULL,
         NULL,
         1,
