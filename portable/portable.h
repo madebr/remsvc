@@ -204,6 +204,25 @@ static inline const unsigned char *_mbsstr(const unsigned char *str, const unsig
 }
 
 static inline intptr_t _spawnvp(int mode, const char *cmdname, const char * const *argv) {
+#ifdef _DEBUG
+    {
+        size_t i;
+        fprintf(stderr, "Spawning process \"%s\": cmd=\"", cmdname);
+        for (i = 0; argv[i] != NULL; i++) {
+            if (i != 0) {
+                fprintf(stderr, " ");
+            }
+            if (strchr(argv[i], ' ')) {
+                fprintf(stderr, "'");
+            }
+            fprintf(stderr, "%s", argv[i]);
+            if (strchr(argv[i], ' ')) {
+                fprintf(stderr, "'");
+            }
+        }
+        fprintf(stderr, "\"\n", cmdname);
+    }
+#endif
     fflush(stdout);
     pid_t p = vfork();
     if (p == 0) {
