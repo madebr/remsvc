@@ -157,8 +157,45 @@ HANDLE hSemaphore;
 // FUNCTION: C1 0x00419928
 int __fastcall gatherOneCommandLineNugget(char *arg, unsigned int state)
 {
-    NOT_IMPLEMENTED();
+    if (arg == NULL) {
+        return 0;
+    }
+    for (;;) {
+        switch (state) {
+        case 0:
+            if (strncmp(arg, "-Bm", 3) == 0) {
+                arg += 3;
+                state = 1;
+            } else if (strncmp(arg, "-ZB", 3) == 0) {
+                arg += 3;
+                state = 2;
+            } else if (strncmp(arg, "-ZM", 3) == 0) {
+                arg += 3;
+                state = 3;
+            }
+            break;
+        case 1:
+            MemoryStatsLevel = atoi(arg);
+            return 0;
+        case 2:
+            PchC.p_SizeOfBigInt = atoi(arg);
+            return 0;
+        case 3:
+            VirtualHeap::Cmd_ScaleMemory = atoi(arg);
+            if (VirtualHeap::Cmd_ScaleMemory == 0) {
+                VirtualHeap::Cmd_ScaleMemory = 100;
+            }
+            return 0;
+        }
+        if (*arg == '\0') {
+            return 0;
+        }
+        if (state == 0) {
+            return 0;
+        }
+    }
 }
+
 // FUNCTION: MSVC5_C1 0x00036ac0
 // ?PreParseArgs@@YAXPAPAD@Z
 // FUNCTION: C1 0x00419862

@@ -16,7 +16,7 @@ struct list {
 // int __cdecl FListInvariants(struct list *const)
 
 // ?ListNewSize@@YAPAUlist@@FW4lifetime_e@@@Z
-extern list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime);
+extern list<void *> * __fastcall ListNewSize(unsigned short capacity, lifetime_e lifetime);
 
 // ?ListGrow@@YAPAUlist@@PAU1@@Z
 // struct list * __cdecl ListGrow(struct list *)
@@ -34,7 +34,7 @@ extern list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime);
 // struct list * __cdecl ListItemsCopy(struct list *const, enum lifetime_e, void * (__cdecl *)(void *, enum lifetime_e))
 
 // ?ListAppend@@YAXPAUlist@@QAX@Z
-// void __cdecl ListAppend(struct list *, void *const)
+extern void ListAppend(list<void *> *lst, void *item);
 
 // ?FListContains@@YAHQAUlist@@QAX@Z
 // int __cdecl FListContains(struct list *const, void *const)

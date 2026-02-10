@@ -9,7 +9,7 @@
 extern const char *Unknown_;
 
 // ?C7CompatCVInfo@@3HA
-// int C7CompatCVInfo
+extern bool32 C7CompatCVInfo;
 
 // ??_C@_01FDHG@?$CK?$AA@
 // "*"
@@ -279,7 +279,7 @@ extern const char *Unknown_;
 // "rt"
 
 // ?Cmd_DebugBreak@@3HA
-// int Cmd_DebugBreak
+extern bool32 Cmd_DebugBreak;
 
 // ?Argc@@3HA
 extern int Argc;
@@ -288,10 +288,10 @@ extern int Argc;
 extern char **Argv;
 
 // ?DummyArg@@3PADA
-// char *DummyArg
+extern char *DummyArg;
 
 // ?nextword@@YAPADXZ
-extern const char * nextword(void);
+extern char * nextword(void);
 
 // ?SzCanonFilename@canonFullPathHelperClass@@CAPADPAD@Z
 // private: static char * __cdecl canonFullPathHelperClass::SzCanonFilename(char *)

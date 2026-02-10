@@ -35,7 +35,8 @@ const char *Unknown_ = NULL;
 
 // GLOBAL: MSVC5_C1 0x000013e4
 // ?C7CompatCVInfo@@3HA
-// int C7CompatCVInfo
+// GLOBAL: C1 0x0045c58c
+bool32 C7CompatCVInfo = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00003034
 // ??_C@_01FDHG@?$CK?$AA@
@@ -395,7 +396,8 @@ const char *Unknown_ = NULL;
 
 // GLOBAL: MSVC5_C1 0x00005c4c
 // ?Cmd_DebugBreak@@3HA
-// int Cmd_DebugBreak
+// GLOBAL: C1 0x0046703c
+bool32 Cmd_DebugBreak = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00005c50
 // ?Argc@@3HA
@@ -409,12 +411,13 @@ char **Argv;
 
 // GLOBAL: MSVC5_C1 0x00005c58
 // ?DummyArg@@3PADA
-// char *DummyArg
+// GLOBAL: C1 0x0046714c
+char *DummyArg = NULL;
 
 // FUNCTION: MSVC5_C1 0x00020b40
 // ?nextword@@YAPADXZ
 // FUNCTION: C1 0x0041b8af
-const char *nextword()
+char *nextword()
 {
     Argc -= 1;
     if (Argc <= 0) {

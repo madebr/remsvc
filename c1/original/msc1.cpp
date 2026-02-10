@@ -517,7 +517,7 @@ const char *gYX_arg_path = NULL;
 BOOL gOption_YX = FALSE;
 
 // GLOBAL: C1 0x0045c4cc
-const char *gYl_arg_path = NULL;
+const char *szCmd_Ylstring = NULL;
 
 // GLOBAL: C1 0x0045c4e8
 BOOL fPersistentPch = TRUE;
@@ -633,7 +633,7 @@ cmdtab cmdtab[89] = {
     { "-Fp#", { &PchPFile }, true, 0x22, },
     { "-YX*", { &gYX_arg_path }, true, 0x22, },
     { "-YX", { &gOption_YX }, true, 0x01, },
-    { "-Yl*", { &gYl_arg_path }, true, 0x22, },
+    { "-Yl*", { &szCmd_Ylstring }, true, 0x22, },
     { "-BNOPPCH", { &fPersistentPch }, true, 0x05, },
     { "-noexpinl", { &gOption_noexpinl }, true, 0x01, },
     { "-GM", { &PchC.option_GM }, true, 0x01, },
@@ -2844,8 +2844,8 @@ void __fastcall init_main1(int argc, char **argv)
     if (gPragma_stack == NULL) {
         CreatePragmaStack();
     }
-    if (gYl_arg_path != NULL) {
-        if (strlen(gYl_arg_path) >= sizeof(PchC.Yl_path)) {
+    if (szCmd_Ylstring != NULL) {
+        if (strlen(szCmd_Ylstring) >= sizeof(PchC.Yl_path)) {
             fatal_varargs(5);
         }
         strcpy(PchC.Yl_path, PchC.Yl_path);

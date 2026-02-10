@@ -10,7 +10,7 @@
 // FUNCTION: MSVC5_C1 0x00024ae0
 // ?ListNewSize@@YAPAUlist@@FW4lifetime_e@@@Z
 // FUNCTION: C1 0x00411ea0
-list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime)
+list<void *> * __fastcall ListNewSize(unsigned short capacity, lifetime_e lifetime)
 {
     list<void *> *result = HeapManager::Allocate<list<void *>>(lifetime);
     result->size = 0;
@@ -22,7 +22,11 @@ list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime)
 
 // FUNCTION: MSVC5_C1 0x00024b50
 // ?ListGrow@@YAPAUlist@@PAU1@@Z
-// struct list * __cdecl ListGrow(struct list *)
+// FUNCTION: C1 0x0044407c
+list<void *> * __fastcall ListGrow(list<void *> *lst)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00024bd0
 // ?ListCopyExtra@@YAPAUlist@@QAU1@FW4lifetime_e@@@Z
@@ -42,7 +46,15 @@ list<void *> * ListNewSize(unsigned short capacity, lifetime_e lifetime)
 
 // FUNCTION: MSVC5_C1 0x00024cd0
 // ?ListAppend@@YAXPAUlist@@QAX@Z
-// void __cdecl ListAppend(struct list *, void *const)
+// FUNCTION: C1 0x00411f16
+void __cdecl ListAppend(struct list<void *> *lst, void *item)
+{
+    if (lst->capacity == lst->size) {
+        ListGrow(lst);
+    }
+    lst->data[lst->size] = item;
+    lst->size++;
+}
 
 // FUNCTION: MSVC5_C1 0x00024d00
 // ?FListContains@@YAHQAUlist@@QAX@Z

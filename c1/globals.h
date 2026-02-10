@@ -188,40 +188,58 @@ typedef struct {
 } ParseFlags_t;
 
 typedef struct PchC_s {
-    // int p_SizeOfBigInt;
-    // bool p_Extension;
-    // bool p_Cmd_conformForScope;
-    // bool p_Cmd_conformNameDec;
-    // bool p_BigIntExtension;
-    // bool p_Jflag;
+    bool32 p_option_ZE;
+    bool32 p_Extension;
+    bool32 p_BigIntExtension;
+    int p_SizeOfBigInt;
+    bool32 p_Cmd_fastcall;
+    undefined field_0x14[0x18 - 0x14];
+    bool32 p_JFlag;
+    bool32 p_JdFlag;
+    undefined field_0x20[0x38 - 0x20];
     // bool p_OptFlgBestPM;
     // bool p_OptFlgGenPM;
     // bool p_OptFlgPMSI;
     // bool p_OptFlgPMMI;
     // bool p_OptFlgPMVI;
     // int p_OptFlgVtorDisp;
+    bool32 p_MDFlag;
+    bool32 p_MTFlag;
+    bool32 p_GcFlag;
     bool32 p_Symbolic_debug_holder;
     bool32 p_PchDFlag;
+    undefined field_0x4c[0x50 - 0x4c];
     // ushort p_ObjNamSize;
     // ushort p_SbrNamSize;
-    // bool p_NoPoundLines;
+    bool32 p_NoPoundLines;
+    bool32 p_option_pf;
     bool32 p_option_Bd;
-    // bool p_fReproduceable;
+    bool32 p_option_Bu;
+    bool32 p_fReproduceable;
     // bool p_Feedback;
-    // bool p_Cmd_intrinsic;
-    // bool p_Cmd_stack_check;
+    bool32 p_Cmd_intrinsic;
+    bool32 p_Cmd_stack_check;
     // bool p_GpFlg;
     // int p_GpVal;
-    // bool p_Cmd_cdecl;
-    // bool p_Cmd_stdcall;
-    // bool p_Cmd_fastcall;
     bool32 p_Cmd_Jd;
-    // bool p_Cmd_ROStrPool;
     // bool p_ROStringPool;
-    // bool p_CodeBasedStrings;
-    // uint p_Cmd_processor;
+    bool32 p_Cmd_cdecl;
+    bool32 p_Cmd_stdcall;
+    bool32 p_Cmd_StrPool;
+    bool32 p_Cmd_ROStrPool;
+    bool32 p_CodeBasedStrings;
+    unsigned int p_Cmd_processor;
+    bool32 p_option_GM;
+    int p_option_Ob;
     // bool p_SourceBrowser;
     // bool p_SourceBrowserExtended;
+    bool32 p_option_C8MODE;
+    bool32 p_OptFlgSpeed;
+    bool32 p_option_Oa;
+    bool32 p_option_Ow;
+    bool32 p_OptFlgGlobCse;
+    bool32 p_option_Op;
+    bool32 p_OptFlgFrame;
     // ulong p_SavePragStat;
     // bool p_ForceDataToThread;
     // bool p_Cmd_GS;
@@ -244,17 +262,19 @@ typedef struct PchC_s {
     // bool p_FenvAccess;
     // bool p_FpContract;
     // bool p_OptFlgSpeed;
-    // bool p_OptFlgGlobCse;
     // bool p_OptFlgFrame;
     bool32 p_FUseTypeServer;
     char p_FdName[256];
     char p_szYlstring[256];
     // char p_szPchHeaderFile[778];
+    bool32 p_option_Oq;
+    bool32 field_0x3dc;
+    bool32 p_option_Ov;
     // struct PDBSIG p_PchTPISig;
     // struct PDBSIG p_PchIDBSig;
     bool32 p_Cmd_C9IL;
     bool32 p_Cmd_fICC;
-    // bool p_Cmd_fICCForceParseAll;
+    bool32 p_Cmd_GI;// bool p_Cmd_fICCForceParseAll;
     // bool p_Cmd_fICCGLValidate;
     bool32 p_Cmd_fICCBrowse;
     // bool p_fWarnPort64;
@@ -273,10 +293,10 @@ typedef struct PchC_s {
     // bool p_fNewArrayDecoration;
     // bool p_fTlssupport;
     // int p_Cmd_pack_size;
-    // int p_Cmd_Zm;
     // bool p_Cmd_ShowContinuationNumbers;
     // bool p_Cmd_Import_No_Registry;
     // bool p_Cmd_Import_No_Path;
+    bool32 p_option_NoEHForNew;
     bool32 p_Cmd_splitPdbs;
 } PchC_t;
 
@@ -556,7 +576,7 @@ extern PchS_t PchS;
 extern PchC_t PchC;
 
 // ?MemoryStatsLevel@@3HA
-// int MemoryStatsLevel
+extern int MemoryStatsLevel;
 
 // ?PchUFlag@@3HA
 extern bool32 PchUFlag;
@@ -613,7 +633,7 @@ extern bool32 fPersistentPch;
 // char *Debug
 
 // ?NVStr@@3PADA
-// char *NVStr
+extern const char *NVStr;
 
 // ?ParentEsu@@3PAVSymbol_t@@A
 // class Symbol_t *ParentEsu
@@ -628,7 +648,7 @@ extern bool32 fPersistentPch;
 // int Prep_ifstack
 
 // ?OutFil@@3PADA
-// char *OutFil
+extern const char *OutFil;
 
 // ?szPDBName@@3PADA
 extern const char *szPDBName;
@@ -637,7 +657,7 @@ extern const char *szPDBName;
 // int StunDepth
 
 // ?Warn_level@@3HA
-// int Warn_level
+extern int Warn_level;
 
 // ?InlineDepth@@3FA
 // short InlineDepth
@@ -667,10 +687,12 @@ extern const char *szPDBName;
 // unsigned char *pStringBuffer
 
 // ?Path_chars@@3PADA
-// char *Path_chars
+// GLOBAL: C1 0x0045c53c
+extern const char *Path_chars;
 
 // ?Basename@@3PADA
-// char *Basename
+// GLOBAL: C1 0x0045c544
+extern const char *Basename;
 
 // ?Cmd_pack_size@@3HA
 extern int Cmd_pack_size;
@@ -694,7 +716,7 @@ extern int Cmd_pack_size;
 // class Symbol_t *Hold_I_DATA
 
 // ?Cmd_NoExportInlines@@3HA
-// int Cmd_NoExportInlines
+extern bool32 Cmd_NoExportInlines;
 
 // ?Realt_const0@@3Us_realt@@A
 // struct s_realt Realt_const0
@@ -874,7 +896,7 @@ extern ILSink ilsExp;
 // class Type_t *TmpTypePool
 
 // ?Version@@3PADA
-// char *Version
+extern const char *Version;
 
 // ?m_allocator@?$SAClass@UId_t@@$00@@0USubAllocator@VirtualHeap@@A
 // private: static struct VirtualHeap::SubAllocator SAClass<struct Id_t, 1>::m_allocator
@@ -892,7 +914,7 @@ extern ILSink ilsExp;
 extern list<void *> *listForcedIncludes;
 
 // ?ShowIncludes@@3HA
-// int ShowIncludes
+extern bool32 ShowIncludes;
 
 // ?ilsLSym@@3VILSink@@A
 // class ILSink ilsLSym
@@ -934,7 +956,7 @@ extern bool32 Out_funcdef;
 // int InstantiateFunc
 
 // ?StdoutFile@@3PADA
-// char *StdoutFile
+extern const char *StdoutFile;
 
 // ?Macro_depth@@3HA
 // int Macro_depth
@@ -973,7 +995,7 @@ extern bool32 Out_funcdef;
 extern CRC32 crc32ClCmd;
 
 // ?SourceBrowserExt@@3PADA
-// char *SourceBrowserExt
+extern const char *SourceBrowserExt;
 
 // ?ilsInit@@3VILSink@@A
 // class ILSink ilsInit
@@ -988,7 +1010,7 @@ extern CRC32 crc32ClCmd;
 extern bool32 Prep;
 
 // ?SourceBrowserNamFlg@@3PADA
-// char *SourceBrowserNamFlg
+extern const char *SourceBrowserNamFlg;
 
 // ?Current_char@@3PAEA
 // unsigned char *Current_char
@@ -1030,7 +1052,7 @@ extern bool32 Prep;
 // unsigned long CurFuncNumExNodes
 
 // ?Cflag@@3HA
-// int Cflag
+extern bool32 Cflag;
 
 // ?I_stdoutfp@@3PAU_iobuf@@A
 // struct _iobuf *I_stdoutfp
@@ -1042,7 +1064,7 @@ extern bool32 Prep;
 extern int Nerrors;
 
 // ?BdFlg@@3HA
-// int BdFlg
+extern bool32 BdFlg;
 
 // ?m_allocator@?$SAClass@UTypeEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
 // private: static struct VirtualHeap::SubAllocator SAClass<struct TypeEntry_t, 1>::m_allocator
@@ -1060,7 +1082,7 @@ extern int Nerrors;
 // struct s_stack *Loopi_stack
 
 // ?Cross_compile@@3HA
-// int Cross_compile
+extern bool32 Cross_compile;
 
 // ?Processor@@3HA
 // int Processor
@@ -1093,7 +1115,7 @@ extern int WarnIsError;
 // char *CurrentDateTime
 
 // ?Nologo@@3HA
-// int Nologo
+extern bool32 Nologo;
 
 // ?Asm_opt@@3HA
 // int Asm_opt
@@ -1250,14 +1272,30 @@ extern int WarnIsError;
 
 extern s_cmd_line_warning_t CmdLineWarningList[];
 
-extern cmdtab_s cmdtab[];
+extern const subtab Ztab[];
+
+extern const cmdtab_s cmdtab[];
 
 extern bool32 p_Embed_debug;
-
-extern const char *gYl_arg_path;
 
 extern const char *gYX_arg_path;
 
 extern bool32 gOption_YX;
+
+extern bool32 gOption_FAT;
+
+extern int Cmd_Zm;
+
+extern bool32 gOption_Fj;
+
+extern bool32 Cmd_Times;
+
+extern bool32 gOption_BMOVE;
+
+extern bool32 gOption_Zn;
+
+extern bool32 gOption_Zf;
+
+extern bool32 gOption_ZI;
 
 #endif /* GLOBALS_H */

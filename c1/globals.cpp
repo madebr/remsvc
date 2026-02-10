@@ -1,7 +1,10 @@
 #include "globals.h"
 
 #include "decomp.h"
+#include "globals.h"
+#include "initmain.h"
 #include "nheapall.h"
+#include "zz_diagnostic.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -50,7 +53,8 @@ PchC_t PchC;
 
 // GLOBAL: MSVC5_C1 0x00001304
 // ?MemoryStatsLevel@@3HA
-// int MemoryStatsLevel
+// GLOBAL: C1 0x0045c4b0
+int MemoryStatsLevel = 0;
 
 // GLOBAL: MSVC5_C1 0x00001308
 // ?PchUFlag@@3HA
@@ -135,7 +139,8 @@ bool32 fPersistentPch = TRUE;
 
 // GLOBAL: MSVC5_C1 0x00001350
 // ?NVStr@@3PADA
-// char *NVStr
+// GLOBAL: C1 0x0045c4f8
+const char *NVStr = NULL;
 
 // GLOBAL: MSVC5_C1 0x00001354
 // ?ParentEsu@@3PAVSymbol_t@@A
@@ -155,7 +160,8 @@ bool32 fPersistentPch = TRUE;
 
 // GLOBAL: MSVC5_C1 0x00001364
 // ?OutFil@@3PADA
-// char *OutFil
+// GLOBAL: C1 0x0045c508
+const char *OutFil = NULL;
 
 // GLOBAL: MSVC5_C1 0x00001368
 // ?szPDBName@@3PADA
@@ -168,7 +174,8 @@ const char *szPDBName = "vc40.pdb";
 
 // GLOBAL: MSVC5_C1 0x00001370
 // ?Warn_level@@3HA
-// int Warn_level
+// GLOBAL: C1 0x0045c514
+int Warn_level = 1;
 
 // GLOBAL: MSVC5_C1 0x00001374
 // ?InlineDepth@@3FA
@@ -208,11 +215,12 @@ const char *szPDBName = "vc40.pdb";
 
 // GLOBAL: MSVC5_C1 0x000013a0
 // ?Path_chars@@3PADA
-// char *Path_chars
+// GLOBAL: C1 0x00454a24
+const char *Path_chars = "\\:/";
 
 // GLOBAL: MSVC5_C1 0x000013a4
 // ?Basename@@3PADA
-// char *Basename
+const char *Basename;
 
 // GLOBAL: MSVC5_C1 0x000013a8
 // ?Cmd_pack_size@@3HA
@@ -245,7 +253,8 @@ int Cmd_pack_size = -1;
 
 // GLOBAL: MSVC5_C1 0x000013c4
 // ?Cmd_NoExportInlines@@3HA
-// int Cmd_NoExportInlines
+// GLOBAL: C1 0x0045c568
+bool32 Cmd_NoExportInlines = FALSE;
 
 // GLOBAL: MSVC5_C1 0x000013c8
 // ?Realt_const0@@3Us_realt@@A
@@ -498,7 +507,8 @@ VirtualHeap::SubAllocator SAClass<s_defn>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004b28
 // ?Version@@3PADA
-// char *Version
+// GLOBAL: C1 0x004660f0
+const char *Version = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004b30
 // ?m_allocator@?$SAClass@UId_t@@$00@@0USubAllocator@VirtualHeap@@A
@@ -520,12 +530,13 @@ VirtualHeap::SubAllocator SAClass<Id_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004b50
 // ?listForcedIncludes@@3PAUlist@@A
-// GLOBAL: C1 0x00466118
+// GLOBAL: C1 0x00466274
 list<void *> *listForcedIncludes;
 
 // GLOBAL: MSVC5_C1 0x00004b54
 // ?ShowIncludes@@3HA
-// int ShowIncludes
+// GLOBAL: C1 0x0046611c
+bool32 ShowIncludes = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00004b58
 // ?ilsLSym@@3VILSink@@A
@@ -585,7 +596,8 @@ VirtualHeap::SubAllocator SAClass<Assoc_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004db4
 // ?StdoutFile@@3PADA
-// char *StdoutFile
+// GLOBAL: C1 0x00466274
+const char *StdoutFile = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004db8
 // ?Macro_depth@@3HA
@@ -640,7 +652,8 @@ CRC32 crc32ClCmd;
 
 // GLOBAL: MSVC5_C1 0x00004e00
 // ?SourceBrowserExt@@3PADA
-// char *SourceBrowserExt
+// GLOBAL: C1 0x004662d8
+const char *SourceBrowserExt = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004e08
 // ?ilsInit@@3VILSink@@A
@@ -661,7 +674,8 @@ bool32 Prep = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00004f44
 // ?SourceBrowserNamFlg@@3PADA
-// char *SourceBrowserNamFlg
+// GLOBAL: C1 0x00466318
+const char *SourceBrowserNamFlg = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004f48
 // ?Current_char@@3PAEA
@@ -717,7 +731,8 @@ bool32 Prep = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00005078
 // ?Cflag@@3HA
-// int Cflag
+// GLOBAL: C1 0x00466450
+bool32 Cflag = FALSE;
 
 // GLOBAL: MSVC5_C1 0x0000507c
 // ?I_stdoutfp@@3PAU_iobuf@@A
@@ -734,7 +749,8 @@ int Nerrors = 0;
 
 // GLOBAL: MSVC5_C1 0x00005088
 // ?BdFlg@@3HA
-// int BdFlg
+// GLOBAL: C1 0x10a98ceb
+bool32 BdFlg = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00005090
 // ?m_allocator@?$SAClass@UTypeEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
@@ -760,7 +776,8 @@ VirtualHeap::SubAllocator SAClass<TypeEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x000050b0
 // ?Cross_compile@@3HA
-// int Cross_compile
+// GLOBAL: C1 0x00466484
+bool32 Cross_compile = FALSE;
 
 // GLOBAL: MSVC5_C1 0x000050b4
 // ?Processor@@3HA
@@ -808,7 +825,8 @@ int WarnIsError = 0;
 
 // GLOBAL: MSVC5_C1 0x00005104
 // ?Nologo@@3HA
-// int Nologo
+// GLOBAL: C1 0x004664f4
+bool32 Nologo = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00005108
 // ?Asm_opt@@3HA
@@ -1116,96 +1134,114 @@ s_cmd_line_warning_t CmdLineWarningList[] = {
     { 0, 0 },
 };
 
+// GLOBAL: C1 0x00454d50
+const subtab Ztab[] = {
+    { 'a', 0x5,  &PchC.p_Extension, },
+    { 'e', 0x1,  &PchC.p_Extension, },
+    { 'E', 0x1,  &PchC.p_option_ZE, },
+    { 'i', 0x1,  &PchC.p_Symbolic_debug_holder, },
+    { '7', 0x1,  &C7CompatCVInfo, },
+    { 'n', 0x1,  &gOption_Zn, },
+    { 'f', 0x1,  &gOption_Zf, },
+    { 'g', 0x1,  &Out_funcdef, },
+    { 'p', 0x1,  (bool32 *)&Cmd_pack_size, },
+    { 'I', 0x1,  &gOption_ZI, },
+    { 0 },
+};
+
 // GLOBAL: C1 0x00454dd8
-cmdtab_s cmdtab[] = {
-    // { "@$", { &gOption_rsp_path }, true, 0x22, },
-    // { "-nologo", { &gOption_nologo }, true, 0x01, },
-    // { "-FAT", { &gOption_FAT }, true, 0x01, },
-    // { "-pc#", { &gOption_pc_map }, true, 0x22, },
-    // { "-pf", { &PchC.option_pf }, true, 0x01, },
-    // { "-C", { &Cflag }, true, 0x01, },
-    // { "-D#", { &listDefs }, true, 0x26, },
-    // { "-E", { &Prep }, true, 0x01, },
-    // { "-I#", { &listIncludes }, true, 0x26, },
-    // { "-FI#", { &listForcedIncludes }, true, 0x26, },
-    // { "-EP", { &PchC.p_NoPoundLines }, true, 0x01, },
-    // { "-Fi#", { &gOption_Fi_path }, true, 0x22, },
-    // { "-f", { &Input_file }, true, 0x22, },
-    // { "-J", { &PchC.option_J }, true, 0x01, },
-    // { "-Jd", { &PchC.option_Jd }, true, 0x01, },
-    // { "-Bd%", { &PchC.option_Bd }, true, 0x01, },
-    // { "-Bu#", { &PchC.option_Bu }, true, 0x24, },
-    // { "-Bm#", { &MemoryStatsLevel }, true, 0x24, },
-    // { "-Bvb#", { &gOption_memory }, true, 0x24, },
-    // { "-Bvm#", { &gOption_memory }, true, 0x24, },
-    // { "-Zm#", { &gOption_memory }, true, 0x24, },
-    // { "-Brepro", { &PchC.p_fReproduceable }, true, 0x01, },
-    // { "-MT", { &PchC.option_MT }, true, 0x01, },
-    // { "-MD", { &PchC.option_MD }, true, 0x01, },
-    // { "-WX", { &WarnIsError }, true, 0x01, },
-    // { "-W#", { &gOption_W }, true, 0x24, },
-    // { "-Zp", { &gOption_Zp }, true, 0x01, },
-    // { "-Zp#", { &gOption_Zp }, true, 0x24, },
-    // { "-ZBe", { &PchC.p_BigIntExtension }, true, 0x01, },
-    // { "-ZB", { &PchC.p_SizeOfBigInt }, true, 0x01, },
-    // { "-ZB*", { &PchC.p_SizeOfBigInt }, true, 0x24, },
-    // { "-Z*", { &Ztab }, true, 0x23, },
-    // { "-ef#", { &gDiagnostic_messages_path }, true, 0x22, },
-    // { "-il$", { &Basename }, true, 0x22, },
-    // { "-xc", { &gOption_xc }, true, 0x01, },
-    // { "-V#", { &gOption_V_path }, true, 0x22, },
-    // { "-Gs", { &PchC.option_Gs }, true, 0x05, },
-    // { "-Gc", { &PchC.option_Gc }, true, 0x01, },
-    // { "-Gr", { &PchC.option_Gr }, true, 0x01, },
-    // { "-Gd", { &PchC.option_Gd }, true, 0x01, },
-    // { "-Gz", { &PchC.option_Gz }, true, 0x01, },
-    // { "-Gi", { &PchC.option_Gi }, true, 0x01, },
-    // { "-GI", { &PchC.option_GI }, true, 0x01, },
-    // { "-GFR", { &PchC.p_Cmd_fICCBrowse }, true, 0x01, },
-    // { "-GFR-", { &PchC.p_Cmd_fICCBrowse }, true, 0x05, },
-    // { "-NV#", { &gOption_NV_path }, true, 0x22, },
-    // { "-Fr#", { &SourceBrowserNamFlg }, true, 0x22, },
-    // { "-FR#", { &SourceBrowserExt }, true, 0x22, },
-    // { "-Fj", { &gOption_Fj }, true, 0x01, },
-    // { "-Fd#", { &gPDB_arg_path }, true, 0x22, },
-    // { "-Fo*", { &gObject_output_arg_path }, true, 0x22, },
-    // { "-Gf", { &PchC.option_Gf }, true, 0x01, },
-    // { "-GF", { &PchC.option_GF }, true, 0x01, },
-    // { "-cbstring", { &PchC.option_cbstring }, true, 0x01, },
-    // { "-Oa", { &PchC.option_Oa }, true, 0x01, },
-    // { "-Ob#", { &gOption_Ob }, true, 0x24, },
-    // { "-Oi", { &PchC.option_Oi }, true, 0x01, },
-    // { "-Og", { &PchC.option_Og }, true, 0x01, },
-    // { "-Op", { &PchC.option_Op }, true, 0x01, },
-    // { "-Os", { &PchC.option_Ot }, true, 0x05, },
-    // { "-Ot", { &PchC.option_Ot }, true, 0x01, },
-    // { "-Ow", { &PchC.option_Ow }, true, 0x01, },
-    // { "-Oq", { &PchC.option_Oq }, true, 0x01, },
-    // { "-Ov", { &PchC.option_Ov }, true, 0x01, },
-    // { "-Oy", { &PchC.option_Oy }, true, 0x01, },
-    // { "-C8MODE", { &PchC.option_C8MODE }, true, 0x01, },
-    // { "-debugBreak%", { &gOption_debugBreak }, true, 0x01, },
-    // { "-Times%", { &gPrint_timings }, true, 0x01, },
-    // { "-Yu*", { &PchUFile }, true, 0x22, },
-    // { "-Yu", { &PchUFlag }, true, 0x01, },
-    // { "-Yc*", { &PchCFile }, true, 0x22, },
-    // { "-Yc", { &PchCFlag }, true, 0x01, },
-    // { "-Yd", { &PchC.p_PchDFlag }, true, 0x01, },
-    // { "-Fp#", { &PchPFile }, true, 0x22, },
-    // { "-YX*", { &gYX_arg_path }, true, 0x22, },
-    // { "-YX", { &gOption_YX }, true, 0x01, },
-    // { "-Yl*", { &gYl_arg_path }, true, 0x22, },
-    // { "-BNOPPCH", { &fPersistentPch }, true, 0x05, },
-    // { "-noexpinl", { &gOption_noexpinl }, true, 0x01, },
-    // { "-GM", { &PchC.option_GM }, true, 0x01, },
-    // { "-G#", { &PchC.option_G }, true, 0x24, },
-    // { "-BMOVE", { &gOption_BMOVE }, true, 0x01, },
-    // { "-C9IL", { &PchC.option_C9IL }, true, 0x01, },
-    // { "-SplitPdbs", { &PchC.p_Cmd_splitPdbs }, true, 0x01, },
-    // { "-SplitPdbs-", { &PchC.p_Cmd_splitPdbs }, true, 0x05, },
-    // { "-NoEHForNew", { &PchC.option_NoEHForNew }, true, 0x01, },
-    // { "-Bshow_incl", { &gOption_BShowIncl }, true, 0x01, },
-    // { "*", { &Unknown }, false, 0x22, },
+/**
+ *
+ */
+const cmdtab_s cmdtab[] = {
+    { "@$", { &DummyArg }, TRUE, 0x22, },
+    { "-nologo", { &Nologo }, TRUE, 0x01, },
+    { "-FAT", { &gOption_FAT }, TRUE, 0x01, },
+    { "-pc#", { &Path_chars }, TRUE, 0x22, },
+    { "-pf", { &PchC.p_option_pf }, TRUE, 0x01, },
+    { "-C", { &Cflag }, TRUE, 0x01, },
+    { "-D#", { &listDefs }, TRUE, 0x26, },
+    { "-E", { &Prep }, TRUE, 0x01, },
+    { "-I#", { &listIncludes }, TRUE, 0x26, },
+    { "-FI#", { &listForcedIncludes }, TRUE, 0x26, },
+    { "-EP", { &PchC.p_NoPoundLines }, TRUE, 0x01, },
+    { "-Fi#", { &StdoutFile }, TRUE, 0x22, },
+    { "-f", { &Input_file }, TRUE, 0x22, },
+    { "-J", { &PchC.p_JFlag }, TRUE, 0x01, },
+    { "-Jd", { &PchC.p_JdFlag }, TRUE, 0x01, },
+    { "-Bd%", { &PchC.p_option_Bd }, TRUE, 0x01, },
+    { "-Bu#", { &PchC.p_option_Bu }, TRUE, 0x24, },
+    { "-Bm#", { &MemoryStatsLevel }, TRUE, 0x24, },
+    { "-Bvb#", { &Cmd_Zm }, TRUE, 0x24, },
+    { "-Bvm#", { &Cmd_Zm }, TRUE, 0x24, },
+    { "-Zm#", { &Cmd_Zm }, TRUE, 0x24, },
+    { "-Brepro", { &PchC.p_fReproduceable }, TRUE, 0x01, },
+    { "-MT", { &PchC.p_MTFlag }, TRUE, 0x01, },
+    { "-MD", { &PchC.p_MDFlag }, TRUE, 0x01, },
+    { "-WX", { &WarnIsError }, TRUE, 0x01, },
+    { "-W#", { &Warn_level }, TRUE, 0x24, },
+    { "-Zp", { &Cmd_pack_size }, TRUE, 0x01, },
+    { "-Zp#", { &Cmd_pack_size }, TRUE, 0x24, },
+    { "-ZBe", { &PchC.p_BigIntExtension }, TRUE, 0x01, },
+    { "-ZB", { &PchC.p_SizeOfBigInt }, TRUE, 0x01, },
+    { "-ZB*", { &PchC.p_SizeOfBigInt }, TRUE, 0x24, },
+    { "-Z*", { &Ztab }, TRUE, 0x23, },
+    { "-ef#", { &gDiagnostic_messages_path }, TRUE, 0x22, },
+    { "-il$", { &Basename }, TRUE, 0x22, },
+    { "-xc", { &Cross_compile }, TRUE, 0x01, },
+    { "-V#", { &Version }, TRUE, 0x22, },
+    { "-Gs", { &PchC.p_Cmd_stack_check }, TRUE, 0x05, },
+    { "-Gc", { &PchC.p_GcFlag }, TRUE, 0x01, },
+    { "-Gr", { &PchC.p_Cmd_fastcall }, TRUE, 0x01, },
+    { "-Gd", { &PchC.p_Cmd_cdecl }, TRUE, 0x01, },
+    { "-Gz", { &PchC.p_Cmd_stdcall }, TRUE, 0x01, },
+    { "-Gi", { &PchC.p_Cmd_fICC }, TRUE, 0x01, },
+    { "-GI", { &PchC.p_Cmd_GI }, TRUE, 0x01, },
+    { "-GFR", { &PchC.p_Cmd_fICCBrowse }, TRUE, 0x01, },
+    { "-GFR-", { &PchC.p_Cmd_fICCBrowse }, TRUE, 0x05, },
+    { "-NV#", { &NVStr }, TRUE, 0x22, },
+    { "-Fr#", { &SourceBrowserNamFlg }, TRUE, 0x22, },
+    { "-FR#", { &SourceBrowserExt }, TRUE, 0x22, },
+    { "-Fj", { &gOption_Fj }, TRUE, 0x01, },
+    { "-Fd#", { &szPDBName }, TRUE, 0x22, },
+    { "-Fo*", { &OutFil }, TRUE, 0x22, },
+    { "-Gf", { &PchC.p_Cmd_StrPool }, TRUE, 0x01, },
+    { "-GF", { &PchC.p_Cmd_ROStrPool }, TRUE, 0x01, },
+    { "-cbstring", { &PchC.p_CodeBasedStrings }, TRUE, 0x01, },
+    { "-Oa", { &PchC.p_option_Oa }, TRUE, 0x01, },
+    { "-Ob#", { &PchC.p_option_Ob }, TRUE, 0x24, },
+    { "-Oi", { &PchC.p_Cmd_intrinsic }, TRUE, 0x01, },
+    { "-Og", { &PchC.p_OptFlgGlobCse }, TRUE, 0x01, },
+    { "-Op", { &PchC.p_option_Op }, TRUE, 0x01, },
+    { "-Os", { &PchC.p_OptFlgSpeed }, TRUE, 0x05, },
+    { "-Ot", { &PchC.p_OptFlgSpeed }, TRUE, 0x01, },
+    { "-Ow", { &PchC.p_option_Ow }, TRUE, 0x01, },
+    { "-Oq", { &PchC.p_option_Oq }, TRUE, 0x01, },
+    { "-Ov", { &PchC.p_option_Ov }, TRUE, 0x01, },
+    { "-Oy", { &PchC.p_OptFlgFrame }, TRUE, 0x01, },
+    { "-C8MODE", { &PchC.p_option_C8MODE }, TRUE, 0x01, },
+    { "-debugBreak%", { &Cmd_DebugBreak }, TRUE, 0x01, },
+    { "-Times%", { &Cmd_Times }, TRUE, 0x01, },
+    { "-Yu*", { &PchUFile }, TRUE, 0x22, },
+    { "-Yu", { &PchUFlag }, TRUE, 0x01, },
+    { "-Yc*", { &PchCFile }, TRUE, 0x22, },
+    { "-Yc", { &PchCFlag }, TRUE, 0x01, },
+    { "-Yd", { &PchC.p_PchDFlag }, TRUE, 0x01, },
+    { "-Fp#", { &PchPFile }, TRUE, 0x22, },
+    { "-YX*", { &gYX_arg_path }, TRUE, 0x22, },
+    { "-YX", { &gOption_YX }, TRUE, 0x01, },
+    { "-Yl*", { &szCmd_Ylstring }, TRUE, 0x22, },
+    { "-BNOPPCH", { &fPersistentPch }, TRUE, 0x05, },
+    { "-noexpinl", { &Cmd_NoExportInlines }, TRUE, 0x01, },
+    { "-GM", { &PchC.p_option_GM }, TRUE, 0x01, },
+    { "-G#", { &PchC.p_Cmd_processor }, TRUE, 0x24, },
+    { "-BMOVE", { &gOption_BMOVE }, TRUE, 0x01, },
+    { "-C9IL", { &PchC.p_Cmd_C9IL }, TRUE, 0x01, },
+    { "-SplitPdbs", { &PchC.p_Cmd_splitPdbs }, TRUE, 0x01, },
+    { "-SplitPdbs-", { &PchC.p_Cmd_splitPdbs }, TRUE, 0x05, },
+    { "-NoEHForNew", { &PchC.p_option_NoEHForNew }, TRUE, 0x01, },
+    { "-Bshow_incl", { &ShowIncludes }, TRUE, 0x01, },
+    { "*", { &Unknown_ }, FALSE, 0x22, },
     { 0 }
 };
 
@@ -1217,3 +1253,27 @@ const char *gYX_arg_path = NULL;
 
 // GLOBAL: C1 0x0045c4c4
 bool32 gOption_YX = FALSE;
+
+// GLOBAL: C1 0x004664fc
+bool32 gOption_FAT = FALSE;
+
+// GLOBAL: C1 0x00467038
+int Cmd_Zm = FALSE;
+
+// GLOBAL: C1 0x0045c504
+bool32 gOption_Fj = FALSE;
+
+// GLOBAL: C1 0x0045c57c
+bool32 Cmd_Times = FALSE;
+
+// GLOBAL: C1 0x0045cb28
+bool32 gOption_BMOVE = FALSE;
+
+// GLOBAL: C1 0x00460a28
+bool32 gOption_Zn = FALSE;
+
+// GLOBAL: C1 0x0046603c
+bool32 gOption_Zf = FALSE;
+
+// GLOBAL: C1 0x00460a10
+bool32 gOption_ZI = FALSE;
