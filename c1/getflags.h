@@ -33,7 +33,7 @@ extern char **NewArgv;
 extern const char *ErrString;
 
 // ?crack_cmd@@YAHPBUcmdtab@@PADP6APADXZH@Z
-extern int __fastcall crack_cmd(const cmdtab_s *cmds, char *argument, char * (* get_next_argument)(), int state);
+extern bool32 __fastcall crack_cmd(const cmdtab_s *cmds, char *argument, char * (* get_next_argument)(), bool32 dupe);
 
 // ?substr@@YAXPBUcmdtab@@PADH@Z
 extern void __fastcall substr(const cmdtab_s *cmd, char *value, bool32 dupe);

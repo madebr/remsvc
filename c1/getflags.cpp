@@ -22,89 +22,80 @@ const char *ErrString = NULL;
 // FUNCTION: MSVC5_C1 0x000142f0
 // ?crack_cmd@@YAHPBUcmdtab@@PADP6APADXZH@Z
 // FUNCTION: C1 0x0041b2c7
-int __fastcall crack_cmd(const cmdtab_s *cmds, char *argument, char * (* get_next_argument)(), int state)
+bool32 __fastcall crack_cmd(const cmdtab_s *cmds, char *argument, char * (* get_next_argument)(), bool32 dupe)
 {
-    bool checksum_arg = true;
-    char *arg_value = NULL;
+    bool checksum_argument = true;
     const cmdtab_s *cmd;
 
     if (argument == NULL) {
-        return 0;
+        return FALSE;
     }
     ErrString = argument;
-    for (cmd = cmds; ; cmd++) {
+    for (cmd = cmds; cmd->type; cmd++) {
         char *ptr_arg = argument;
         const char *ptr_format = cmd->format;
-        bool match = false;
 
-        if (!cmd->type) {
-            return 0;
-        }
-        for (;;) {
-            if (*ptr_format == '\0') {
-                if (*ptr_arg != '\0') {
-                    break; // next argument cmd
-                }
-                if (cmd->type & 0x20) {
-                    arg_value = get_next_argument();
-                } else {
-                    arg_value = NULL;
-                }
-                substr(cmds, arg_value, state);
-                match = true;
-                break;
-            } else if (*ptr_format == '#' || *ptr_format == '$') {
+        while (*ptr_format != '\0') {
+            if (*ptr_format == '#' || *ptr_format == '$') {
                 if (*ptr_format == '$') {
-                    checksum_arg = false;
+                    checksum_argument = false;
                 }
                 if (*ptr_arg != '\0') {
-                    substr(cmd, ptr_arg, state);
+                    substr(cmd, ptr_arg, dupe);
                 } else {
-                    arg_value = get_next_argument();
-                    substr(cmd, arg_value, state);
-                    if (!checksum_arg) {
+                    char *arg_value = get_next_argument();
+                    substr(cmd, arg_value, dupe);
+                    if (!checksum_argument) {
                         return cmd->retval;
                     }
+                    crc32ClCmd.Update(arg_value);
                 }
-                match = true;
-                break;
+                if (checksum_argument) {
+                    crc32ClCmd.Update(argument);
+                }
+                return cmd->retval;
             } else if (*ptr_format == '%') {
-                checksum_arg = false;
+                checksum_argument = false;
                 ptr_format++;
             } else if (*ptr_format == '*') {
                 if (*ptr_arg != '\0' && tailmatch(ptr_format, ptr_arg)) {
-                    substr(cmd, ptr_arg, state);
-                    match = true;
-                    break;
-                } else {
-                    break;
+                    substr(cmd, ptr_arg, dupe);
                 }
+                if (checksum_argument) {
+                    crc32ClCmd.Update(argument);
+                }
+                return cmd->retval;
             } else if (*ptr_format == '-') {
+                // supports options starting with '/' or '-'
                 const char *opt_start = "-/";
                 if (strchr(opt_start, *ptr_arg) == NULL) {
                     break;
                 }
                 ptr_arg++;
                 ptr_format++;
-            } else {
-                if (*ptr_arg != *ptr_format) {
-                    break;
-                }
+            } else if (*ptr_arg == *ptr_format) {
                 ptr_arg++;
                 ptr_format++;
+            } else {
+                break;
             }
         }
-        if (match) {
-            break;
+        if (*ptr_arg != '\0' || *ptr_format != '\0') {
+            continue; // next argument cmd
         }
+        if (cmd->type & 0x20) {
+            char *arg_value = get_next_argument();
+            substr(cmd, arg_value, dupe);
+            crc32ClCmd.Update(arg_value);
+        } else {
+            substr(cmd, NULL, dupe);
+        }
+        if (checksum_argument) {
+            crc32ClCmd.Update(argument);
+        }
+        return cmd->retval;
     }
-    if (arg_value != NULL) {
-        crc32ClCmd.Update(arg_value);
-    }
-    if (checksum_arg) {
-        crc32ClCmd.Update(argument);
-    }
-    return cmd->retval;
+    return FALSE;
 }
 
 // FUNCTION: MSVC5_C1 0x000144f0
