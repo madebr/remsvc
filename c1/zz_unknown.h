@@ -23,6 +23,4 @@ extern void __fastcall WriteStdErr(const char *text);
 
 extern unsigned char * __fastcall PreAllocateMemory(size_t reserveSize, size_t commitSize);
 
-extern void CleanupMemory();
-
 #endif /* ZZ_UNKNOWN_H */

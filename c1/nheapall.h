@@ -4,6 +4,10 @@
 #include "c1_types.h"
 #include "decomp.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // ??_7PCHHeap@@6B@
 // const PCHHeap::`vftable'
 
@@ -121,7 +125,7 @@ public:
     bool32 Create(const HeapParameters *parameters, void *address);
 
     // ?Destroy@VirtualHeap@@QAEXXZ
-    // public: void __thiscall VirtualHeap::Destroy(void)
+    void Destroy();
 
     // ?HeapExtend@VirtualHeap@@QAEXXZ
     void HeapExtend(void);
@@ -208,127 +212,165 @@ struct Id_t{};
 struct s_defn{};
 struct Token{};
 
-// ??0PCHHeap@@IAE@W4Mode_e@0@PAVPCHHeapManager@@@Z
-// protected: __thiscall PCHHeap::PCHHeap(enum PCHHeap::Mode_e, class PCHHeapManager *)
+// VTABLE: C1 0x00457f70
+class PCHHeap {
+public:
+    // ?SaveDescriptor@PCHHeap@@UAEXPAX@Z
+    // public: virtual void __thiscall PCHHeap::SaveDescriptor(void *)
 
-// ?SaveDescriptor@PCHHeap@@UAEXPAX@Z
-// public: virtual void __thiscall PCHHeap::SaveDescriptor(void *)
+    // ?CopyHeap@PCHHeap@@SAPAV1@PBV1@PAVPCHHeapManager@@@Z
+    // public: static class PCHHeap * __cdecl PCHHeap::CopyHeap(class PCHHeap const *, class PCHHeapManager *)
 
-// ?CopyHeap@PCHHeap@@SAPAV1@PBV1@PAVPCHHeapManager@@@Z
-// public: static class PCHHeap * __cdecl PCHHeap::CopyHeap(class PCHHeap const *, class PCHHeapManager *)
+    // ?LoadDescriptor@PCHHeap@@SAPAV1@PAXPAVPCHHeapManager@@@Z
+    // public: static class PCHHeap * __cdecl PCHHeap::LoadDescriptor(void *, class PCHHeapManager *)
 
-// ?LoadDescriptor@PCHHeap@@SAPAV1@PAXPAVPCHHeapManager@@@Z
-// public: static class PCHHeap * __cdecl PCHHeap::LoadDescriptor(void *, class PCHHeapManager *)
+    virtual void UnLoad() = 0;
 
-// ??0LocalPCHHeap@@QAE@PAVVirtualHeap@@PAVPCHHeapManager@@@Z
-// public: __thiscall LocalPCHHeap::LocalPCHHeap(class VirtualHeap *, class PCHHeapManager *)
+    undefined4 GetStatus() const {
+        return m_status;
+    }
+protected:
+    // ??0PCHHeap@@IAE@W4Mode_e@0@PAVPCHHeapManager@@@Z
+    // protected: __thiscall PCHHeap::PCHHeap(enum PCHHeap::Mode_e, class PCHHeapManager *)
 
-// ??0LocalPCHHeap@@IAE@ABV0@PAVPCHHeapManager@@@Z
-// protected: __thiscall LocalPCHHeap::LocalPCHHeap(class LocalPCHHeap const &, class PCHHeapManager *)
+    undefined field_0x4[0xc - 0x4];
+    undefined4 m_status;
+};
 
-// ??0LocalPCHHeap@@IAE@PAXW4Mode_e@PCHHeap@@PAVPCHHeapManager@@@Z
-// protected: __thiscall LocalPCHHeap::LocalPCHHeap(void *, enum PCHHeap::Mode_e, class PCHHeapManager *)
+// VTABLE: C1 0x00457fb8
+class LocalPCHHeap : public PCHHeap {
+    // ??0LocalPCHHeap@@QAE@PAVVirtualHeap@@PAVPCHHeapManager@@@Z
+    // public: __thiscall LocalPCHHeap::LocalPCHHeap(class VirtualHeap *, class PCHHeapManager *)
 
-// ?MapAtAddress@LocalPCHHeap@@UAE?AW4Status_e@PCHHeap@@PAXH0@Z
-// public: virtual enum PCHHeap::Status_e __thiscall LocalPCHHeap::MapAtAddress(void *, int, void *)
+    // ??0LocalPCHHeap@@IAE@ABV0@PAVPCHHeapManager@@@Z
+    // protected: __thiscall LocalPCHHeap::LocalPCHHeap(class LocalPCHHeap const &, class PCHHeapManager *)
 
-// ?LoadAtAddress@LocalPCHHeap@@UAE?AW4Status_e@PCHHeap@@PAX@Z
-// public: virtual enum PCHHeap::Status_e __thiscall LocalPCHHeap::LoadAtAddress(void *)
+    // ??0LocalPCHHeap@@IAE@PAXW4Mode_e@PCHHeap@@PAVPCHHeapManager@@@Z
+    // protected: __thiscall LocalPCHHeap::LocalPCHHeap(void *, enum PCHHeap::Mode_e, class PCHHeapManager *)
 
-// ?LoadAnywhere@LocalPCHHeap@@UAE?AW4Status_e@PCHHeap@@PAX0@Z
-// public: virtual enum PCHHeap::Status_e __thiscall LocalPCHHeap::LoadAnywhere(void *, void *)
+    // ?MapAtAddress@LocalPCHHeap@@UAE?AW4Status_e@PCHHeap@@PAXH0@Z
+    // public: virtual enum PCHHeap::Status_e __thiscall LocalPCHHeap::MapAtAddress(void *, int, void *)
 
-// ?ReadHeap@LocalPCHHeap@@IAEXPAX@Z
-// protected: void __thiscall LocalPCHHeap::ReadHeap(void *)
+    // ?LoadAtAddress@LocalPCHHeap@@UAE?AW4Status_e@PCHHeap@@PAX@Z
+    // public: virtual enum PCHHeap::Status_e __thiscall LocalPCHHeap::LoadAtAddress(void *)
 
-// ?WriteHeap@LocalPCHHeap@@IAEXPAX@Z
-// protected: void __thiscall LocalPCHHeap::WriteHeap(void *)
+    // ?LoadAnywhere@LocalPCHHeap@@UAE?AW4Status_e@PCHHeap@@PAX0@Z
+    // public: virtual enum PCHHeap::Status_e __thiscall LocalPCHHeap::LoadAnywhere(void *, void *)
 
-// ?MoveTheHeap@LocalPCHHeap@@IAEXXZ
-// protected: void __thiscall LocalPCHHeap::MoveTheHeap(void)
+    // ?ReadHeap@LocalPCHHeap@@IAEXPAX@Z
+    // protected: void __thiscall LocalPCHHeap::ReadHeap(void *)
 
-// ?UnLoad@LocalPCHHeap@@UAEXXZ
-// public: virtual void __thiscall LocalPCHHeap::UnLoad(void)
+    // ?WriteHeap@LocalPCHHeap@@IAEXPAX@Z
+    // protected: void __thiscall LocalPCHHeap::WriteHeap(void *)
 
-// ?SaveNewHeap@LocalPCHHeap@@UAEXPAX@Z
-// public: virtual void __thiscall LocalPCHHeap::SaveNewHeap(void *)
+    // ?MoveTheHeap@LocalPCHHeap@@IAEXXZ
+    // protected: void __thiscall LocalPCHHeap::MoveTheHeap(void)
 
-// ?SaveFixedHeap@LocalPCHHeap@@UAEXPAX@Z
-// public: virtual void __thiscall LocalPCHHeap::SaveFixedHeap(void *)
+    // ?UnLoad@LocalPCHHeap@@UAEXXZ
+    void UnLoad() override;
 
-// ?SaveDescriptor@LocalPCHHeap@@UAEXPAX@Z
-// public: virtual void __thiscall LocalPCHHeap::SaveDescriptor(void *)
+    // ?SaveNewHeap@LocalPCHHeap@@UAEXPAX@Z
+    // public: virtual void __thiscall LocalPCHHeap::SaveNewHeap(void *)
 
-// ?SaveBlankDescriptor@LocalPCHHeap@@SAXPAXPAE@Z
-// public: static void __cdecl LocalPCHHeap::SaveBlankDescriptor(void *, unsigned char *)
+    // ?SaveFixedHeap@LocalPCHHeap@@UAEXPAX@Z
+    // public: virtual void __thiscall LocalPCHHeap::SaveFixedHeap(void *)
 
-// ?SkipBlankDescriptor@LocalPCHHeap@@SAXPAXPAE@Z
-// public: static void __cdecl LocalPCHHeap::SkipBlankDescriptor(void *, unsigned char *)
+    // ?SaveDescriptor@LocalPCHHeap@@UAEXPAX@Z
+    // public: virtual void __thiscall LocalPCHHeap::SaveDescriptor(void *)
 
-// ?PrepareRelocation@LocalPCHHeap@@IAEXXZ
-// protected: void __thiscall LocalPCHHeap::PrepareRelocation(void)
+    // ?SaveBlankDescriptor@LocalPCHHeap@@SAXPAXPAE@Z
+    // public: static void __cdecl LocalPCHHeap::SaveBlankDescriptor(void *, unsigned char *)
 
-// ?PrepareFindPointers@LocalPCHHeap@@UAEXPAVVirtualHeap@@@Z
-// public: virtual void __thiscall LocalPCHHeap::PrepareFindPointers(class VirtualHeap *)
+    // ?SkipBlankDescriptor@LocalPCHHeap@@SAXPAXPAE@Z
+    // public: static void __cdecl LocalPCHHeap::SkipBlankDescriptor(void *, unsigned char *)
 
-// ?PrepareFixup@LocalPCHHeap@@UAEHPAV1@@Z
-// public: virtual int __thiscall LocalPCHHeap::PrepareFixup(class LocalPCHHeap *)
+    // ?PrepareRelocation@LocalPCHHeap@@IAEXXZ
+    // protected: void __thiscall LocalPCHHeap::PrepareRelocation(void)
 
-// ?Fixup@LocalPCHHeap@@UAEXPAVPCHHeapManager@@@Z
-// public: virtual void __thiscall LocalPCHHeap::Fixup(class PCHHeapManager *)
+    // ?PrepareFindPointers@LocalPCHHeap@@UAEXPAVVirtualHeap@@@Z
+    // public: virtual void __thiscall LocalPCHHeap::PrepareFindPointers(class VirtualHeap *)
+
+    // ?PrepareFixup@LocalPCHHeap@@UAEHPAV1@@Z
+    // public: virtual int __thiscall LocalPCHHeap::PrepareFixup(class LocalPCHHeap *)
+
+    // ?Fixup@LocalPCHHeap@@UAEXPAVPCHHeapManager@@@Z
+    // public: virtual void __thiscall LocalPCHHeap::Fixup(class PCHHeapManager *)
+};
 
 // ?AddHeap@PCHHeapLocator@@QAEXPAVLocalPCHHeap@@PAXI@Z
 // public: void __thiscall PCHHeapLocator::AddHeap(class LocalPCHHeap *, void *, unsigned int)
 
-// ??0PCHHeapManager@@QAE@XZ
-// public: __thiscall PCHHeapManager::PCHHeapManager(void)
+// SIZE: 0x44
+class PCHHeapManager {
+public:
+    // ??0PCHHeapManager@@QAE@XZ
+    // public: __thiscall PCHHeapManager::PCHHeapManager(void)
 
-// ?Create@PCHHeapManager@@QAEXH@Z
-// public: void __thiscall PCHHeapManager::Create(int)
+    // ?Create@PCHHeapManager@@QAEXH@Z
+    // public: void __thiscall PCHHeapManager::Create(int)
 
-// ?Create@PCHHeapManager@@QAEXABV1@H@Z
-// public: void __thiscall PCHHeapManager::Create(class PCHHeapManager const &, int)
+    // ?Create@PCHHeapManager@@QAEXABV1@H@Z
+    // public: void __thiscall PCHHeapManager::Create(class PCHHeapManager const &, int)
 
-// ?Create@PCHHeapManager@@QAEXPAEK@Z
-// public: void __thiscall PCHHeapManager::Create(unsigned char *, unsigned long)
+    // ?Create@PCHHeapManager@@QAEXPAEK@Z
+    // public: void __thiscall PCHHeapManager::Create(unsigned char *, unsigned long)
 
-// ?Destroy@PCHHeapManager@@QAEXXZ
-// public: void __thiscall PCHHeapManager::Destroy(void)
+    // ?Destroy@PCHHeapManager@@QAEXXZ
+    void Destroy();
 
-// ?AddHeap@PCHHeapManager@@QAEXPAVVirtualHeap@@@Z
-// public: void __thiscall PCHHeapManager::AddHeap(class VirtualHeap *)
+    // ?AddHeap@PCHHeapManager@@QAEXPAVVirtualHeap@@@Z
+    // public: void __thiscall PCHHeapManager::AddHeap(class VirtualHeap *)
 
-// ?WriteToPCH@PCHHeapManager@@QAEXPAEK@Z
-// public: void __thiscall PCHHeapManager::WriteToPCH(unsigned char *, unsigned long)
+    // ?WriteToPCH@PCHHeapManager@@QAEXPAEK@Z
+    // public: void __thiscall PCHHeapManager::WriteToPCH(unsigned char *, unsigned long)
 
-// ?WritePCHHeader@PCHHeapManager@@AAEXXZ
-// private: void __thiscall PCHHeapManager::WritePCHHeader(void)
+    // ?LoadFromPCH@PCHHeapManager@@QAEHXZ
+    // public: int __thiscall PCHHeapManager::LoadFromPCH(void)
+    // ?UpdatePCH@PCHHeapManager@@QAEXXZ
+    // public: void __thiscall PCHHeapManager::UpdatePCH(void)
 
-// ?MakeMemoryMap@PCHHeapManager@@AAEPAXKPAPAX@Z
-// private: void * __thiscall PCHHeapManager::MakeMemoryMap(unsigned long, void **)
+    // ?FoundPointerInHeap@PCHHeapManager@@QAEHPAPAX@Z
+    // public: int __thiscall PCHHeapManager::FoundPointerInHeap(void **)
 
-// ?LoadFromPCH@PCHHeapManager@@QAEHXZ
-// public: int __thiscall PCHHeapManager::LoadFromPCH(void)
+    // ?AdjustPointerIntoHeap@PCHHeapManager@@QAEHPAPAX@Z
+    // public: int __thiscall PCHHeapManager::AdjustPointerIntoHeap(void **)
 
-// ?RelocateHeaps@PCHHeapManager@@AAEXH@Z
-// private: void __thiscall PCHHeapManager::RelocateHeaps(int)
+private:
+    // ?WritePCHHeader@PCHHeapManager@@AAEXXZ
+    // private: void __thiscall PCHHeapManager::WritePCHHeader(void)
 
-// ?MakePCHHeapLocator@PCHHeapManager@@AAEPAVPCHHeapLocator@@P8PCHHeap@@BEPAXXZ@Z
-// private: class PCHHeapLocator * __thiscall PCHHeapManager::MakePCHHeapLocator(void * (__thiscall PCHHeap::*)(void) const)
+    // ?MakeMemoryMap@PCHHeapManager@@AAEPAXKPAPAX@Z
+    // private: void * __thiscall PCHHeapManager::MakeMemoryMap(unsigned long, void **)
 
-// ?UpdatePCH@PCHHeapManager@@QAEXXZ
-// public: void __thiscall PCHHeapManager::UpdatePCH(void)
+    // ?RelocateHeaps@PCHHeapManager@@AAEXH@Z
+    // private: void __thiscall PCHHeapManager::RelocateHeaps(int)
 
-// ?FoundPointerInHeap@PCHHeapManager@@QAEHPAPAX@Z
-// public: int __thiscall PCHHeapManager::FoundPointerInHeap(void **)
+    // ?MakePCHHeapLocator@PCHHeapManager@@AAEPAVPCHHeapLocator@@P8PCHHeap@@BEPAXXZ@Z
+    // private: class PCHHeapLocator * __thiscall PCHHeapManager::MakePCHHeapLocator(void * (__thiscall PCHHeap::*)(void) const)
 
-// ?AdjustPointerIntoHeap@PCHHeapManager@@QAEHPAPAX@Z
-// public: int __thiscall PCHHeapManager::AdjustPointerIntoHeap(void **)
+    size_t m_nHeaps;
+    undefined m_field_0x4[4];
+    PCHHeap **m_theHeaps;
+    undefined m_field_0xc[4];
+    char *m_field_0x10;
+    undefined m_field_0x14[4];
+#ifdef _WIN32
+    HANDLE m_field_0x18;
+    HANDLE m_field_0x1c;
+    HANDLE m_field_0x20;
+    HANDLE m_field_0x24;
+    HANDLE m_field_0x28;
+    HANDLE m_field_0x2c;
+    HANDLE m_field_0x30;
+#endif
+    undefined m_field_0x34[0x44-0x34];
+};
 
 // _$E31
 
 // _$E30
 
+// SIZE: 0x44
 class HeapManager {
 public:
     // ?InitGlobalHeaps@HeapManager@@SAXXZ
@@ -345,6 +387,15 @@ public:
     template<typename Type>
     static Type *Allocate(lifetime_e lifetime) {
         return static_cast<Type *>(ActiveHeaps[lifetime].Allocate(sizeof(Type)));
+    }
+
+    static void Destroy() {
+        size_t i;
+
+        ThePCH.Destroy();
+        for (i = 0; i < arraysize(ActiveHeaps); i++) {
+            ActiveHeaps[i].Destroy();
+        }
     }
 
 private:
@@ -365,7 +416,7 @@ private:
     // public: static int __cdecl HeapManager::LoadPCH(unsigned char *, unsigned long)
 
     // ?ThePCH@HeapManager@@2VPCHHeapManager@@A
-    // public: static class PCHHeapManager HeapManager::ThePCH
+    static PCHHeapManager ThePCH;
 
     // ?m_hMap@HeapManager@@0PAXA
     // private: static void *HeapManager::m_hMap

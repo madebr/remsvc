@@ -131,7 +131,7 @@ extern int main_compile();
 // int __cdecl OpenFileName(unsigned char *)
 
 // ?CleanupMemory@@YAXXZ
-// void __cdecl CleanupMemory(void)
+extern void CleanupMemory();
 
 // ?ErrorCleanup@@YAXXZ
 extern void ErrorCleanup();

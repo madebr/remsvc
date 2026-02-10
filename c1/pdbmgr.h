@@ -3,12 +3,19 @@
 
 #include "decomp.h"
 
+#include <stdlib.h>
+
+class NameMap;
+class PDB;
+class TPI;
+
+// SIZE: 0x14
 class PDBManager_t {
 public:
     PDBManager_t()
-    : field_0x0(0)
-    , field_0x4(0)
-    , field_0x8(0)
+    : pPDB(NULL)
+    , pNM(NULL)
+    , pTPI(NULL)
     , field_0xc(0)
     , field_0x10(0) {
     }
@@ -52,9 +59,9 @@ public:
     // public: int __thiscall PDBManager_t::Commit(void)
 
 private:
-    undefined4 field_0x0;
-    undefined4 field_0x4;
-    undefined4 field_0x8;
+    PDB *pPDB;
+    NameMap *pNM;
+    TPI *pTPI;
     undefined4 field_0xc;
     undefined4 field_0x10;
 };

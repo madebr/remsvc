@@ -3,10 +3,14 @@
 #include "decomp.h"
 #include "error.h"
 #include "main.h"
+#include "zz_diagnostic.h"
+#include "zz_unknown.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #else
+#include <errno.h>
+#include <string.h>
 #include <sys/mman.h>
 #endif
 
@@ -37,7 +41,8 @@ int VirtualHeap::Cmd_ScaleMemory = 100;
 
 // GLOBAL: MSVC5_C1 0x00008f88
 // ?ThePCH@HeapManager@@2VPCHHeapManager@@A
-// public: static class PCHHeapManager HeapManager::ThePCH
+// GLOBAL: C1 0x0046a330
+PCHHeapManager HeapManager::ThePCH;
 
 // GLOBAL: MSVC5_C1 0x00008fd0
 // ?ActiveHeaps@HeapManager@@2PAVVirtualHeap@@A
@@ -192,7 +197,38 @@ bool32 VirtualHeap::Create(const VirtualHeap::HeapParameters *parameters, void *
 
 // FUNCTION: MSVC5_C1 0x00045e60
 // ?Destroy@VirtualHeap@@QAEXXZ
-// public: void __thiscall VirtualHeap::Destroy(void)
+// FUNCTION: C1 0x0041f1d0
+void VirtualHeap::Destroy() {
+    char buffer[256];
+    if (fpBaseAddress != NULL) {
+        // FIXME: GetDiagnosticHelpString uses Heap memory, which might already have been released!
+#ifdef _WIN32
+        if (lCurrentSize > 0) {
+            if (!VirtualFree(fpBaseAddress, lCurrentSize, MEM_DECOMMIT)) {
+                format(buffer, GetDiagnosticHelpString(910), sizeof(buffer), GetLastError());
+                WriteStdErr(buffer);
+           }
+        }
+        bool32 result;
+        if (field_0x1c) {
+            result = UnmapViewOfFile(fpBaseAddress);
+        } else {
+            result = VirtualFree(fpBaseAddress, 0, MEM_RELEASE);
+        }
+        if (!result) {
+            format(buffer, GetDiagnosticHelpString(910), sizeof(buffer), GetLastError());
+            WriteStdErr(buffer);
+        }
+#else
+        if (lCurrentSize != 0 && munmap(fpBaseAddress, lCurrentSize) != 0) {
+            format(buffer, GetDiagnosticHelpString(910), sizeof(buffer), strerror(errno));
+            WriteStdErr(buffer);
+        }
+        lCurrentSize = 0;
+#endif
+        fpBaseAddress = NULL;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00045f30
 // ?WhyIsHeapLow@@YAXXZ
@@ -415,7 +451,50 @@ void VirtualHeap::SubAllocator::GetMemory(size_t amount)
 
 // FUNCTION: MSVC5_C1 0x00047070
 // ?Destroy@PCHHeapManager@@QAEXXZ
-// public: void __thiscall PCHHeapManager::Destroy(void)
+// FUNCTION: C1 0x0041f0b4
+void PCHHeapManager::Destroy() {
+    size_t i;
+
+    if (m_theHeaps != NULL) {
+        for (i = 0; i < m_nHeaps; i++) {
+            if (m_theHeaps[i] != NULL && m_theHeaps[i]->GetStatus() == 6) {
+                m_theHeaps[i]->UnLoad();
+            }
+        }
+#ifdef _WIN32
+        if (m_field_0x1c != NULL) {
+            CloseHandle(m_field_0x1c);
+            m_field_0x1c = NULL;
+        }
+        if (m_field_0x20 != NULL) {
+            CloseHandle(m_field_0x20);
+            m_field_0x20 = NULL;
+        }
+        if (m_field_0x28 != NULL) {
+            CloseHandle(m_field_0x28);
+            m_field_0x28 = NULL;
+        }
+        if (m_field_0x30 != NULL) {
+            CloseHandle(m_field_0x30);
+            m_field_0x30 = NULL;
+        }
+        if (m_field_0x24 != NULL) {
+            CloseHandle(m_field_0x24);
+            m_field_0x24 = NULL;
+        }
+        if (m_field_0x2c != NULL) {
+            CloseHandle(m_field_0x2c);
+            m_field_0x2c = NULL;
+        }
+        if (m_field_0x18 != NULL) {
+            CloseHandle(m_field_0x18);
+            m_field_0x18 = NULL;
+        }
+#else
+        abort();
+#endif
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00047110
 // ?AddHeap@PCHHeapManager@@QAEXPAVVirtualHeap@@@Z

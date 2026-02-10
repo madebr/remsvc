@@ -1,5 +1,9 @@
 #include "pdbmgr.h"
 
+#include <namemap.h>
+#include <pdb.h>
+#include <tpi.h>
+
 // GLOBAL: MSVC5_C1 0x00005aa0
 // ??_C@_0N@DKIG@?4?2pdbmgr?4cpp?$AA@
 // ".\\pdbmgr.cpp"
@@ -49,7 +53,18 @@
 // FUNCTION: C1 0x0044e8b0
 void PDBManager_t::Cleanup()
 {
-    NOT_IMPLEMENTED();
+    if (pTPI != NULL) {
+        pTPI->virtual_method_0x20();
+        pTPI = NULL;
+    }
+    if (pNM != NULL) {
+        pNM->virtual_method_0x0();
+        pNM = NULL;
+    }
+    if (pPDB != NULL) {
+        pPDB->virtual_method_0x28();
+        pPDB = NULL;
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x0004a3c0

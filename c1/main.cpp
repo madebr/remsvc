@@ -301,7 +301,10 @@ int main_compile()
 
 // FUNCTION: MSVC5_C1 0x000373c0
 // ?CleanupMemory@@YAXXZ
-// void __cdecl CleanupMemory(void)
+// FUNCTION: C1 0x0041f0ca
+void CleanupMemory() {
+    HeapManager::Destroy();
+}
 
 // FUNCTION: MSVC5_C1 0x000373e0
 // ?ErrorCleanup@@YAXXZ
@@ -312,12 +315,11 @@ void ErrorCleanup()
     PchInterrupt();
     SBR::Interrupt();
     TPIMgr.Cleanup();
-    if (p_TPIMgr != (PDBManager_t *)0x0) {
+    if (p_TPIMgr != NULL) {
         p_TPIMgr->Cleanup();
     }
     CleanupMemory();
     ExecutionState = CES_Done;
-    /* calls OKToHandleCtrlC() */
     if (HandlingControlC) {
         OKToHandleCtrlC();
     }

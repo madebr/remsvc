@@ -254,7 +254,7 @@ static const char *ReadDiagnosticString(int code, char *buffer, size_t bufferSiz
 const char * GetDiagnosticString(int code, bool32 arg2)
 {
     if (gDiagnostics_file == NULL) {
-        if (gDiagnostic_strings_initialized  || arg2) {
+        if (gDiagnostic_strings_initialized || arg2) {
             if (gDiagnostic_messages_path == NULL) {
                 gDiagnostics_file = (FILE *)(uintptr_t)-1;
                 return "";

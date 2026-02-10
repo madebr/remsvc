@@ -97,8 +97,3 @@ unsigned char * __fastcall PreAllocateMemory(size_t reserveSize, size_t commitSi
     return (unsigned char *) mmap(NULL, reserveSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
 }
-
-// FUNCTION: C1 0x0041f0ca
-void CleanupMemory() {
-    NOT_IMPLEMENTED();
-}

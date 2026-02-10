@@ -36,11 +36,13 @@
 
 // GLOBAL: MSVC5_C1 0x000003d4
 // ?pSbrEnabled@SBR@@0PAVSBREnabled@@A
-// private: static class SBREnabled *SBR::pSbrEnabled
+// GLOBAL: C1 0x0045b570
+SBREnabled *SBR::pSbrEnabled = NULL;
 
 // GLOBAL: MSVC5_C1 0x000003d8
 // ?pSbrDisabled@SBR@@0PAVSBRDisabled@@A
-// private: static class SBRDisabled *SBR::pSbrDisabled
+// GLBOAL: C1 0x0045b574
+SBRDisabled *SBR::pSbrDisabled = NULL;
 
 // GLOBAL: MSVC5_C1 0x000029f8
 // ??_C@_03KBID@w?$CLb?$AA@
@@ -173,7 +175,15 @@
 // FUNCTION: C1 0x00442a47
 void SBR::Interrupt()
 {
-    NOT_IMPLEMENTED();
+    if (pSbrEnabled != NULL) {
+        pSbrEnabled->interrupt();
+        delete pSbrEnabled;
+        pSbrEnabled = NULL;
+    }
+    if (pSbrDisabled != NULL) {
+        delete pSbrDisabled;
+        pSbrDisabled = NULL;
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x00019420
@@ -207,10 +217,6 @@ void SBR::Interrupt()
 // FUNCTION: MSVC5_C1 0x00019820
 // ?EndRgn@SBREnabled@@UAEXXZ
 // public: virtual void __thiscall SBREnabled::EndRgn(void)
-
-// FUNCTION: MSVC5_C1 0x00019870
-// ?EndRgn@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::EndRgn(void)
 
 // FUNCTION: MSVC5_C1 0x000198c0
 // ?Flush@SBREnabled@@UAEXXZ
