@@ -305,7 +305,11 @@ s_PragmaPackItem * s_StackOfPragmaPackItem_t::PushStackOfPragmaPackItem_t()
 
 // FUNCTION: MSVC5_C1 0x0000cb50
 // ?SkipToPchUse@@YAXPAEH@Z
-// void __cdecl SkipToPchUse(unsigned char *, int)
+// FUNCTION: C1 0x0043ff10
+void SkipToPchUse(const char *data, bool32 b)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0000cda0
 // ?PchCreateFname@@YAXPAE@Z

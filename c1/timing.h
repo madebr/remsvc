@@ -8,17 +8,18 @@ typedef struct tTiming {
     unsigned int tick;
 } tTiming;
 
-// GLOBAL: C1 0x00468c20
+extern bool32 Cmd_Times;
+
 extern int gCountTimings;
 
-// GLOBAL: C1 0x00468c1c
 extern unsigned int gPrevTickCount;
 
-// GLOBAL: C1 0x00468c30
 extern tTiming gTimings[20];
 
 extern void __fastcall AddTiming(const char *description);
 
 extern void InitTiming(void);
+
+extern void PrintTimings();
 
 #endif /* TIMING_H */

@@ -165,6 +165,8 @@ typedef enum {
 
 extern FILE *gFile_er;
 
+extern FILE *gFile_lp;
+
 extern bool32 gWrite_er;
 
 // ?__MSGTAB@@3PAU_message@@A

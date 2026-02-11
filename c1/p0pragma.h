@@ -236,7 +236,7 @@ extern s_StackOfPragmaPackItem_t *Pragma_stack;
 // class Token const * __cdecl gather_pragma(void)
 
 // ?SkipToPchUse@@YAXPAEH@Z
-// void __cdecl SkipToPchUse(unsigned char *, int)
+extern void SkipToPchUse(const char *data, bool32 b);
 
 // ?PchCreateFname@@YAXPAE@Z
 // void __cdecl PchCreateFname(unsigned char *)

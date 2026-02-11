@@ -1,3 +1,7 @@
+#include "p0gettok.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00000000
 // ??_C@_05KPNI@_CODE?$AA@
 // "_CODE"
@@ -24,7 +28,11 @@
 
 // FUNCTION: MSVC5_C1 0x00000d80
 // ?InitHardTokens@@YAXXZ
-// void __cdecl InitHardTokens(void)
+// FUNCTION: C1 0x0041b776
+void InitHardTokens()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00000e00
 // ?LexerParseDeclspec@@YAXPAUs_class@@@Z

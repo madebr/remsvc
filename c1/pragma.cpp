@@ -1,3 +1,7 @@
+#include "pragma.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x000018c4
 // ?PstatOptPragMask@@3KA
 // unsigned long PstatOptPragMask
@@ -64,11 +68,16 @@
 
 // GLOBAL: MSVC5_C1 0x00007f60
 // ?PstatInitState@@3KA
-// unsigned long PstatInitState
+// GLOBAL: C1 0x00469308
+unsigned int PstatInitState = 0;
 
 // FUNCTION: MSVC5_C1 0x0003d0c0
 // ?PstatGetStatus@@YAKXZ
-// unsigned long __cdecl PstatGetStatus(void)
+// FUNCTION: C1 0x004082bf
+unsigned int PstatGetStatus()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003d0f0
 // ?PstatSetFlags@@YAXK@Z

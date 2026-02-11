@@ -193,7 +193,7 @@
 // "memset"
 
 // ?dflt_intrinsic@@YAXXZ
-// void __cdecl dflt_intrinsic(void)
+extern void dflt_intrinsic();
 
 // ?is_intrinsic@@YAHPAUId_t@@@Z
 // int __cdecl is_intrinsic(struct Id_t *)

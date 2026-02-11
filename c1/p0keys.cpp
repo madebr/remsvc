@@ -1,3 +1,7 @@
+#include "p0keys.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x000005c0
 // ?Declspec_Keys@@3PBUs_declspec_keys@@B
 // struct s_declspec_keys const *Declspec_Keys
@@ -812,5 +816,9 @@
 
 // FUNCTION: MSVC5_C1 0x00006660
 // ?InitKeywords@@YAXXZ
-// void __cdecl InitKeywords(void)
+// FUNCTION: C1 0x0041bb78
+void InitKeywords()
+{
+    NOT_IMPLEMENTED();
+}
 

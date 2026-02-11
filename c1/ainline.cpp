@@ -1,6 +1,18 @@
+#include "ainline.h"
+
+#include "decomp.h"
+#include "globals.h"
+
 // FUNCTION: MSVC5_C1 0x0004ce40
 // ?SetProcessor@@YAXXZ
-// void __cdecl SetProcessor(void)
+// FUNCTION: C1 0x0041ba35
+void SetProcessor(void)
+{
+    Processor = 1 << PchC.p_Cmd_processor;
+    if (PchC.p_option_GM) {
+        Processor |= 0x40;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x0004ce70
 // ?ClearInstruction@@YAXXZ

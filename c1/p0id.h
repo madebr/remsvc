@@ -1,7 +1,8 @@
 #ifndef P0ID_H
 #define P0ID_H
+
 // ?InitIdTable@@YAXXZ
-// void __cdecl InitIdTable(void)
+extern void InitIdTable();
 
 // ?GetId@@YAHE@Z
 // int __cdecl GetId(unsigned char)

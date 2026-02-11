@@ -3,10 +3,14 @@
 
 #include "c1_types.h"
 #include "decomp.h"
+#include "nheapall.h"
+#include "p0gettok.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
+#include <stdio.h>
 
 // ?FrontendBssStart@@3HA
 // int FrontendBssStart
@@ -88,11 +92,13 @@ extern SYSTEM_INFO systemInfo;
 
 // _DllMain@12
 
+extern FILE * OpenFileInDirectory(const char *basename, const char *suffix, const char *mode);
+
 // ?init_main2@@YAXXZ
-// void __cdecl init_main2(void)
+extern void init_main2();
 
 // ?init_main3@@YAXXZ
-// void __cdecl init_main3(void)
+extern void init_main3();
 
 // ?inspectArgument@preParseArgsHelpers@@CAHPADH@Z
 // private: static int __cdecl preParseArgsHelpers::inspectArgument(char *, int)
@@ -158,32 +164,39 @@ extern void __fastcall limit_recursion(CompilerExecutionState_t state);
 // int __cdecl DoAtExitFuncs(void)
 
 // ?to_human@@YAXXZ
-// void __cdecl to_human(void)
+extern void to_human();
 
 // _GetPrecisionFlag
 
-// ?pushToken@FileTokenStream@@UAEXPBVToken@@@Z
-// public: virtual void __thiscall FileTokenStream::pushToken(class Token const *)
+class FileTokenStream : public TokenStream {
+public:
+    // ?pushToken@FileTokenStream@@UAEXPBVToken@@@Z
+    // public: virtual void __thiscall FileTokenStream::pushToken(class Token const *)
 
-// ?saveToken@FileTokenStream@@UAEXPBVToken@@@Z
-// public: virtual void __thiscall FileTokenStream::saveToken(class Token const *)
+    // ?saveToken@FileTokenStream@@UAEXPBVToken@@@Z
+    // public: virtual void __thiscall FileTokenStream::saveToken(class Token const *)
 
-// ?rewind@FileTokenStream@@UAEXXZ
-// public: virtual void __thiscall FileTokenStream::rewind(void)
+    // ?rewind@FileTokenStream@@UAEXXZ
+    // public: virtual void __thiscall FileTokenStream::rewind(void)
 
-// ?IsFileStream@FileTokenStream@@UBEHXZ
-// public: virtual int __thiscall FileTokenStream::IsFileStream(void) const
+    // ?IsFileStream@FileTokenStream@@UBEHXZ
+    // public: virtual int __thiscall FileTokenStream::IsFileStream(void) const
 
-// ??_GFileTokenStream@@EAEPAXI@Z
-// private: virtual void * __thiscall FileTokenStream::`scalar deleting dtor'(unsigned int)
+    // ??_GFileTokenStream@@EAEPAXI@Z
+    // private: virtual void * __thiscall FileTokenStream::`scalar deleting dtor'(unsigned int)
 
-// ??_EFileTokenStream@@EAEPAXI@Z
-// private: virtual void * __thiscall FileTokenStream::`vector deleting dtor'(unsigned int)
+    // ??_EFileTokenStream@@EAEPAXI@Z
+    // private: virtual void * __thiscall FileTokenStream::`vector deleting dtor'(unsigned int)
 
-// ?getToken@FileTokenStream@@UAEPBVToken@@XZ
-// public: virtual class Token const * __thiscall FileTokenStream::getToken(void)
+    // ?getToken@FileTokenStream@@UAEPBVToken@@XZ
+    // public: virtual class Token const * __thiscall FileTokenStream::getToken(void)
 
-// ?peekToken@FileTokenStream@@UAEPBVToken@@XZ
-// public: virtual class Token const * __thiscall FileTokenStream::peekToken(void)
+    // ?peekToken@FileTokenStream@@UAEPBVToken@@XZ
+    // public: virtual class Token const * __thiscall FileTokenStream::peekToken(void)
+
+    static void *operator new(size_t size) {
+        return HeapManager::Allocate(size, M_LIFETIME1);
+    }
+};
 
 #endif /* MAIN_H */

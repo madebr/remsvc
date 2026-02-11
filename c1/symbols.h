@@ -159,4 +159,6 @@
 // ?IsAnyDllLinkage@s_sclass@@QBEEXZ
 // public: unsigned char __thiscall s_sclass::IsAnyDllLinkage(void) const
 
+extern void FUN_0041c5d3();
+
 #endif /* SYMBOLS_H */

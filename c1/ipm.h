@@ -1,5 +1,8 @@
 #ifndef IPM_H
 #define IPM_H
+
+#include "sigmgr.h"
+
 // ??_7StubIPM@@6B@
 // const StubIPM::`vftable'
 
@@ -13,7 +16,7 @@
 // public: static int IncrParseMgr::notInASkippableFn
 
 // ?pIPMSigMgr@@3PAUIPMSigMgr@@A
-// struct IPMSigMgr *pIPMSigMgr
+extern IPMSigMgr *pIPMSigMgr;
 
 // ?ciNil@@3UCI@@A
 // struct CI ciNil

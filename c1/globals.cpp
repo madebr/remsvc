@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "initmain.h"
 #include "nheapall.h"
+#include "timing.h"
 #include "zz_diagnostic.h"
 
 #ifdef _WIN32
@@ -123,7 +124,8 @@ bool32 fPersistentPch = TRUE;
 
 // GLOBAL: MSVC5_C1 0x00001340
 // ?PchReuseCVTypes@@3HA
-// int PchReuseCVTypes
+// GLOBAL: C1 0x0045c4ec
+bool32 PchReuseCVTypes = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00001344
 // ?CurFuncInPch@@3HA
@@ -380,7 +382,8 @@ CompilerExecutionState_t ExecutionState = CES_Undef;
 
 // GLOBAL: MSVC5_C1 0x00003d8c
 // ?fReusePersistPch@@3HA
-// int fReusePersistPch
+// GLOBAL: C1 0x0045f994
+bool32 fReusePersistPch = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00003d90
 // ?m_allocator@?$SAClass@UFlistEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
@@ -398,7 +401,8 @@ VirtualHeap::SubAllocator SAClass<FlistEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00003ed8
 // ?ilsGSym@@3VILSink@@A
-// class ILSink ilsGSym
+// GLOBAL: C1 0x004609e0
+ILSink ilsGSym;
 
 // GLOBAL: MSVC5_C1 0x00004008
 // ?Optimize_state@@3HA
@@ -446,7 +450,8 @@ VirtualHeap::SubAllocator SAClass<IndirEntry_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004050
 // ?ilsDB@@3VILSink@@A
-// class ILSink ilsDB
+// GLOBAL: C1 0x00460a58
+ILSink ilsDB;
 
 // GLOBAL: MSVC5_C1 0x00004180
 // ?listIncludes@@3PAUlist@@A
@@ -540,7 +545,8 @@ bool32 ShowIncludes = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00004b58
 // ?ilsLSym@@3VILSink@@A
-// class ILSink ilsLSym
+// GLOBAL: C1 0x00466120
+ILSink ilsLSym;
 
 // GLOBAL: MSVC5_C1 0x00004c88
 // ?InternalUnaryTree_ivBasedInfo@@3Tu_ivalue@@A
@@ -617,7 +623,8 @@ const char *StdoutFile = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004dd4
 // ?I_Eoutput@@3PAU_iobuf@@A
-// struct _iobuf *I_Eoutput
+// GLOBAL: C1 0x00466294
+FILE *I_Eoutput = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004dd8
 // ?m_allocator@?$SAClass@VGeneralAllocator_t@@$00@@0USubAllocator@VirtualHeap@@A
@@ -639,7 +646,8 @@ VirtualHeap::SubAllocator SAClass<GeneralAllocator_t>::m_allocator = {};
 
 // GLOBAL: MSVC5_C1 0x00004df4
 // ?SourceBrowserNam@@3PADA
-// char *SourceBrowserNam
+// GLOBAL: C1 0x004662cc
+const char *SourceBrowserNam = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004df8
 // ?BadInternalClassErrors@@3HA
@@ -657,11 +665,13 @@ const char *SourceBrowserExt = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004e08
 // ?ilsInit@@3VILSink@@A
-// class ILSink ilsInit
+// GLOBAL: C1 0x004662e0
+ILSink ilsInit;
 
 // GLOBAL: MSVC5_C1 0x00004f38
 // ?fGenPersistPch@@3HA
-// int fGenPersistPch
+// GLOBAL: C1 0x0046630c
+bool32 fGenPersistPch = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00004f3c
 // ?Cmd_inlineparsing@@3HA
@@ -691,7 +701,8 @@ const char *SourceBrowserNamFlg = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004fd0
 // ?pSigMgr@@3PAUFESigMgr@@A
-// struct FESigMgr *pSigMgr
+// GLOBAL: C1 0x004663a8
+FESigMgr *pSigMgr = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004fd4
 // ?CurrentDate@@3PADA
@@ -699,7 +710,8 @@ const char *SourceBrowserNamFlg = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004fd8
 // ?PchOldUFlag@@3HA
-// int PchOldUFlag
+// GLOBAL: C1 0x004663b0
+bool32 PchOldUFlag = FALSE;
 
 // GLOBAL: MSVC5_C1 0x00004fdc
 // ?TmpTypeIndex@@3HA
@@ -711,7 +723,8 @@ const char *SourceBrowserNamFlg = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004fe4
 // ?PchOldUFile@@3PAEA
-// unsigned char *PchOldUFile
+// GLOBAL: C1 0x10a9ce40
+char *PchOldUFile = NULL;
 
 // GLOBAL: MSVC5_C1 0x00004fe8
 // ?CurFuncNumFormals@@3IA
@@ -736,7 +749,8 @@ bool32 Cflag = FALSE;
 
 // GLOBAL: MSVC5_C1 0x0000507c
 // ?I_stdoutfp@@3PAU_iobuf@@A
-// struct _iobuf *I_stdoutfp
+// GLOBAL: C1 0x00466454
+FILE *I_stdoutfp = NULL;
 
 // GLOBAL: MSVC5_C1 0x00005080
 // ?I_sbrfp@@3PAU_iobuf@@A
@@ -781,7 +795,8 @@ bool32 Cross_compile = FALSE;
 
 // GLOBAL: MSVC5_C1 0x000050b4
 // ?Processor@@3HA
-// int Processor
+// GLOBAL: C1 0x00466488
+unsigned int Processor = 0;
 
 // GLOBAL: MSVC5_C1 0x000050b8
 // ?XformedFormalList@@3PAVDLSymbolList_t@@A
@@ -1216,7 +1231,7 @@ const cmdtab_s cmdtab[] = {
     { "-Os", { &PchC.p_OptFlgSpeed }, TRUE, 0x05, },
     { "-Ot", { &PchC.p_OptFlgSpeed }, TRUE, 0x01, },
     { "-Ow", { &PchC.p_option_Ow }, TRUE, 0x01, },
-    { "-Oq", { &PchC.p_option_Oq }, TRUE, 0x01, },
+    { "-Oq", { &PchC.p_Cmd_Option_Oq }, TRUE, 0x01, },
     { "-Ov", { &PchC.p_option_Ov }, TRUE, 0x01, },
     { "-Oy", { &PchC.p_OptFlgFrame }, TRUE, 0x01, },
     { "-C8MODE", { &PchC.p_option_C8MODE }, TRUE, 0x01, },
@@ -1263,9 +1278,6 @@ int Cmd_Zm = FALSE;
 // GLOBAL: C1 0x0045c504
 bool32 gOption_Fj = FALSE;
 
-// GLOBAL: C1 0x0045c57c
-bool32 Cmd_Times = FALSE;
-
 // GLOBAL: C1 0x0045cb28
 bool32 gOption_BMOVE = FALSE;
 
@@ -1277,3 +1289,11 @@ bool32 gOption_Zf = FALSE;
 
 // GLOBAL: C1 0x00460a10
 bool32 gOption_ZI = FALSE;
+
+// FIXME: globals.[ch] contains names ILSink objects
+// GLOBAL: C1 0x004609b0
+ILSink ils_UNK004609b0;
+
+// FIXME: globals.[ch] contains names ILSink objects
+// GLOBAL: C1 0x00465fb0
+ILSink ils_UNK00465fb0;

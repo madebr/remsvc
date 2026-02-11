@@ -28,7 +28,11 @@
 
 // FUNCTION: MSVC5_C1 0x0003e000
 // ?fopen@ILSink@@QAEXPAD00@Z
-// public: void __thiscall ILSink::fopen(char *, char *, char *)
+// FUNCTION: C1 0x00419195
+void ILSink::fopen(const char *basename, const char *extension, const char *mode)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003e0e0
 // ??1ILSink@@QAE@XZ

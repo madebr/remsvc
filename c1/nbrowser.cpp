@@ -32,7 +32,8 @@
 
 // GLOBAL: MSVC5_C1 0x000003d0
 // ?pSbr@@3PAVSBR@@A
-// class SBR *pSbr
+// GLOBAL: C1 0x0045b56c
+SBR *pSbr;
 
 // GLOBAL: MSVC5_C1 0x000003d4
 // ?pSbrEnabled@SBR@@0PAVSBREnabled@@A
@@ -156,11 +157,19 @@ SBRDisabled *SBR::pSbrDisabled = NULL;
 
 // FUNCTION: MSVC5_C1 0x00019240
 // ?Disable@SBR@@SAPAV1@XZ
-// public: static class SBR * __cdecl SBR::Disable(void)
+// FUNCTION: C1 0x00408335
+SBR * SBR::Disable()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019270
 // ?Open@SBR@@SAPAV1@PAD@Z
-// public: static class SBR * __cdecl SBR::Open(char *)
+// FUNCTION: C1 0x004192e3
+SBR * SBR::Open(const char *path)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000192e0
 // ?Close@SBR@@SAXXZ

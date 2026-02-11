@@ -496,7 +496,7 @@ BOOL gOption_debugBreak = FALSE;
 BOOL gPrint_timings = FALSE;
 
 // GLOBAL: C1 0x0045c4b8
-const char *PchUFile = NULL;
+char *PchUFile = NULL;
 
 // GLOBAL: C1 0x0045c4b4
 BOOL PchUFlag = FALSE;
@@ -763,7 +763,7 @@ FILE *gFile_er = NULL;
 FILE *gFile_lp = NULL;
 
 // GLOBAL: C1 0x004663a8
-IStruct_Incremental1 *gIncremental_interface1;
+IStruct_Incremental1 *p_TPIMgr;
 
 // GLOBAL: C1 0x0046a310
 IStruct_Incremental2 *gIncremental_interface2;
@@ -817,7 +817,7 @@ tFILESTREAM gFILESTREAM_004609b0;
 tFILESTREAM gFILESTREAM_00465fb0;
 
 // GLOBAL: C1 0x00466454
-FILE *gFi_file;
+FILE *I_stdoutfp;
 
 // GLOBAL: C1 0x00466294
 FILE *I_Eoutput;
@@ -3427,7 +3427,7 @@ void init_main2()
 {
     char buffer[20];
 
-    if (!FESigMgr::open(gOptions_0045c0a8.option_Gi && !Prep && !Out_funcdef, &gIncremental_interface1, &gIncremental_interface2)) {
+    if (!FESigMgr::open(gOptions_0045c0a8.option_Gi && !Prep && !Out_funcdef, &p_TPIMgr, &gIncremental_interface2)) {
         FatalErrorF(73, "main.c", 151);
     }
     SetHandleCount(30);
@@ -3514,8 +3514,8 @@ void init_main2()
         if (_dup(STDOUT_FILENO) == -1) {
             fatal_io_CRT(83, 340, gOption_Fi_path);
         } else {
-            gFi_file = freopen(gOption_Fi_path, "wt+", stdout);
-            if (gFi_file == NULL) {
+            I_stdoutfp = freopen(gOption_Fi_path, "wt+", stdout);
+            if (I_stdoutfp == NULL) {
                 fatal_io_CRT(83, 340, gOption_Fi_path);
             }
         }
@@ -3833,10 +3833,10 @@ void main_compile()
             }
             gPTR_00466458->FUN_0041f2db();
         }
-        gIncremental_interface1->vtable_inc1_0x10();
+        p_TPIMgr->vtable_inc1_0x10();
     }
     if (gOption_Fi_path != NULL) {
-        if (FUN_00426935(gFi_file)) {
+        if (FUN_00426935(I_stdoutfp)) {
             FUN_0044810e(85, 340, gOption_Fi_path, "main.c", 1388);
         }
     }

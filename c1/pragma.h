@@ -49,10 +49,10 @@
 // "\x12"
 
 // ?PstatInitState@@3KA
-// unsigned long PstatInitState
+extern unsigned int PstatInitState;
 
 // ?PstatGetStatus@@YAKXZ
-// unsigned long __cdecl PstatGetStatus(void)
+extern unsigned int PstatGetStatus();
 
 // ?PstatSetFlags@@YAXK@Z
 // void __cdecl PstatSetFlags(unsigned long)

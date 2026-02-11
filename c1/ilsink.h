@@ -1,6 +1,15 @@
 #ifndef ILSINK_H
 #define ILSINK_H
 
+#include "decomp.h"
+#include "util.h"
+
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // ??_C@_03OLCH@nul?$AA@
 // "nul"
 
@@ -8,8 +17,32 @@
 // "EEA"
 
 struct ILSink {
+    ILSink() {
+        m_field_0x0 = 0;
+        m_field_0x4 = 0;
+        m_field_0x8 = 0;
+        m_field_0xc = 0;
+        m_field_0x10 = 0;
+        m_file = NULL;
+        m_field_0x18 = TRUE;
+        m_field_0x1c = -1;
+    }
+
+    ~ILSink() {
+        if (m_file != NULL) {
+            ::fclose(m_file);
+        }
+        if (m_field_0x28 != NULL) {
+            StdFree(m_field_0x28);
+        }
+        if (m_field_0x0 != NULL) {
+            delete m_field_0x0;
+            m_field_0x0 = 0;
+        }
+    }
+
     // ?fopen@ILSink@@QAEXPAD00@Z
-    // public: void __thiscall ILSink::fopen(char *, char *, char *)
+    void fopen(const char *basename, const char *extension, const char *mode);
 
     // ??1ILSink@@QAE@XZ
     // public: __thiscall ILSink::~ILSink(void)
@@ -65,6 +98,9 @@ struct ILSink {
     // ?getAllIL@ILSink@@SAXEPAUBuf@@@Z
     // public: static void __cdecl ILSink::getAllIL(unsigned char, struct Buf *)
 
+    void SetField0x24(undefined v) {
+        m_field_0x24 = v;
+    }
 private:
     // ?ppdb@ILSink@@0PAUPDB@@A
     // private: static struct PDB *ILSink::ppdb
@@ -77,6 +113,19 @@ private:
 
     // ?niIlMod@ILSink@@0KA
     // private: static unsigned long ILSink::niIlMod
+
+    char *m_field_0x0;
+    char *m_field_0x4;
+    undefined4 m_field_0x8;
+    undefined4 m_field_0xc;
+    undefined4 m_field_0x10;
+    FILE *m_file;
+    bool32 m_field_0x18;
+    int m_field_0x1c;
+    undefined m_field_0x20[0x24 - 0x20];
+    undefined m_field_0x24;
+    undefined m_field_0x25[0x28 - 0x25];
+    void *m_field_0x28;
 };
 
 #endif /* ILSINK_H */

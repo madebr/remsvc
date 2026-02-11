@@ -182,7 +182,7 @@ extern FILE *Newfp;
 // void __cdecl PchUse(void)
 
 // ?OpenExpFile@@YAXXZ
-// void __cdecl OpenExpFile(void)
+extern void OpenExpFile();
 
 // ?SetUpPchFile@@YAXXZ
 // void __cdecl SetUpPchFile(void)
@@ -209,13 +209,13 @@ extern void PchInterrupt();
 // void __cdecl PchCopyIL(int)
 
 // ?ValidatePersistentPch@@YAHPAE@Z
-// int __cdecl ValidatePersistentPch(unsigned char *)
+extern bool32 ValidatePersistentPch(const char *path);
 
 // ?CheckPersistentPchDirective@@YAHW4PchDirKind_t@@JPAEH@Z
 // int __cdecl CheckPersistentPchDirective(enum PchDirKind_t, long, unsigned char *, int)
 
 // ?PchInitPersistentCreate@@YAXXZ
-// void __cdecl PchInitPersistentCreate(void)
+extern void PchInitPersistentCreate();
 
 // ?PchGetInjectedSymID@@YAHPAEPAD1@Z
 // int __cdecl PchGetInjectedSymID(unsigned char *, char *, char *)

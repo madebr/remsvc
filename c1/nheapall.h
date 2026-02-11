@@ -112,6 +112,7 @@ public:
         undefined4 field_0x10;
     };
 
+    // ?Cmd_ScaleMemory@VirtualHeap@@2HA
     static int Cmd_ScaleMemory;
 
     // ?FigureHeapSize@VirtualHeap@@SAJPBUHeapParameters@1@@Z
@@ -157,6 +158,17 @@ public:
         // ?Clear@SubAllocator@VirtualHeap@@QAEXXZ
         // public: void __thiscall VirtualHeap::SubAllocator::Clear(void)
 
+        void * Allocate(size_t size) {
+            size = (size + 0x3) & ~0x3;
+            if (FreeSize < size) {
+                GetMemory(size);
+            }
+            void *result = fpFreeBlock;
+            FreeSize -= size;
+            fpFreeBlock = (void *)((uintptr_t)size + size);
+            return result;
+        }
+
     private:
         // ?GetMemory@SubAllocator@VirtualHeap@@AAEXI@Z
         void GetMemory(size_t amount);
@@ -180,8 +192,6 @@ public:
     // ?Reallocate@VirtualHeap@@QAEPAXPAXII@Z
     // public: void * __thiscall VirtualHeap::Reallocate(void *, unsigned int, unsigned int)
 
-    // ?Cmd_ScaleMemory@VirtualHeap@@2HA
-    // public: static int VirtualHeap::Cmd_ScaleMemory
 private:
     void *fpFreeBlock;
     void *fpFreeEnd;
@@ -200,6 +210,9 @@ public:
     static void Initialize(lifetime_e lifetime=M_LIFETIME0) {
         m_allocator.Create(lifetime);
     }
+    static void *Allocate(size_t size) {
+        return m_allocator.Allocate(size);
+    }
 };
 
 struct GeneralAllocator_t{};
@@ -210,7 +223,7 @@ struct FlistEntry_t{};
 struct Assoc_t{};
 struct Id_t{};
 struct s_defn{};
-struct Token{};
+struct Token;
 
 // VTABLE: C1 0x00457f70
 class PCHHeap {
@@ -386,7 +399,7 @@ public:
     }
     template<typename Type>
     static Type *Allocate(lifetime_e lifetime) {
-        return static_cast<Type *>(ActiveHeaps[lifetime].Allocate(sizeof(Type)));
+        return static_cast<Type *>(Allocate(sizeof(Type), lifetime));
     }
 
     static void Destroy() {

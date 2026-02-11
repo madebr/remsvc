@@ -19,7 +19,7 @@
 // const TokenStream::`vftable'
 
 // ?InitHardTokens@@YAXXZ
-// void __cdecl InitHardTokens(void)
+extern void InitHardTokens();
 
 // ?LexerParseDeclspec@@YAXPAUs_class@@@Z
 // void __cdecl LexerParseDeclspec(struct s_class *)
@@ -102,32 +102,35 @@
 // ?yyCheckSCtypes@@YAXPAUs_class@@EEZZ
 // void __cdecl yyCheckSCtypes(struct s_class *, unsigned char, unsigned char, ...)
 
-// ?IsFileStream@TokenStream@@UBEHXZ
-// public: virtual int __thiscall TokenStream::IsFileStream(void) const
+class TokenStream {
+public:
+    // ?IsFileStream@TokenStream@@UBEHXZ
+    // public: virtual int __thiscall TokenStream::IsFileStream(void) const
 
-// ??_GTokenStream@@MAEPAXI@Z
-// protected: virtual void * __thiscall TokenStream::`scalar deleting dtor'(unsigned int)
+    // ??_GTokenStream@@MAEPAXI@Z
+    // protected: virtual void * __thiscall TokenStream::`scalar deleting dtor'(unsigned int)
 
-// ??_ETokenStream@@MAEPAXI@Z
-// protected: virtual void * __thiscall TokenStream::`vector deleting dtor'(unsigned int)
+    // ??_ETokenStream@@MAEPAXI@Z
+    // protected: virtual void * __thiscall TokenStream::`vector deleting dtor'(unsigned int)
 
-// ?getToken@TokenStream@@UAEPBVToken@@XZ
-// public: virtual class Token const * __thiscall TokenStream::getToken(void)
+    // ?getToken@TokenStream@@UAEPBVToken@@XZ
+    // public: virtual class Token const * __thiscall TokenStream::getToken(void)
 
-// ?peekToken@TokenStream@@UAEPBVToken@@XZ
-// public: virtual class Token const * __thiscall TokenStream::peekToken(void)
+    // ?peekToken@TokenStream@@UAEPBVToken@@XZ
+    // public: virtual class Token const * __thiscall TokenStream::peekToken(void)
 
-// ?pushToken@TokenStream@@UAEXPBVToken@@@Z
-// public: virtual void __thiscall TokenStream::pushToken(class Token const *)
+    // ?pushToken@TokenStream@@UAEXPBVToken@@@Z
+    // public: virtual void __thiscall TokenStream::pushToken(class Token const *)
 
-// ??0TokenStream@@QAE@W4lifetime_e@@H@Z
-// public: __thiscall TokenStream::TokenStream(enum lifetime_e, int)
+    // ??0TokenStream@@QAE@W4lifetime_e@@H@Z
+    // public: __thiscall TokenStream::TokenStream(enum lifetime_e, int)
 
-// ?saveToken@TokenStream@@UAEXPBVToken@@@Z
-// public: virtual void __thiscall TokenStream::saveToken(class Token const *)
+    // ?saveToken@TokenStream@@UAEXPBVToken@@@Z
+    // public: virtual void __thiscall TokenStream::saveToken(class Token const *)
 
-// ?rewind@TokenStream@@UAEXXZ
-// public: virtual void __thiscall TokenStream::rewind(void)
+    // ?rewind@TokenStream@@UAEXXZ
+    // public: virtual void __thiscall TokenStream::rewind(void)
+};
 
 // ?EnterSymbolInCurrentScope@SymbolTableManager_t@@QBEXPAVSymbol_t@@@Z
 // public: void __thiscall SymbolTableManager_t::EnterSymbolInCurrentScope(class Symbol_t *) const

@@ -610,6 +610,6 @@
 // int __cdecl is_pragma(char *)
 
 // ?InitKeywords@@YAXXZ
-// void __cdecl InitKeywords(void)
+extern void InitKeywords();
 
 #endif /* P0KEYS_H */

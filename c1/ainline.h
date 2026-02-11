@@ -1,7 +1,8 @@
 #ifndef AINLINE_H
 #define AINLINE_H
+
 // ?SetProcessor@@YAXXZ
-// void __cdecl SetProcessor(void)
+extern void SetProcessor();
 
 // ?ClearInstruction@@YAXXZ
 // void __cdecl ClearInstruction(void)

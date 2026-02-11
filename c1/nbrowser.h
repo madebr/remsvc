@@ -154,10 +154,10 @@ public:
     // public: static class SBR * __cdecl SBR::Enable(void)
 
     // ?Disable@SBR@@SAPAV1@XZ
-    // public: static class SBR * __cdecl SBR::Disable(void)
+    static SBR * Disable();
 
     // ?Open@SBR@@SAPAV1@PAD@Z
-    // public: static class SBR * __cdecl SBR::Open(char *)
+    static SBR * Open(const char *path);
 
     // ?Close@SBR@@SAXXZ
     // public: static void __cdecl SBR::Close(void)
@@ -185,9 +185,6 @@ protected:
     // ?offPastModule@SBR@@1JA
     // protected: static long SBR::offPastModule
 };
-
-// ?pSbr@@3PAVSBR@@A
-// class SBR *pSbr
 
 // VTABLE: C1 0x00454998
 // SIZE 0xc
@@ -355,6 +352,9 @@ class SBRDisabled : public SBR {
     // ?interrupt@SBRDisabled@@EAEXXZ
     // private: virtual void __thiscall SBRDisabled::interrupt(void)
 };
+
+// ?pSbr@@3PAVSBR@@A
+extern SBR *pSbr;
 
 // ?IncCurSbrPatch@@YAXXZ
 // void __cdecl IncCurSbrPatch(void)

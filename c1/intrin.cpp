@@ -1,3 +1,7 @@
+#include "intrin.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x000036cc
 // ??_C@_02DFLH@an?$AA@
 // "an"
@@ -256,7 +260,11 @@
 
 // FUNCTION: MSVC5_C1 0x00021470
 // ?dflt_intrinsic@@YAXXZ
-// void __cdecl dflt_intrinsic(void)
+// FUNCTION: C1 0x0041c258
+void dflt_intrinsic()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00021700
 // ?is_intrinsic@@YAHPAUId_t@@@Z

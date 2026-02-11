@@ -1,6 +1,16 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "decomp.h"
+
+struct Type_t {
+    undefined2 field_0x0;
+    undefined4 field_0x2;
+    undefined4 field_0x4;
+    undefined4 field_0x8;
+    undefined4 field_0xc;
+};
+
 // ?sizeof_bt@@3PBDB
 // char const *sizeof_bt
 
@@ -8,7 +18,7 @@
 // class Type_t * __cdecl UseAType(class Symbol_t *)
 
 // ?InitTypes@@YAXXZ
-// void __cdecl InitTypes(void)
+extern void InitTypes();
 
 // ?check_mods@@YAGGG@Z
 // unsigned short __cdecl check_mods(unsigned short, unsigned short)
@@ -20,13 +30,13 @@
 // class Type_t * __cdecl yyCookType(class Type_t *)
 
 // ?hash_type@@YAPAVType_t@@PAV1@@Z
-// class Type_t * __cdecl hash_type(class Type_t *)
+extern Type_t * hash_type(Type_t *proto);
 
 // ?hash_indir@@YAPAUs_indir@@PAU1@@Z
 // struct s_indir * __cdecl hash_indir(struct s_indir *)
 
 // ?get_funcret@@YAPAVType_t@@GPAV1@@Z
-// class Type_t * __cdecl get_funcret(unsigned short, class Type_t *)
+extern Type_t * get_funcret(unsigned short args, Type_t *ret_type);
 
 // ?SkipRefIndir@@YAPAUs_indir@@PAU1@@Z
 // struct s_indir * __cdecl SkipRefIndir(struct s_indir *)
@@ -89,7 +99,7 @@
 // struct s_flist * __cdecl create_flist(class DLSymbolList_t *, unsigned short *, enum GTBFormalList::FormalListKind_e)
 
 // ?PTypeForBT@@YAPAVType_t@@G@Z
-// class Type_t * __cdecl PTypeForBT(unsigned short)
+extern Type_t * PTypeForBT(unsigned short bt);
 
 // ?GetQualifiedIndir@@YAPAUs_indir@@PAU1@@Z
 // struct s_indir * __cdecl GetQualifiedIndir(struct s_indir *)

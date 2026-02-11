@@ -1,3 +1,5 @@
+#include "Token_IO.h"
+
 // GLOBAL: MSVC5_C1 0x00001858
 // ?tokenDeferedStack@@3PAVTokenStreamStack@@A
 // class TokenStreamStack *tokenDeferedStack
@@ -8,7 +10,8 @@
 
 // GLOBAL: MSVC5_C1 0x000018b8
 // ?tokenInputStack@@3VTokenStreamStack@@A
-// class TokenStreamStack tokenInputStack
+// GLOBAL: C1 0x0045e450
+TokenStreamStack tokenInputStack;
 
 // GLOBAL: MSVC5_C1 0x000018c8
 // ?tokenOutputStack@@3VTokenStreamStack@@A
@@ -16,11 +19,13 @@
 
 // GLOBAL: MSVC5_C1 0x000018d8
 // ?tokenLife@Token@@2VLifetimeStack@@A
-// public: static class LifetimeStack Token::tokenLife
+// GLOBAL: C1 0x0045e470
+LifetimeStack Token::tokenLife;
 
 // GLOBAL: MSVC5_C1 0x000018e0
 // ?pTheBrowserStatus@@3PAVBrowserStatus@@A
-// class BrowserStatus *pTheBrowserStatus
+// GLOBAL: C1 0x0045e478
+BrowserStatus *pTheBrowserStatus = NULL;
 
 // FUNCTION: MSVC5_C1 0x00009840
 // _$E31
@@ -108,7 +113,10 @@
 
 // FUNCTION: MSVC5_C1 0x00009e80
 // ?pushStream@TokenStreamStack@@QAEXPAVTokenStream@@W4lifetime_e@@W4PushMode@@P6AXXZABVPosition@@@Z
-// public: void __thiscall TokenStreamStack::pushStream(class TokenStream *, enum lifetime_e, enum PushMode, void (__cdecl *)(void), class Position const &)
+// FUNCTION: C1 0x0040267e
+void TokenStreamStack::pushStream(TokenStream *stream, PushMode pushMode, void (*pNotification)(void), const Position &position) {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00009f00
 // ?MakeSimpletypeToken@@YAPBVToken@@PAVType_t@@EPAUs_class@@PAVSymbol_t@@@Z
@@ -122,3 +130,9 @@
 // ??_H@YGXPAXIHP6EX0@Z@Z
 // void __stdcall `vector ctor iterator'(void *, unsigned int, int, void (__thiscall *)(void *))
 
+
+// FUNCTION: C1 0x0041a934
+void Token::ResetTokenLife() {
+    tokenLife.m_Next = NULL;
+    tokenLife.m_currentLife = M_LIFETIME2;
+}

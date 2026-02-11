@@ -1,22 +1,76 @@
 #ifndef TOKEN_IO_H
 #define TOKEN_IO_H
+
+#include "c1_types.h"
+#include "nbrowser.h"
+#include "p0gettok.h"
+#include "p0io.h"
+
+#include <stddef.h>
+
+struct BrowserStatus {
+    BrowserStatus(const char *name, SBR *sbr) {
+        m_OverallBrowserStatus = name != NULL;
+        m_count = 0;
+        m_pSbrSave = sbr;
+    }
+
+    bool m_OverallBrowserStatus;
+    size_t m_count;
+    SBR *m_pSbrSave;
+};
+
+struct LifetimeStack {
+    lifetime_e m_currentLife;
+    LifetimeStack *m_Next;
+};
+
+struct Token {
+    // ?FindPointers@Token@@QAEXXZ
+    // public: void __thiscall Token::FindPointers(void)
+
+    // ?tmpValueme@Token@@2Ts_lextype@@A
+    // public: static union s_lextype Token::tmpValueme
+
+    // ?tokenLife@Token@@2VLifetimeStack@@A
+    static LifetimeStack tokenLife;
+
+    static void ResetTokenLife();
+};
+
+enum PushMode {
+    M_PUSHMODE_0x0 = 0x0,
+};
+
+struct TokenStreamStack {
+    // ?getToken@TokenStreamStack@@QAEPBVToken@@XZ
+    // public: class Token const * __thiscall TokenStreamStack::getToken(void)
+
+    // ?peekToken@TokenStreamStack@@QAEPBVToken@@XZ
+    // public: class Token const * __thiscall TokenStreamStack::peekToken(void)
+
+    // ?pushStream@TokenStreamStack@@QAEXPAVTokenStream@@W4lifetime_e@@W4PushMode@@P6AXXZABVPosition@@@Z
+    void pushStream(TokenStream *stream, PushMode pushMode, void (*pNotification)(void), const Position &position);
+
+    const Position & GetPosition() const {
+        return curPos;
+    }
+
+    Position curPos;
+    TokenStreamStackElement *pTopOfStack;
+};
+
 // ?tokenDeferedStack@@3PAVTokenStreamStack@@A
 // class TokenStreamStack *tokenDeferedStack
 
-// ?tmpValueme@Token@@2Ts_lextype@@A
-// public: static union s_lextype Token::tmpValueme
-
 // ?tokenInputStack@@3VTokenStreamStack@@A
-// class TokenStreamStack tokenInputStack
+extern TokenStreamStack tokenInputStack;
 
 // ?tokenOutputStack@@3VTokenStreamStack@@A
 // class TokenStreamStack tokenOutputStack
 
-// ?tokenLife@Token@@2VLifetimeStack@@A
-// public: static class LifetimeStack Token::tokenLife
-
 // ?pTheBrowserStatus@@3PAVBrowserStatus@@A
-// class BrowserStatus *pTheBrowserStatus
+extern BrowserStatus *pTheBrowserStatus;
 
 // _$E31
 
@@ -45,9 +99,6 @@
 // ?FindPointersInBuffer@TokenBufferHandle@@QAEXXZ
 // public: void __thiscall TokenBufferHandle::FindPointersInBuffer(void)
 
-// ?FindPointers@Position@@QAEXXZ
-// public: void __thiscall Position::FindPointers(void)
-
 // _$E40
 
 // _$E39
@@ -56,24 +107,11 @@
 
 // _$E42
 
-// ?FindPointers@Token@@QAEXXZ
-// public: void __thiscall Token::FindPointers(void)
-
 // ?FindPointers@TokenStream@@SAXPAX@Z
 // public: static void __cdecl TokenStream::FindPointers(void *)
 
 // ?CurrentPositionToken@@YAPBVToken@@W4lifetime_e@@@Z
 // class Token const * __cdecl CurrentPositionToken(enum lifetime_e)
-
-// ?getToken@TokenStreamStack@@QAEPBVToken@@XZ
-// public: class Token const * __thiscall TokenStreamStack::getToken(void)
-
-// ?peekToken@TokenStreamStack@@QAEPBVToken@@XZ
-// public: class Token const * __thiscall TokenStreamStack::peekToken(void)
-
-// ?pushStream@TokenStreamStack@@QAEXPAVTokenStream@@W4lifetime_e@@W4PushMode@@P6AXXZABVPosition@@@Z
-// public: void __thiscall TokenStreamStack::pushStream(class TokenStream *, enum lifetime_e, enum PushMode, void (__cdecl *)(void), class Position const &)
-
 // ?MakeSimpletypeToken@@YAPBVToken@@PAVType_t@@EPAUs_class@@PAVSymbol_t@@@Z
 // class Token const * __cdecl MakeSimpletypeToken(class Type_t *, unsigned char, struct s_class *, class Symbol_t *)
 

@@ -6,6 +6,7 @@
 #include "main.h"
 #include "p0io.h"
 #include "portable.h"
+#include "Token_IO.h"
 #include "zz_unknown.h"
 
 #include <stdarg.h>
@@ -25,6 +26,9 @@ char gError_message_buffer[256];
 
 // GLOBAL: C1 0x00466500
 FILE *gFile_er = NULL;
+
+// GLOBAL: C1 0x004662c0
+FILE *gFile_lp = NULL;
 
 // GLOBAL: C1 0x00460a50
 bool32 gWrite_er = FALSE;
@@ -181,8 +185,8 @@ void message(int category, int code, const char *format_str, va_list ap)
     char buffer[2048];
 
     char *ptr_message = buffer;
-    if (tokenInputStack.position.line > 0 && tokenInputStack.position.stream != NULL) {
-        format(buffer, "%Fs(%ld) : ", sizeof(buffer), tokenInputStack.position.GetFilename());
+    if (tokenInputStack.curPos.line > 0 && tokenInputStack.curPos.stream != NULL) {
+        format(buffer, "%Fs(%ld) : ", sizeof(buffer), tokenInputStack.curPos.GetFilename());
         ptr_message = buffer + strlen(buffer);
     }
     if (category != 0) {

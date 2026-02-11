@@ -1,20 +1,38 @@
 #include "main.h"
 
+#include "ainline.h"
 #include "decomp.h"
 #include "error.h"
 #include "globals.h"
 #include "initmain.h"
+#include "intrin.h"
+#include "ipm.h"
 #include "nbrowser.h"
 #include "nheapall.h"
 #include "p0chrmap.h"
 #include "p0io.h"
+#include "p0gettok.h"
+#include "p0id.h"
+#include "p0keys.h"
 #include "p0macros.h"
+#include "p0pragma.h"
 #include "pch.h"
+#include "pragma.h"
+#include "sigmgr.h"
+#include "symbols.h"
+#include "symtable.h"
 #include "timing.h"
+#include "types.h"
+#include "Token_IO.h"
+#include "util.h"
 #include "zz_unknown.h"
 
 #include <signal.h>
 #include <stdio.h>
+#ifdef _WIN32
+#include <io.h>
+#include <windows.h>
+#endif
 
 // GLOBAL: MSVC5_C1 0x00000000
 // ?FrontendBssStart@@3HA
@@ -139,13 +157,221 @@ HANDLE hSemaphore;
 // FUNCTION: MSVC5_C1 0x00035c10
 // _DllMain@12
 
+// FUNCTION: C1 0x00448450
+FILE * OpenFileInDirectory(const char *basename, const char *suffix, const char *mode)
+{
+    NOT_IMPLEMENTED();
+}
+
 // FUNCTION: MSVC5_C1 0x00035c40
 // ?init_main2@@YAXXZ
-// void __cdecl init_main2(void)
+// GLOBAL: C1 0x10a30c20
+void init_main2()
+{
+    if (!FESigMgr::open(PchC.p_Cmd_fICC && !Prep && !Out_funcdef, &pSigMgr, &pIPMSigMgr)) {
+        fatal_varargs(C1073, "main.c", 151);
+    }
+#ifdef _WIN32
+    SetHandleCount(30);
+#endif
+    PchC.p_NoPoundLines = PchC.p_NoPoundLines || !Prep;
+    if (Cmd_pack_size != -1) {
+        Pragma_stack->pTopOfStack->value = Cmd_pack_size;
+    } else {
+        Pragma_stack->pTopOfStack->value = 8;
+    }
+    PchC.p_Stack_check = PchC.p_Cmd_stack_check;
+    PchC.p_StrPool = PchC.p_Cmd_StrPool;
+    PchC.p_ROStringPool = PchC.p_Cmd_ROStrPool;
+    PchC.p_Option_Oq = PchC.p_Cmd_Option_Oq;
+    if (4 < PchC.p_Cmd_processor) {
+        char buffer[20];
+        format(buffer, "-G%d",sizeof(buffer), PchC.p_Cmd_processor);
+        fatal_varargs(C1007, buffer, "c1");
+    }
+    SetProcessor();
+    if (Prep || Out_funcdef) {
+        SourceBrowserNamFlg = NULL;
+        SourceBrowserExt = NULL;
+        PchC.p_SourceBrowserExtended = FALSE;
+        PchC.p_SourceBrowser = FALSE;
+    } else {
+        if (SourceBrowserExt != NULL) {
+            PchC.p_SourceBrowserExtended = TRUE;
+            SourceBrowserNamFlg = SourceBrowserExt;
+        }
+        PchC.p_SourceBrowser = SourceBrowserNamFlg != NULL;
+        SourceBrowserNam = SourceBrowserNamFlg;
+    }
+    SBR::Open(SourceBrowserNamFlg);
+    pSbr = SBR::Disable();
+    if (fPersistentPch) {
+        if (PchCFile == NULL && (PchPFile == NULL || PchUFlag)) {
+            fPersistentPch = FALSE;
+        } else {
+            if (ValidatePersistentPch(PchCFile)) {
+                PchOldUFlag = PchUFlag;
+                PchOldUFile = PchUFile;
+                fReusePersistPch = TRUE;
+                if (PchUFlag != 0) {
+                    PchPFile = (char *)0x0;
+                }
+                PchUFlag = 1;
+                PchUFile = PchCFile;
+                PchCFlag = FALSE;
+                PchCFile = NULL;
+            } else {
+                fGenPersistPch = TRUE;
+                PchInitPersistentCreate();
+            }
+        }
+    }
+    PchMustCreate = PchCFlag;
+    PchReuseCVTypes = PchC.p_Symbolic_debug_holder && !PchC.p_PchDFlag && PchCFlag;
+    InitHardTokens();
+    InitIdTable();
+    InitKeywords();
+    /* NOP_FUN_004193d4(); */
+    if (gWrite_er && !Out_funcdef) {
+        gFile_er = OpenFileInDirectory(Basename, "er", "w");
+        gFile_lp = OpenFileInDirectory(Basename, "lp", "w");
+    }
+    if (!Prep && !Out_funcdef) {
+        if (PchC.p_Cmd_C9IL) {
+            OpenExpFile();
+            ilsLSym.fopen(Basename, "sy", "w+");
+            ilsLSym.fopen(Basename, "gl", "w+");
+            ilsLSym.fopen(Basename, "in", "w+");
+            if (PchC.p_Symbolic_debug_holder != 0) {
+                ilsDB.fopen(Basename, "db", "w+");
+            }
+        } else {
+            ilsLSym.SetField0x24(3);
+            ilsInit.SetField0x24(4);
+            ilsExp.SetField0x24(2);
+            ils_UNK004609b0.SetField0x24(5);
+            ilsGSym.SetField0x24(1);
+            ils_UNK00465fb0.SetField0x24(1);
+        }
+    }
+    if (StdoutFile != NULL) {
+        if (dup(STDOUT_FILENO) == -1) {
+            fatal_io_CRT(C1083, 340, StdoutFile);
+        } else {
+            I_stdoutfp = freopen(StdoutFile, "wt+", stdout);
+            if (I_stdoutfp == NULL) {
+                fatal_io_CRT(C1083, 340, StdoutFile);
+            }
+        }
+    }
+    I_Eoutput = stdout;
+    InitTypes();
+    Type_t *proto_type = HeapManager::Allocate<Type_t>(M_LIFETIME3);
+
+    proto_type->field_0x2 = 0;
+    proto_type->field_0x4 = 0;
+    proto_type->field_0x8 = 0;
+    proto_type->field_0x0 = 0;
+    PchS.rs.p_ST_0045b67c = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4041;
+    PchS.rs.p_ST_0045b670 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x63;
+    PchS.rs.p_ST_BTint = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4063;
+    PchS.rs.p_ST_0045b674 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x41;
+    PchS.rs.p_ST_0045b634 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4041;
+    PchS.rs.p_ST_0045b638 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x42;
+    PchS.rs.p_ST_0045b63c = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4042;
+    PchS.rs.p_ST_0045b640 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x43;
+    PchS.rs.p_ST_0045b644 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4043;
+    PchS.rs.p_ST_0045b648 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4c;
+    PchS.rs.p_ST_0045b64c = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x404c;
+    PchS.rs.p_ST_0045b650 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4063;
+    PchS.rs.p_ST_0045b678 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x42;
+    PchS.rs.p_ST_0045b668 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4042;
+    PchS.rs.p_ST_0045b66c = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x44;
+    PchS.rs.p_ST_0045b65c = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4044;
+    PchS.rs.p_ST_0045b660 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x107;
+    PchS.rs.p_ST_0045b62c = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x802;
+    PchS.rs.p_ST_0045b664 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x80;
+    PchS.rs.p_ST_0045b680 = hash_type(proto_type);
+
+    proto_type->field_0x2 = 1;
+    proto_type->field_0x0 = 0x41;
+    PchS.rs.p_ST_0045b620 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 0x4041;
+    PchS.rs.p_ST_0045b628 = hash_type(proto_type);
+
+    proto_type->field_0x0 = 99;
+    PchS.rs.p_ST_0045b624 = hash_type(proto_type);
+
+    proto_type->field_0x2 = 0;
+
+    Token::ResetTokenLife();
+    PchS.rs.p_pSymbolTableManager = new SymbolTableManager_t;
+    InitializeStandardIdentifiers();
+    if (!Prep) {
+        PchS.rs.p_ST_function = get_funcret(0, PchS.rs.p_ST_BTint);
+        PchS.rs.p_ST_pVoid = PTypeForBT(0x80);
+        if (!Out_funcdef) {
+            dflt_intrinsic();
+        }
+        FUN_0041c5d3();
+    }
+    p0_init(listDefs);
+    tokenInputStack.pushStream(new FileTokenStream, M_PUSHMODE_0x0, NULL, tokenInputStack.GetPosition());
+
+    if (pTheBrowserStatus == NULL) {
+        pTheBrowserStatus = new BrowserStatus(SourceBrowserNam, pSbr);
+    }
+    if (!PchUFlag) {
+        init_main3();
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x000363f0
 // ?init_main3@@YAXXZ
-// void __cdecl init_main3(void)
+// FUNCTION: C1 0x004199cc
+void init_main3()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00036920
 // ?inspectArgument@preParseArgsHelpers@@CAHPADH@Z
@@ -321,7 +547,118 @@ int main(int argc, char *argv[])
 // FUNCTION: C1 0x004193d6
 int main_compile()
 {
-    NOT_IMPLEMENTED();
+
+    init_main2();
+    PstatInitState = PstatGetStatus();
+    AddTiming("the reset of init2");
+    ExecutionState = CES_Compiling;
+    PchC.p_PchDFlag &= !PchC.p_FUseTypeServer;
+    if (Prep) {
+        to_human();
+        ExecutionState = CES_NormalCleanup;
+    } else {
+        NOT_IMPLEMENTED();
+#if 0
+        if (PchC.p_Cmd_C9IL) {
+            FUN_0041c5bf();
+        }
+        if (PchOldUFlag) {
+            if (PchOldUFlag) {
+                SkipToPchUse(PchOldUFile, FALSE);
+            }
+            SkipToPchUse(PchUFile, TRUE);
+        } else {
+            PchC.p_SavePragStat = PstatGetStatus();
+            if (gOption_YX) {
+                PchC.p_PchDFlag = !PchC.p_FUseTypeServer;
+                FUN_0044648e();
+            } else {
+                gINT_00469158 = 0;
+                if (PchC.option_C9IL && !Prep && !Out_funcdef && PchC.p_Symbolic_debug_holder) {
+                    FUN_0041e9c3();
+                }
+            }
+            gOptions_PCH_00468d50 = PchC;
+        }
+        AddTiming("PCH open");
+        if (!PchC.option_C9IL && !gOption_YX) {
+            if (gBOOL_0045c4e0) {
+                FUN_004495f1();
+            } else {
+                FUN_004496d8();
+                FUN_004445a1();
+            }
+        }
+        RunYACC_0041e7f1();
+        if (PchC.option_C9IL || gBOOL_0045c6d0) {
+            AddTiming("primary parsing");
+        } else {
+            AddTiming("headers");
+        }
+        if (!Out_funcdef) {
+            AddTiming("compiler generated stuff");
+            FUN_0041f45d(gStruct_0045b690);
+            AddTiming("global symbols");
+            if (PchC.option_C9IL) {
+                if (gBOOL_0045f98c) {
+                    FUN_0041402e(83, NULL);
+                    FUN_0041402e(84, FUN_0040929e(0));
+                }
+                FUN_0041402e(77, NULL);
+            }
+            FUN_0040872a();
+        }
+        AddTiming("expect nothing");
+        ExecutionState = CES_NormalCleanup;
+        pSbr = GetSourceBrowser();
+        pSbr->vtable_0x00();
+        DestroySourceBrowser();
+        if ((WarnIsError > 1) + Nerrors == 0) {
+            if (!gIncremental_interface3->vmethod_inc3_0x00()) {
+                char buffer[260];
+                EmitError(471, gPTR_00466458->field_0x0->vmethod_0x0c(buffer));
+            }
+        }
+        if (!gIncremental_interface3->vmethod_inc3_0x04()) {
+            FatalErrorF(73, "main.c", 1326);
+        }
+        if (!Out_funcdef) {
+            if (!Prep && (PchC.p_Symbolic_debug_holder || PchC.p_FUseTypeServer)) {
+                FUN_0041f3a9();
+            }
+            if (PchC.p_Cmd_C9IL) {
+                ilsExp.closeFile();
+                ilsLSym.closeFile();
+                ilsGSym.closeFile();
+                gFILESTREAM_00465fe0.FlushBuffer();
+                ilsInit.closeFile();
+                if (PchC.p_Symbolic_debug_holder) {
+                    ilsDB.closeFile();
+                }
+            } else {
+                FUN_004497c1(FALSE);
+                FUN_004491dd();
+            }
+            gPTR_00466458->FUN_0041f2db();
+        }
+        p_TPIMgr->CloseNameServer();
+#endif
+    }
+    if (StdoutFile != NULL && xfclose(I_stdoutfp)) {
+        fatal_io_CRT_position(C1085, 340, StdoutFile, "main.c", 1388);
+    }
+    if (fflush(stdout) != 0) {
+        fatal_io_CRT_position(C1085, 340, NULL, "main.c", 1393);
+    }
+    PchInterrupt();
+    AddTiming("IPM/MR/IL close and wrap-up");
+    PrintTimings();
+    CleanupMemory();
+    ExecutionState = CES_Done;
+    if (HandlingControlC) {
+        OKToHandleCtrlC();
+    }
+    exit(Nerrors + (1 < WarnIsError));
 }
 
 // FUNCTION: MSVC5_C1 0x00037270
@@ -423,7 +760,12 @@ void __fastcall limit_recursion(CompilerExecutionState_t state)
 
 // FUNCTION: MSVC5_C1 0x00037790
 // ?to_human@@YAXXZ
-// void __cdecl to_human(void)
+// FUNCTION: C1 0x00426b10
+void to_human()
+{
+    NOT_IMPLEMENTED();
+}
+
 
 // FUNCTION: MSVC5_C1 0x00037930
 // _GetPrecisionFlag

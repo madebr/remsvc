@@ -1,3 +1,7 @@
+#include "ipm.h"
+
+#include <stddef.h>
+
 // GLOBAL: MSVC5_C1 0x00000220
 // ??_7StubIPM@@6B@
 // const StubIPM::`vftable'
@@ -16,7 +20,8 @@
 
 // GLOBAL: MSVC5_C1 0x00008f68
 // ?pIPMSigMgr@@3PAUIPMSigMgr@@A
-// struct IPMSigMgr *pIPMSigMgr
+// GLOBAL: C1 0x0046a310
+IPMSigMgr *pIPMSigMgr = NULL;
 
 // GLOBAL: MSVC5_C1 0x00008f70
 // ?ciNil@@3UCI@@A

@@ -1,3 +1,7 @@
+#include "sigmgr.h"
+
+#include "globals.h"
+
 // GLOBAL: MSVC5_C1 0x000001c0
 // ??_7SigMgrStub@@6BIPMSigMgr@@@
 // const SigMgrStub::`vftable'{for `IPMSigMgr'}
@@ -28,7 +32,18 @@
 
 // FUNCTION: MSVC5_C1 0x0003ed10
 // ?open@FESigMgr@@SAHHPAPAU1@PAPAUIPMSigMgr@@@Z
-// public: static int __cdecl FESigMgr::open(int, struct FESigMgr **, struct IPMSigMgr **)
+// FUNCTION: C1 0x0041a434
+bool32 FESigMgr::open(bool32 enable, FESigMgr **feSigMgr, IPMSigMgr **ipmSigMgr)
+{
+    if (enable) {
+        NOT_IMPLEMENTED();
+    } else {
+        SigMgrStub *stub = new SigMgrStub;
+        *feSigMgr = static_cast<FESigMgr *>(stub);
+        *ipmSigMgr = static_cast<IPMSigMgr *>(stub);
+    }
+    return TRUE;
+}
 
 // FUNCTION: MSVC5_C1 0x0003edc0
 // ?noteOpenFile@SigMgrStub@@UAEHPAUIPMSigMgr@@@Z

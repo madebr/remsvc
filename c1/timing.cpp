@@ -6,6 +6,14 @@
 #include <windows.h>
 #endif
 
+#include <stdio.h>
+
+// GLOBAL: C1 0x0045c57c
+bool32 Cmd_Times = FALSE;
+
+// GLOBAL: C1 0x00468c20
+int gCountTimings = 0;
+
 // GLOBAL: C1 0x00468c20
 int gTiming_index = 0;
 
@@ -34,4 +42,19 @@ void InitTiming(void)
 {
     gTiming_index = 0;
     gPrevTickCount = GetTickCount();
+}
+
+// FUNCTION: C1 0x0041f0f6
+void PrintTimings()
+{
+    if (Cmd_Times) {
+        int i;
+        int total = 0;
+
+        for (i = 0; i < gCountTimings; i++) {
+            total += gTimings[i].tick;
+            printf("%8d in %s.\n", gTimings[i].tick, gTimings[i].description);
+        }
+        printf("%d ms total time.\n", total);
+    }
 }

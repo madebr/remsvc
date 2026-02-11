@@ -2,6 +2,7 @@
 #define P0IO_H
 
 #include "decomp.h"
+#include "list.h"
 
 struct s_IncludeList {
     undefined4 field_0x0;
@@ -33,8 +34,6 @@ struct s_filelist {
 };
 
 extern s_IncludeList *IncludeList;
-
-extern TokenStreamStackElement tokenInputStack;
 
 // ??_C@_0M@JAPN@__LINE__Var?$AA@
 // "__LINE__Var"
@@ -172,7 +171,7 @@ extern void CloseAllSources();
 // int __cdecl io_eob(void)
 
 // ?InitializeStandardIdentifiers@@YAXXZ
-// void __cdecl InitializeStandardIdentifiers(void)
+extern void InitializeStandardIdentifiers();
 
 // ?pbStartOfCurBuf@@YAPAEXZ
 // unsigned char * __cdecl pbStartOfCurBuf(void)
@@ -187,7 +186,7 @@ extern void CloseAllSources();
 // int __cdecl fICCSkipFn(long, unsigned short)
 
 // ?p0_init@@YAXPAUlist@@@Z
-// void __cdecl p0_init(struct list *)
+extern void p0_init(list<void *> *lst);
 
 // ?CommandDef@@YAXPAD@Z
 // void __cdecl CommandDef(char *)

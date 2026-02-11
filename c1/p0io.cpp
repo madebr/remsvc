@@ -1,5 +1,6 @@
 #include "p0io.h"
 
+#include "decomp.h"
 #include "nheapall.h"
 
 #ifdef _WIN32
@@ -10,9 +11,6 @@
 
 // GLOBAL: C1 0x0045b5bc
 s_IncludeList *IncludeList;
-
-// GLOBAL: C1 0x0045e450
-TokenStreamStackElement tokenInputStack;
 
 // GLOBAL: MSVC5_C1 0x000000b0
 // ??_C@_0M@JAPN@__LINE__Var?$AA@
@@ -204,7 +202,11 @@ void CloseAllSources() {
 
 // FUNCTION: MSVC5_C1 0x00005700
 // ?InitializeStandardIdentifiers@@YAXXZ
-// void __cdecl InitializeStandardIdentifiers(void)
+// FUNCTION: C1 0x00419350
+void InitializeStandardIdentifiers()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00005730
 // ?pbStartOfCurBuf@@YAPAEXZ
@@ -224,7 +226,11 @@ void CloseAllSources() {
 
 // FUNCTION: MSVC5_C1 0x000058f0
 // ?p0_init@@YAXPAUlist@@@Z
-// void __cdecl p0_init(struct list *)
+// FUNCTION: C1 0x????
+void __cdecl p0_init(list<void *> *lst)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00005ae0
 // ?CommandDef@@YAXPAD@Z

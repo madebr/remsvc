@@ -8,6 +8,9 @@
 #include "ilsink.h"
 #include "list.h"
 #include "pdbmgr.h"
+#include "sigmgr.h"
+#include "symtable.h"
+#include "types.h"
 
 #include <stdio.h>
 
@@ -226,14 +229,19 @@ typedef struct PchC_s {
     bool32 p_Cmd_cdecl;
     bool32 p_Cmd_stdcall;
     bool32 p_Cmd_StrPool;
+    bool32 p_StrPool;
     bool32 p_Cmd_ROStrPool;
+    bool32 p_ROStringPool;
     bool32 p_CodeBasedStrings;
     unsigned int p_Cmd_processor;
     bool32 p_option_GM;
     int p_option_Ob;
-    // bool p_SourceBrowser;
-    // bool p_SourceBrowserExtended;
+    bool32 p_SourceBrowser;
+    bool32 p_SourceBrowserExtended;
+    bool32 p_SavePragStat;
+    undefined field_0xac[0xb0 - 0xac];
     bool32 p_option_C8MODE;
+    bool32 p_Stack_check;
     bool32 p_OptFlgSpeed;
     bool32 p_option_Oa;
     bool32 p_option_Ow;
@@ -267,7 +275,8 @@ typedef struct PchC_s {
     char p_FdName[256];
     char p_szYlstring[256];
     // char p_szPchHeaderFile[778];
-    bool32 p_option_Oq;
+    bool32 p_Cmd_Option_Oq;
+    bool32 p_Option_Oq;
     bool32 field_0x3dc;
     bool32 p_option_Ov;
     // struct PDBSIG p_PchTPISig;
@@ -337,7 +346,11 @@ typedef struct {
     // struct Type_t *p_ST_BTfloat;
     // struct Type_t *p_ST_BTdouble;
     // struct Type_t *p_ST_BTldouble;
-    // struct Type_t *p_ST_BTint;
+    Type_t *p_ST_0045b620;
+    Type_t *p_ST_0045b624;
+    Type_t *p_ST_0045b628;
+    Type_t *p_ST_0045b62c;
+    Type_t *p_ST_BTint;
     // struct Type_t *p_ST_BTint64;
     // struct Type_t *p_ST_BTuint64;
     // struct Type_t *p_ST_BTarbint;
@@ -355,13 +368,31 @@ typedef struct {
     // struct Type_t *p_ST_BTundef;
     // struct Type_t *p_ST_BTvoid;
     // struct Type_t *p_ST_BTnullptr;
-    // struct Type_t *p_ST_function;
-    // struct Type_t *p_ST_pVoid;
+    Type_t *p_ST_0045b634;
+    Type_t *p_ST_0045b638;
+    Type_t *p_ST_0045b63c;
+    Type_t *p_ST_0045b640;
+    Type_t *p_ST_0045b644;
+    Type_t *p_ST_0045b648;
+    Type_t *p_ST_0045b64c;
+    Type_t *p_ST_0045b650;
+    Type_t *p_ST_0045b65c;
+    Type_t *p_ST_0045b660;
+    Type_t *p_ST_0045b664;
+    Type_t *p_ST_0045b668;
+    Type_t *p_ST_0045b66c;
+    Type_t *p_ST_0045b670;
+    Type_t *p_ST_0045b674;
+    Type_t *p_ST_0045b678;
+    Type_t *p_ST_0045b67c;
+    Type_t *p_ST_0045b680;
+    Type_t *p_ST_function;
+    Type_t *p_ST_pVoid;
     // struct Type_t *p_ST_BTindex_t;
     // struct Type_t *p_ST_BTUnknown;
     // struct Type_t *p_ST_BTEllipsis;
     // struct Symbol_t *p_pPureStub;
-    // struct SymbolTableManager_t *p_pSymbolTableManager;
+    SymbolTableManager_t *p_pSymbolTableManager;
     // struct Type_t *p_pIndFunc[7][3];
     // struct CommentPragma_t *p_CommentPragmaList;
     // struct DictionaryNoMoveToFront<Symbol_t_*,unsigned_long,DictionaryBucket<Symbol_t_*,unsigned_long,&bool___fastcall_BucketEq<Symbol_t_*>(Symbol_t_*,Symbol_t_*),&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)>,&unsigned_int___fastcall_GenericHash(char_const_*,unsigned_int)> *p_dictVarargFuncTokenCode;
@@ -621,7 +652,7 @@ extern bool32 PchFileNameFromCmdLine;
 extern bool32 fPersistentPch;
 
 // ?PchReuseCVTypes@@3HA
-// int PchReuseCVTypes
+extern bool32 PchReuseCVTypes;
 
 // ?CurFuncInPch@@3HA
 // int CurFuncInPch
@@ -809,7 +840,7 @@ extern CompilerExecutionState_t ExecutionState;
 // enum GTBFormalList::FormalListKind_e XformedFormalListType
 
 // ?fReusePersistPch@@3HA
-// int fReusePersistPch
+extern bool32 fReusePersistPch;
 
 // ?m_allocator@?$SAClass@UFlistEntry_t@@$00@@0USubAllocator@VirtualHeap@@A
 // private: static struct VirtualHeap::SubAllocator SAClass<struct FlistEntry_t, 1>::m_allocator
@@ -821,7 +852,7 @@ extern CompilerExecutionState_t ExecutionState;
 // class ILSink ilsEEAttrib
 
 // ?ilsGSym@@3VILSink@@A
-// class ILSink ilsGSym
+extern ILSink ilsGSym;
 
 // ?Optimize_state@@3HA
 // int Optimize_state
@@ -854,7 +885,7 @@ extern CompilerExecutionState_t ExecutionState;
 // private: static struct VirtualHeap::SubAllocator SAClass<struct IndirEntry_t, 1>::m_allocator
 
 // ?ilsDB@@3VILSink@@A
-// class ILSink ilsDB
+extern ILSink ilsDB;
 
 // ?listIncludes@@3PAUlist@@A
 extern list<void *> *listIncludes;
@@ -917,7 +948,7 @@ extern list<void *> *listForcedIncludes;
 extern bool32 ShowIncludes;
 
 // ?ilsLSym@@3VILSink@@A
-// class ILSink ilsLSym
+extern ILSink ilsLSym;
 
 // ?InternalUnaryTree_ivBasedInfo@@3Tu_ivalue@@A
 // union u_ivalue InternalUnaryTree_ivBasedInfo
@@ -971,7 +1002,7 @@ extern const char *StdoutFile;
 // int FormalListDepth
 
 // ?I_Eoutput@@3PAU_iobuf@@A
-// struct _iobuf *I_Eoutput
+extern FILE *I_Eoutput;
 
 // ?m_allocator@?$SAClass@VGeneralAllocator_t@@$00@@0USubAllocator@VirtualHeap@@A
 // private: static struct VirtualHeap::SubAllocator SAClass<class GeneralAllocator_t, 1>::m_allocator
@@ -986,7 +1017,7 @@ extern const char *StdoutFile;
 // unsigned int StrNoInCurFunc
 
 // ?SourceBrowserNam@@3PADA
-// char *SourceBrowserNam
+extern const char *SourceBrowserNam;
 
 // ?BadInternalClassErrors@@3HA
 // int BadInternalClassErrors
@@ -998,10 +1029,10 @@ extern CRC32 crc32ClCmd;
 extern const char *SourceBrowserExt;
 
 // ?ilsInit@@3VILSink@@A
-// class ILSink ilsInit
+extern ILSink ilsInit;
 
 // ?fGenPersistPch@@3HA
-// int fGenPersistPch
+extern bool32 fGenPersistPch;
 
 // ?Cmd_inlineparsing@@3HA
 // int Cmd_inlineparsing
@@ -1022,13 +1053,13 @@ extern const char *SourceBrowserNamFlg;
 // unsigned char *Reuse_1
 
 // ?pSigMgr@@3PAUFESigMgr@@A
-// struct FESigMgr *pSigMgr
+extern FESigMgr *pSigMgr;
 
 // ?CurrentDate@@3PADA
 // char *CurrentDate
 
 // ?PchOldUFlag@@3HA
-// int PchOldUFlag
+extern bool32 PchOldUFlag;
 
 // ?TmpTypeIndex@@3HA
 // int TmpTypeIndex
@@ -1037,7 +1068,7 @@ extern const char *SourceBrowserNamFlg;
 // struct s_tree *Exit_label
 
 // ?PchOldUFile@@3PAEA
-// unsigned char *PchOldUFile
+extern char *PchOldUFile;
 
 // ?CurFuncNumFormals@@3IA
 // unsigned int CurFuncNumFormals
@@ -1055,7 +1086,7 @@ extern const char *SourceBrowserNamFlg;
 extern bool32 Cflag;
 
 // ?I_stdoutfp@@3PAU_iobuf@@A
-// struct _iobuf *I_stdoutfp
+extern FILE *I_stdoutfp;
 
 // ?I_sbrfp@@3PAU_iobuf@@A
 // struct _iobuf *I_sbrfp
@@ -1085,7 +1116,7 @@ extern bool32 BdFlg;
 extern bool32 Cross_compile;
 
 // ?Processor@@3HA
-// int Processor
+extern unsigned int Processor;
 
 // ?XformedFormalList@@3PAVDLSymbolList_t@@A
 // class DLSymbolList_t *XformedFormalList
@@ -1288,8 +1319,6 @@ extern int Cmd_Zm;
 
 extern bool32 gOption_Fj;
 
-extern bool32 Cmd_Times;
-
 extern bool32 gOption_BMOVE;
 
 extern bool32 gOption_Zn;
@@ -1297,5 +1326,9 @@ extern bool32 gOption_Zn;
 extern bool32 gOption_Zf;
 
 extern bool32 gOption_ZI;
+
+extern ILSink ils_UNK004609b0;
+
+extern ILSink ils_UNK00465fb0;
 
 #endif /* GLOBALS_H */

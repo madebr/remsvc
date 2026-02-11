@@ -1,3 +1,7 @@
+#include "types.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00004b88
 // ?sizeof_bt@@3PBDB
 // char const *sizeof_bt
@@ -8,7 +12,11 @@
 
 // FUNCTION: MSVC5_C1 0x000329f0
 // ?InitTypes@@YAXXZ
-// void __cdecl InitTypes(void)
+// GLOBAL: C1 0x0041a66d
+void InitTypes()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00032a80
 // ?check_mods@@YAGGG@Z
@@ -24,7 +32,11 @@
 
 // FUNCTION: MSVC5_C1 0x00032bf0
 // ?hash_type@@YAPAVType_t@@PAV1@@Z
-// class Type_t * __cdecl hash_type(class Type_t *)
+// FUNCTION: C1 0x00401000
+Type_t * hash_type(Type_t *proto)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00032cc0
 // ?hash_indir@@YAPAUs_indir@@PAU1@@Z
@@ -32,7 +44,10 @@
 
 // FUNCTION: MSVC5_C1 0x00032da0
 // ?get_funcret@@YAPAVType_t@@GPAV1@@Z
-// class Type_t * __cdecl get_funcret(unsigned short, class Type_t *)
+// FUNCTION: C1 0x0041c756
+Type_t * get_funcret(unsigned short args, Type_t *ret_type){
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00032e40
 // ?SkipRefIndir@@YAPAUs_indir@@PAU1@@Z
@@ -116,7 +131,11 @@
 
 // FUNCTION: MSVC5_C1 0x000336c0
 // ?PTypeForBT@@YAPAVType_t@@G@Z
-// class Type_t * __cdecl PTypeForBT(unsigned short)
+// FUNCTION: C1 0x0041c558
+Type_t * PTypeForBT(unsigned short bt)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00033760
 // ?GetQualifiedIndir@@YAPAUs_indir@@PAU1@@Z

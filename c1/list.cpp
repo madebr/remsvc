@@ -71,9 +71,3 @@ void __cdecl ListAppend(struct list<void *> *lst, void *item)
 // FUNCTION: MSVC5_C1 0x00024d90
 // ?FListIterInvariants@@YAHPBUlistIter_t@@@Z
 // int __cdecl FListIterInvariants(struct listIter_t const *)
-
-// FUNCTION: C1 0x00411f38
-void __fastcall StdFree(void *pointer)
-{
-    free(pointer);
-}

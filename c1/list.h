@@ -48,6 +48,4 @@ extern void ListAppend(list<void *> *lst, void *item);
 // ?FListIterInvariants@@YAHPBUlistIter_t@@@Z
 // int __cdecl FListIterInvariants(struct listIter_t const *)
 
-extern void __fastcall StdFree(void *pointer);
-
 #endif /* LIST_H */

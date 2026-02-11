@@ -252,7 +252,11 @@ FILE *Newfp = NULL;
 
 // FUNCTION: MSVC5_C1 0x00039c30
 // ?OpenExpFile@@YAXXZ
-// void __cdecl OpenExpFile(void)
+// FUNCTION: C1 0x0041c815
+void OpenExpFile()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00039d80
 // ?SetUpPchFile@@YAXXZ
@@ -326,7 +330,11 @@ void PchInterrupt() {
 
 // FUNCTION: MSVC5_C1 0x0003b0f0
 // ?ValidatePersistentPch@@YAHPAE@Z
-// int __cdecl ValidatePersistentPch(unsigned char *)
+// FUNCTION: C1 0x00426f37
+bool32 ValidatePersistentPch(const char *path)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003b6b0
 // ?CheckPersistentPchDirective@@YAHW4PchDirKind_t@@JPAEH@Z
@@ -335,7 +343,11 @@ void PchInterrupt() {
 
 // FUNCTION: MSVC5_C1 0x0003b770
 // ?PchInitPersistentCreate@@YAXXZ
-// void __cdecl PchInitPersistentCreate(void)
+// FUNCTION: C1 0x00426e1b
+void PchInitPersistentCreate()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003b820
 // ?PchGetInjectedSymID@@YAHPAEPAD1@Z

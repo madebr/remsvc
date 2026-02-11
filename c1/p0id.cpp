@@ -1,6 +1,13 @@
+#include "p0id.h"
+
+#include "decomp.h"
+
 // FUNCTION: MSVC5_C1 0x000041d0
 // ?InitIdTable@@YAXXZ
-// void __cdecl InitIdTable(void)
+void InitIdTable()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00004210
 // ?GetId@@YAHE@Z

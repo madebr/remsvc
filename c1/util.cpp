@@ -23,3 +23,18 @@ void * __fastcall xrealloc(void *ptr, size_t size)
     }
     return result;
 }
+
+// FUNCTION: C1 0x00426935
+int __fastcall xfclose(FILE *f)
+{
+    if (f == NULL) {
+        return -1;
+    }
+    return fclose(f);
+}
+
+// FUNCTION: C1 0x00411f38
+void __fastcall StdFree(void *pointer)
+{
+    free(pointer);
+}

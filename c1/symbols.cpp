@@ -1,3 +1,7 @@
+#include "symbols.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00001404
 // ?LocalStaticAliases@@3PAUs_dict_t@@A
 // struct s_dict_t *LocalStaticAliases
@@ -210,3 +214,8 @@
 // ?IsAnyDllLinkage@s_sclass@@QBEEXZ
 // public: unsigned char __thiscall s_sclass::IsAnyDllLinkage(void) const
 
+// FUNCTION: C1 0xFUN_0041c5d3
+void FUN_0041c5d3()
+{
+    NOT_IMPLEMENTED();
+}
