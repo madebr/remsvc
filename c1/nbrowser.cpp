@@ -24,7 +24,8 @@
 
 // GLOBAL: MSVC5_C1 0x000003c8
 // ?emission@SBR@@1W4SbrEmission@@A
-// protected: static enum SbrEmission SBR::emission
+// GLOBAL: C1 0x0045b564
+SbrEmission SBR::emission = noEmission;
 
 // GLOBAL: MSVC5_C1 0x000003cc
 // ?offPastModule@SBR@@1JA
@@ -160,7 +161,10 @@ SBRDisabled *SBR::pSbrDisabled = NULL;
 // FUNCTION: C1 0x00408335
 SBR * SBR::Disable()
 {
-    NOT_IMPLEMENTED();
+    if (pSbrDisabled == NULL) {
+        pSbrDisabled = new SBRDisabled;
+    }
+    return pSbrDisabled;
 }
 
 // FUNCTION: MSVC5_C1 0x00019270
@@ -168,7 +172,14 @@ SBR * SBR::Disable()
 // FUNCTION: C1 0x004192e3
 SBR * SBR::Open(const char *path)
 {
-    NOT_IMPLEMENTED();
+    if (path != NULL) {
+        emission = sbrNotOpen;
+        pSbrEnabled = new SBREnabled(path);
+        return pSbrEnabled;
+    } else {
+        pSbrDisabled = new SBRDisabled;
+        return pSbrDisabled;
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x000192e0
@@ -177,7 +188,11 @@ SBR * SBR::Open(const char *path)
 
 // FUNCTION: MSVC5_C1 0x00019330
 // ?Finish@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Finish(void)
+// FUNCTION: C1 0x0042715f
+void SBREnabled::Finish()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000193c0
 // ?Interrupt@SBR@@SAXXZ
@@ -185,7 +200,7 @@ SBR * SBR::Open(const char *path)
 void SBR::Interrupt()
 {
     if (pSbrEnabled != NULL) {
-        pSbrEnabled->interrupt();
+        SBREnabled::Interrupt(pSbrEnabled);
         delete pSbrEnabled;
         pSbrEnabled = NULL;
     }
@@ -197,15 +212,27 @@ void SBR::Interrupt()
 
 // FUNCTION: MSVC5_C1 0x00019420
 // ?interrupt@SBREnabled@@EAEXXZ
-// private: virtual void __thiscall SBREnabled::interrupt(void)
+// FUNCTION: C1 0x00442ab0
+void SBREnabled::interrupt()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019480
 // ?OpenFull@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::OpenFull(void)
+// FUNCTION: C1 0x00426fe8
+void SBREnabled::OpenFull()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019540
 // ?OpenIcc@SBREnabled@@UAEHXZ
-// public: virtual int __thiscall SBREnabled::OpenIcc(void)
+// FUNCTION: C1 0x00442b0b
+int SBREnabled::OpenIcc()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019740
 // ?StartRgn@SBR@@QAEXH@Z
@@ -217,31 +244,66 @@ void SBR::Interrupt()
 
 // FUNCTION: MSVC5_C1 0x000197b0
 // ?startRgn@SBREnabled@@EAEXXZ
-// private: virtual void __thiscall SBREnabled::startRgn(void)
+// FUNCTION: C1 0x00423689
+void SBREnabled::startRgn()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019810
 // ?startRgn@SBRDisabled@@EAEXXZ
-// private: virtual void __thiscall SBRDisabled::startRgn(void)
+// FUNCTION: C1 0x0040bf0d
+void SBRDisabled::startRgn()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019820
 // ?EndRgn@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::EndRgn(void)
+// FUNCTION: C1 0x00442d11
+void SBREnabled::EndRgn()
+{
+    NOT_IMPLEMENTED();
+}
+
+// FUNCTION: C1 0x00442d5e
+void SBRDisabled::EndRgn()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000198c0
 // ?Flush@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Flush(void)
+// FUNCTION: C1 0x00423750
+void SBREnabled::Flush()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x000198d0
 // ?Blkend@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Blkend(void)
+// FUNCTION: C1 0x00422658
+void SBREnabled::Blkend()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019900
 // ?Blkbeg@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Blkbeg(void)
+// FUNCTION: C1 0x00422c5f
+void SBREnabled::Blkbeg()
+{
+    NOT_IMPLEMENTED();
+}
+
 
 // FUNCTION: MSVC5_C1 0x00019920
 // ?Abort@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Abort(void)
+// FUNCTION: C1 0x00442da7
+void SBREnabled::Abort()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019940
 // ?terminate@SBREnabled@@AAEXXZ
@@ -249,59 +311,112 @@ void SBR::Interrupt()
 
 // FUNCTION: MSVC5_C1 0x00019970
 // ?Error@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Error(void)
+// FUNCTION: C1 0x00442dc2
+void SBREnabled::Error()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019990
 // ?Modend@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Modend(void)
+// FUNCTION: C1 0x0042281b
+void SBREnabled::Modend()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000199a0
 // ?EndOfFile@SBREnabled@@UAEXH@Z
-// public: virtual void __thiscall SBREnabled::EndOfFile(int)
+// FUNCTION: C1 0x00422860
+void SBREnabled::EndOfFile(int)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000199c0
 // ?Module@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Module(void)
+// FUNCTION: C1 0x00423263
+void SBREnabled::Module()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000199d0
 // ?Symref@SBREnabled@@UAEXPAVSymbol_t@@@Z
-// public: virtual void __thiscall SBREnabled::Symref(class Symbol_t *)
+// FUNCTION: C1 0x00422c71
+void SBREnabled::Symref(Symbol_t *) {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019a00
 // ?Symdef@SBREnabled@@UAEXPAVSymbol_t@@@Z
-// public: virtual void __thiscall SBREnabled::Symdef(class Symbol_t *)
+// FUNCTION: C1 0x00422827
+void SBREnabled::Symdef(Symbol_t *)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019a20
 // ?Symdef@SBRDisabled@@UAEXPAVSymbol_t@@@Z
-// public: virtual void __thiscall SBRDisabled::Symdef(class Symbol_t *)
+// FUNCTION: C1 0x0042708c
+void SBRDisabled::Symdef(Symbol_t *)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019a40
 // ?Macroref@SBREnabled@@UAEXPAUs_defn@@@Z
-// public: virtual void __thiscall SBREnabled::Macroref(struct s_defn *)
+// FUNCTION: C1 0x00422875
+void SBREnabled::Macroref(s_defn *)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019a70
 // ?Macrodef@SBREnabled@@UAEXPAUs_defn@@@Z
-// public: virtual void __thiscall SBREnabled::Macrodef(struct s_defn *)
+// FUNCTION: C1 0x00423377
+void SBREnabled::Macrodef(s_defn *) {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019aa0
 // ?Macrodef@SBRDisabled@@UAEXPAUs_defn@@@Z
-// public: virtual void __thiscall SBRDisabled::Macrodef(struct s_defn *)
+// FUNCTION: C1 0x0040c194
+void SBRDisabled::Macrodef(s_defn *)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019ac0
 // ?Macroend@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::Macroend(void)
+// FUNCTION: C1 0x00442dd8
+void SBREnabled::Macroend()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019ad0
 // ?Owner@SBREnabled@@UAEXPAVSymbol_t@@@Z
-// public: virtual void __thiscall SBREnabled::Owner(class Symbol_t *)
+// FUNCTION: C1 0x00422c94
+void SBREnabled::Owner(Symbol_t *) {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019af0
 // ?PCHName@SBREnabled@@UAEXPAD@Z
-// public: virtual void __thiscall SBREnabled::PCHName(char *)
+// FUNCTION: C1 0x00442de4
+void SBREnabled::PCHName(const char *)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019b30
 // ?PCHMark@SBREnabled@@UAEXXZ
-// public: virtual void __thiscall SBREnabled::PCHMark(void)
+// FUNCTION: C1 0x00425da9
+void SBREnabled::PCHMark()
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019b70
 // ?writeSbrPatchTable@SBREnabled@@AAEXXZ
@@ -309,19 +424,33 @@ void SBR::Interrupt()
 
 // FUNCTION: MSVC5_C1 0x00019cd0
 // ?keyRef@SBREnabled@@UAEKPAVSymbol_t@@@Z
-// public: virtual unsigned long __thiscall SBREnabled::keyRef(class Symbol_t *)
+// FUNCTION: C1 0x00423120
+unsigned long SBREnabled::keyRef(Symbol_t *) {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019d00
 // ?keyAssign@SBREnabled@@UAE?AUSbrKey@@U2@@Z
-// public: virtual struct SbrKey __thiscall SBREnabled::keyAssign(struct SbrKey)
+// FUNCTION: C1 0x00422bed
+SbrKey SBREnabled::keyAssign(SbrKey) {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019d70
 // ?keyRef@SBRDisabled@@UAEKPAVSymbol_t@@@Z
-// public: virtual unsigned long __thiscall SBRDisabled::keyRef(class Symbol_t *)
+// FUNCTION: C1 0x00442f87
+unsigned long SBRDisabled::keyRef(Symbol_t *)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019d80
 // ?keyAssign@SBRDisabled@@UAE?AUSbrKey@@U2@@Z
-// public: virtual struct SbrKey __thiscall SBRDisabled::keyAssign(struct SbrKey)
+// FUNCTION: C1 0x00442f96
+SbrKey SBRDisabled::keyAssign(SbrKey)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00019d90
 // ?fSeekPastModule@SBR@@SAHXZ
@@ -333,73 +462,142 @@ void SBR::Interrupt()
 
 // FUNCTION: MSVC5_C1 0x00019e30
 // ?Finish@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Finish(void)
+// FUNCTION: C1 0x0041f73c
+void SBRDisabled::Finish()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019e40
 // ?Flush@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Flush(void)
+// FUNCTION: C1 0x00443035
+void SBRDisabled::Flush()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019e50
 // ?Blkend@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Blkend(void)
+// FUNCTION: C1 0x004159e1
+void SBRDisabled::Blkend() {
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019e60
 // ?Blkbeg@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Blkbeg(void)
+// FUNCTION: C1 0x004159e0
+void SBRDisabled::Blkbeg()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019e70
 // ?Modend@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Modend(void)
+// FUNCTION: C1 0x00443036
+void SBRDisabled::Modend()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019e80
 // ?EndOfFile@SBRDisabled@@UAEXH@Z
-// public: virtual void __thiscall SBRDisabled::EndOfFile(int)
+// FUNCTION: C1 0x00443037
+void SBRDisabled::EndOfFile(int)
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019e90
 // ?Module@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Module(void)
+// FUNCTION: C1 0x0044303a
+void SBRDisabled::Module()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019ea0
 // ?Symref@SBRDisabled@@UAEXPAVSymbol_t@@@Z
-// public: virtual void __thiscall SBRDisabled::Symref(class Symbol_t *)
+// FUNCTION: C1 0x0044303b
+void SBRDisabled::Symref(Symbol_t *)
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019eb0
 // ?Macroref@SBRDisabled@@UAEXPAUs_defn@@@Z
-// public: virtual void __thiscall SBRDisabled::Macroref(struct s_defn *)
+// FUNCTION: C1 0x0044303e
+void SBRDisabled::Macroref(s_defn *) {
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019ec0
 // ?Macroend@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Macroend(void)
+// FUNCTION: C1 0x00443041
+void SBRDisabled::Macroend()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019ed0
 // ?Owner@SBRDisabled@@UAEXPAVSymbol_t@@@Z
-// public: virtual void __thiscall SBRDisabled::Owner(class Symbol_t *)
+// FUNCTION: C1 0x00443042
+void SBRDisabled::Owner(Symbol_t *)
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019ee0
 // ?Error@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Error(void)
+// FUNCTION: C1 0x00443045
+void SBRDisabled::Error()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019ef0
 // ?Abort@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::Abort(void)
+// FUNCTION: C1 0x00443046
+void SBRDisabled::Abort()
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019f00
 // ?PCHName@SBRDisabled@@UAEXPAD@Z
-// public: virtual void __thiscall SBRDisabled::PCHName(char *)
+// FUNCTION: C1 0x00443047
+void SBRDisabled::PCHName(const char *)
+{
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019f10
 // ?PCHMark@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::PCHMark(void)
+// FUNCTION: C1 0x0044304a
+void SBRDisabled::PCHMark() {
+    // empty
+}
 
 // FUNCTION: MSVC5_C1 0x00019f20
 // ?OpenFull@SBRDisabled@@UAEXXZ
-// public: virtual void __thiscall SBRDisabled::OpenFull(void)
+// FUNCTION: C1 0x// public: virtual
+void SBRDisabled::OpenFull() {
+    SBR::emission = noEmission;
+}
 
 // FUNCTION: MSVC5_C1 0x00019f30
 // ?OpenIcc@SBRDisabled@@UAEHXZ
-// public: virtual int __thiscall SBRDisabled::OpenIcc(void)
+// FUNCTION: C1 0x0041c248
+int SBRDisabled::OpenIcc()
+{
+    SBR::emission = noEmission;
+    return 1;
+}
 
 // FUNCTION: MSVC5_C1 0x00019f40
 // ?interrupt@SBRDisabled@@EAEXXZ
-// private: virtual void __thiscall SBRDisabled::interrupt(void)
+// FUNCTION: C1 0x00443056
+void SBRDisabled::interrupt()
+{
+    // empty
+}
 

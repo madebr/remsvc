@@ -10,6 +10,8 @@ class s_defn;
 class SBREnabled;
 class SBRDisabled;
 
+struct SbrKey{};
+
 // ??_7SBRDisabled@@6B@
 // const SBRDisabled::`vftable'
 
@@ -97,6 +99,13 @@ class SBRDisabled;
 // ?LazyEnqueue@@YAXEPAVSymbol_t@@@Z
 // void __cdecl LazyEnqueue(unsigned char, class Symbol_t *)
 
+enum SbrEmission {
+    noEmission = 0,
+    fullEmission = 1,
+    incEmission = 2,
+    sbrNotOpen = 3
+};
+
 struct SBR {
 public:
     virtual void Finish() = 0;
@@ -129,7 +138,7 @@ public:
 
     virtual void Abort() = 0;
 
-    virtual void PCHName(char *) = 0;
+    virtual void PCHName(const char *) = 0;
 
     virtual void PCHMark() = 0;
 
@@ -141,14 +150,11 @@ public:
 
     virtual unsigned long keyRef(Symbol_t *) = 0;
 
-    virtual struct SbrKey keyAssign(struct SbrKey) = 0;
+    virtual SbrKey keyAssign(SbrKey) = 0;
 
     virtual void interrupt() = 0;
 
     virtual void startRgn() = 0;
-
-
-
 
     // ?Enable@SBR@@SAPAV1@XZ
     // public: static class SBR * __cdecl SBR::Enable(void)
@@ -180,7 +186,7 @@ protected:
     // protected: static unsigned short SBR::lineStart
 
     // ?emission@SBR@@1W4SbrEmission@@A
-    // protected: static enum SbrEmission SBR::emission
+    static SbrEmission emission;
 
     // ?offPastModule@SBR@@1JA
     // protected: static long SBR::offPastModule
@@ -190,86 +196,97 @@ protected:
 // SIZE 0xc
 class SBREnabled : public SBR {
 public:
+    SBREnabled(const char *path)
+    : m_path(strdup(path))
+    , m_field_0x8(0) {
+    }
+
     ~SBREnabled() {
         free(m_path);
     }
-    // ?Finish@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Finish(void)
 
-    // ?interrupt@SBREnabled@@EAEXXZ
-    // private: virtual void __thiscall SBREnabled::interrupt(void)
+    // ?Finish@SBREnabled@@UAEXXZ
+    void Finish() override;
 
     // ?OpenFull@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::OpenFull(void)
+    void OpenFull() override;
 
     // ?OpenIcc@SBREnabled@@UAEHXZ
-    // public: virtual int __thiscall SBREnabled::OpenIcc(void)
-
-    // ?startRgn@SBREnabled@@EAEXXZ
-    // private: virtual void __thiscall SBREnabled::startRgn(void)
+    int OpenIcc() override;
 
     // ?EndRgn@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::EndRgn(void)
+    void EndRgn() override;
 
     // ?Flush@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Flush(void)
+    void Flush() override;
 
     // ?Blkend@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Blkend(void)
+    void Blkend() override;
 
     // ?Blkbeg@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Blkbeg(void)
+    void Blkbeg() override;
 
     // ?Abort@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Abort(void)
+    void Abort() override;
+
+    // ?Error@SBREnabled@@UAEXXZ
+    void Error() override;
+
+    // ?Modend@SBREnabled@@UAEXXZ
+    void Modend() override;
+
+    // ?EndOfFile@SBREnabled@@UAEXH@Z
+    void EndOfFile(int) override;
+
+    // ?Module@SBREnabled@@UAEXXZ
+    void Module() override;
+
+    // ?Symref@SBREnabled@@UAEXPAVSymbol_t@@@Z
+    void Symref(Symbol_t *) override;
+
+    // ?Symdef@SBREnabled@@UAEXPAVSymbol_t@@@Z
+    void Symdef(Symbol_t *) override;
+
+    // ?Macroref@SBREnabled@@UAEXPAUs_defn@@@Z
+    void Macroref(s_defn *) override;
+
+    // ?Macrodef@SBREnabled@@UAEXPAUs_defn@@@Z
+    void Macrodef(s_defn *) override;
+
+    // ?Macroend@SBREnabled@@UAEXXZ
+    void Macroend() override;
+
+    // ?Owner@SBREnabled@@UAEXPAVSymbol_t@@@Z
+    void Owner(Symbol_t *) override;
+
+    // ?PCHName@SBREnabled@@UAEXPAD@Z
+    void PCHName(const char *) override;
+
+    // ?PCHMark@SBREnabled@@UAEXXZ
+    void PCHMark() override;
+
+    // ?keyRef@SBREnabled@@UAEKPAVSymbol_t@@@Z
+    unsigned long keyRef(Symbol_t *) override;
+
+    // ?keyAssign@SBREnabled@@UAE?AUSbrKey@@U2@@Z
+    SbrKey keyAssign(SbrKey) override;
+
+    static void Interrupt(SBREnabled *sbr) {
+        sbr->interrupt();
+    }
+
+private:
+    // ?interrupt@SBREnabled@@EAEXXZ
+    void interrupt() override;
+
+    // ?startRgn@SBREnabled@@EAEXXZ
+    void startRgn() override;
 
     // ?terminate@SBREnabled@@AAEXXZ
     // private: void __thiscall SBREnabled::terminate(void)
 
-    // ?Error@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Error(void)
-
-    // ?Modend@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Modend(void)
-
-    // ?EndOfFile@SBREnabled@@UAEXH@Z
-    // public: virtual void __thiscall SBREnabled::EndOfFile(int)
-
-    // ?Module@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Module(void)
-
-    // ?Symref@SBREnabled@@UAEXPAVSymbol_t@@@Z
-    // public: virtual void __thiscall SBREnabled::Symref(class Symbol_t *)
-
-    // ?Symdef@SBREnabled@@UAEXPAVSymbol_t@@@Z
-    // public: virtual void __thiscall SBREnabled::Symdef(class Symbol_t *)
-
-    // ?Macroref@SBREnabled@@UAEXPAUs_defn@@@Z
-    // public: virtual void __thiscall SBREnabled::Macroref(struct s_defn *)
-
-    // ?Macrodef@SBREnabled@@UAEXPAUs_defn@@@Z
-    // public: virtual void __thiscall SBREnabled::Macrodef(struct s_defn *)
-
-    // ?Macroend@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::Macroend(void)
-
-    // ?Owner@SBREnabled@@UAEXPAVSymbol_t@@@Z
-    // public: virtual void __thiscall SBREnabled::Owner(class Symbol_t *)
-
-    // ?PCHName@SBREnabled@@UAEXPAD@Z
-    // public: virtual void __thiscall SBREnabled::PCHName(char *)
-
-    // ?PCHMark@SBREnabled@@UAEXXZ
-    // public: virtual void __thiscall SBREnabled::PCHMark(void)
-
     // ?writeSbrPatchTable@SBREnabled@@AAEXXZ
     // private: void __thiscall SBREnabled::writeSbrPatchTable(void)
-
-    // ?keyRef@SBREnabled@@UAEKPAVSymbol_t@@@Z
-    // public: virtual unsigned long __thiscall SBREnabled::keyRef(class Symbol_t *)
-
-    // ?keyAssign@SBREnabled@@UAE?AUSbrKey@@U2@@Z
-    // public: virtual struct SbrKey __thiscall SBREnabled::keyAssign(struct SbrKey)
 
 private:
     char *m_path;           // field 0x4
@@ -279,78 +296,85 @@ private:
 // VTABLE: C1 0x00454938
 // SIZE 0x4
 class SBRDisabled : public SBR {
-
-    // ?startRgn@SBRDisabled@@EAEXXZ
-    // private: virtual void __thiscall SBRDisabled::startRgn(void)
+public:
+    SBRDisabled() {
+        // empty
+    }
+    ~SBRDisabled() {
+        // empty
+    }
 
     // ?EndRgn@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::EndRgn(void)
+    void EndRgn() override;
 
     // ?Symdef@SBRDisabled@@UAEXPAVSymbol_t@@@Z
-    // public: virtual void __thiscall SBRDisabled::Symdef(class Symbol_t *)
+    void Symdef(Symbol_t *) override;
 
     // ?Macrodef@SBRDisabled@@UAEXPAUs_defn@@@Z
-    // public: virtual void __thiscall SBRDisabled::Macrodef(struct s_defn *)
+    void Macrodef(s_defn *) override;
 
     // ?keyRef@SBRDisabled@@UAEKPAVSymbol_t@@@Z
-    // public: virtual unsigned long __thiscall SBRDisabled::keyRef(class Symbol_t *)
+    unsigned long keyRef(Symbol_t *) override;
 
     // ?keyAssign@SBRDisabled@@UAE?AUSbrKey@@U2@@Z
-    // public: virtual struct SbrKey __thiscall SBRDisabled::keyAssign(struct SbrKey)
+    SbrKey keyAssign(SbrKey) override;
 
     // ?Finish@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Finish(void)
+    void Finish() override;
 
     // ?Flush@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Flush(void)
+    void Flush() override;
 
     // ?Blkend@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Blkend(void)
+    void Blkend() override;
 
     // ?Blkbeg@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Blkbeg(void)
+    void Blkbeg() override;
 
     // ?Modend@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Modend(void)
+    void Modend() override;
 
     // ?EndOfFile@SBRDisabled@@UAEXH@Z
-    // public: virtual void __thiscall SBRDisabled::EndOfFile(int)
+    void EndOfFile(int) override;
 
     // ?Module@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Module(void)
+    void Module() override;
 
     // ?Symref@SBRDisabled@@UAEXPAVSymbol_t@@@Z
-    // public: virtual void __thiscall SBRDisabled::Symref(class Symbol_t *)
+    void Symref(Symbol_t *) override;
 
     // ?Macroref@SBRDisabled@@UAEXPAUs_defn@@@Z
-    // public: virtual void __thiscall SBRDisabled::Macroref(struct s_defn *)
+    void Macroref(s_defn *) override;
 
     // ?Macroend@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Macroend(void)
+    void Macroend() override;
 
     // ?Owner@SBRDisabled@@UAEXPAVSymbol_t@@@Z
-    // public: virtual void __thiscall SBRDisabled::Owner(class Symbol_t *)
+    void Owner(Symbol_t *) override;
 
     // ?Error@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Error(void)
+    void Error() override;
 
     // ?Abort@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::Abort(void)
+    void Abort() override;
 
     // ?PCHName@SBRDisabled@@UAEXPAD@Z
-    // public: virtual void __thiscall SBRDisabled::PCHName(char *)
+    void PCHName(const char *) override;
 
     // ?PCHMark@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::PCHMark(void)
+    void PCHMark() override;
 
     // ?OpenFull@SBRDisabled@@UAEXXZ
-    // public: virtual void __thiscall SBRDisabled::OpenFull(void)
+    void OpenFull() override;
 
     // ?OpenIcc@SBRDisabled@@UAEHXZ
-    // public: virtual int __thiscall SBRDisabled::OpenIcc(void)
+    int OpenIcc() override;
+private:
+    // ?startRgn@SBRDisabled@@EAEXXZ
+    void startRgn() override;
 
     // ?interrupt@SBRDisabled@@EAEXXZ
-    // private: virtual void __thiscall SBRDisabled::interrupt(void)
+    void interrupt() override;
 };
 
 // ?pSbr@@3PAVSBR@@A
