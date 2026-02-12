@@ -165,7 +165,7 @@ public:
             }
             void *result = fpFreeBlock;
             FreeSize -= size;
-            fpFreeBlock = (void *)((uintptr_t)size + size);
+            fpFreeBlock = (void *)((uintptr_t)fpFreeBlock + size);
             return result;
         }
 
@@ -212,6 +212,9 @@ public:
     }
     static void *Allocate(size_t size) {
         return m_allocator.Allocate(size);
+    }
+    static EntryType *Allocate() {
+        return static_cast<EntryType *>(m_allocator.Allocate(sizeof(EntryType)));
     }
 };
 

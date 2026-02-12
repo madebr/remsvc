@@ -10,6 +10,7 @@
 #include "pdbmgr.h"
 #include "sigmgr.h"
 #include "symtable.h"
+#include "token.h"
 #include "types.h"
 
 #include <stdio.h>
@@ -406,7 +407,7 @@ typedef struct {
     // struct Symbol_t *p_DefaultDataSegment;
     // struct Symbol_t *p_DefaultCodeSegment;
     // struct Symbol_t *p_DefaultFarDataSegment;
-    // struct Token *p_HardTokenArray[427];
+    Token *p_HardTokenArray[MAXTOKEN+1];
     // struct Token *p_defaultToken;
     // struct DepData *p_pMRDependencies;
     // struct Symbol_t *p_psym__LINE__Var;

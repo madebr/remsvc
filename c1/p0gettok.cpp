@@ -1,6 +1,10 @@
 #include "p0gettok.h"
 
 #include "decomp.h"
+#include "globals.h"
+#include "nheapall.h"
+#include "tokens.h"
+#include "Token_IO.h"
 
 // GLOBAL: MSVC5_C1 0x00000000
 // ??_C@_05KPNI@_CODE?$AA@
@@ -31,7 +35,17 @@
 // FUNCTION: C1 0x0041b776
 void InitHardTokens()
 {
-    NOT_IMPLEMENTED();
+    size_t i;
+
+    for (i = 1; i < arraysize(Tokstrings_isHardToken); i++) {
+        if (Tokstrings_isHardToken[i]) {
+            Token *token = SAClass<Token>::Allocate();
+            token->lexeme = (e_token_t)i;
+            token->field_0x8 = i;
+            PchS.rs.p_HardTokenArray[i] = token;
+        }
+
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x00000e00

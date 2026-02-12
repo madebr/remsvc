@@ -5,9 +5,11 @@
 #include "nbrowser.h"
 #include "p0gettok.h"
 #include "p0io.h"
+#include "token.h"
 
 #include <stddef.h>
 
+// SIZE: C1 0xc
 struct BrowserStatus {
     BrowserStatus(const char *name, SBR *sbr) {
         m_OverallBrowserStatus = name != NULL;
@@ -20,11 +22,13 @@ struct BrowserStatus {
     SBR *m_pSbrSave;
 };
 
+// SIZE: C1 0x8
 struct LifetimeStack {
     lifetime_e m_currentLife;
     LifetimeStack *m_Next;
 };
 
+// SIZE: C1 0x20
 struct Token {
     // ?FindPointers@Token@@QAEXXZ
     // public: void __thiscall Token::FindPointers(void)
@@ -36,6 +40,9 @@ struct Token {
     static LifetimeStack tokenLife;
 
     static void ResetTokenLife();
+
+    e_token_t lexeme;
+    undefined field_0x8;
 };
 
 enum PushMode {

@@ -1,5 +1,10 @@
 #ifndef TOKENS_H
 #define TOKENS_H
+
+#include "token.h"
+
+#include <stdint.h>
+
 // ?Tokstrings_text@@3PBQBDB
 // char const *const *Tokstrings_text
 
@@ -7,7 +12,7 @@
 // unsigned char const *Tokstrings_token
 
 // ?Tokstrings_isHardToken@@3PBEB
-// unsigned char const *Tokstrings_isHardToken
+extern const uint8_t Tokstrings_isHardToken[MAXTOKEN+1];
 
 // ?Tokstrings_optype@@3PBIB
 // unsigned int const *Tokstrings_optype

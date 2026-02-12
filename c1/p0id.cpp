@@ -4,6 +4,7 @@
 
 // FUNCTION: MSVC5_C1 0x000041d0
 // ?InitIdTable@@YAXXZ
+// FUNCTION: C1 0x00419771
 void InitIdTable()
 {
     NOT_IMPLEMENTED();
