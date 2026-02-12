@@ -1,6 +1,130 @@
 #include "p0keys.h"
 
 #include "decomp.h"
+#include "error.h"
+#include "globals.h"
+#include "p0id.h"
+
+struct kw_t {
+    const char *szKeyword;
+    e_token_t token;
+};
+
+// GLOBAL: C1 0x00452860
+const kw_t keytab[] = {
+    { "auto",           L_AUTO                 },
+    { "break",          L_BREAK                 },
+    { "case",           L_CASE                 },
+    { "char",           L_CHAR                 },
+    { "const",          L_CONST                 },
+    { "continue",       L_CONTINUE                     },
+    { "default",        L_DEFAULT                     },
+    { "do",             L_DO             },
+    { "double",         L_DOUBLE                 },
+    { "else",           L_ELSE                 },
+    { "enum",           L_ENUM                 },
+    { "extern",         L_EXTERN                 },
+    { "float",          L_FLOAT                 },
+    { "for",            L_FOR                 },
+    { "goto",           L_GOTO                 },
+    { "if",             L_IF             },
+    { "int",            L_INT                 },
+    { "long",           L_LONG                 },
+    { "register",       L_REGISTER                     },
+    { "return",         L_RETURN                 },
+    { "short",          L_SHORT                 },
+    { "signed",         L_SIGNED                 },
+    { "sizeof",         L_SIZEOF                 },
+    { "static",         L_STATIC                 },
+    { "struct",         L_STRUCT                 },
+    { "switch",         L_SWITCH                 },
+    { "typedef",        L_TYPEDEF                     },
+    { "union",          L_UNION                 },
+    { "unsigned",       L_UNSIGNED                     },
+    { "void",           L_VOID                 },
+    { "volatile",       L_VOLATILE                     },
+    { "while",          L_WHILE                 },
+    { "__inline",       L_INLINE                     },
+    { "__cdecl",        L_C                     },
+    { "__based",        L_BASED                     },
+    { "__stdcall",      L_STDCALL                     },
+    { "__declspec",     L_DECLSPEC                     },
+    { "asm",            L_ASM_0xb6                 },
+    { "catch",          L_CATCH                 },
+    { "class",          L_CLASS                 },
+    { "const_cast",     L_CONSTCAST                     },
+    { "delete",         L_DELETE                 },
+    { "dynamic_cast",   L_DYNCAST                         },
+    { "friend",         L_FRIEND                 },
+    { "inline",         L_INLINE                 },
+    { "new",            L_NEW                 },
+    { "operator",       L_OPERATOR                     },
+    { "private",        L_PRIVATE                     },
+    { "protected",      L_PROTECTED                     },
+    { "public",         L_PUBLIC                 },
+    { "reinterpret_castL_REINCAST",                            },
+    { "static_cast",    L_STATCAST                         },
+    { "template",       L_TEMPLATE                     },
+    { "this",           L_THIS                 },
+    { "throw",          L_THROW                 },
+    { "try",            L_TRY_CXX                 },
+    { "typeid",         L_POSTFIX_TYPEID                 },
+    { "virtual",        L_VIRTUAL                     },
+    { "namespace",      L_NAMESPACE                     },
+    { "using",          L_USING                 },
+    { "__single_inheritL_SIance",                            },
+    { "__multiple_inherL_MIitance",                          },
+    { "__virtual_inheriL_VItance",                           },
+    { "__novtordisp",   L_NOVTORDISP                         },
+    { "__resume",       L_DISABLED                     },
+    { "__nounwind",     L_DISABLED                     },
+    { "__syscall",      L_DISABLED                     },
+    { "__near",         L_DISABLED                 },
+    { "__far",          L_DISABLED                 },
+    { "__far16",        L_DISABLED                     },
+    { "__huge",         L_DISABLED                 },
+    { "__fortran",      L_DISABLED                     },
+    { "__export",       L_DISABLED                     },
+    { "__interrupt",    L_DISABLED                         },
+    { "__loadds",       L_DISABLED                     },
+    { "__saveregs",     L_DISABLED                     },
+    { "__segment",      L_DISABLED                     },
+    { "__segname",      L_DISABLED                     },
+    { "__self",         L_DISABLED                 },
+    { "__thiscall",     L_THISCALL                     },
+    { "cdecl",          L_C                 },
+    { "far",            L_DISABLED                 },
+    { "fortran",        L_DISABLED                     },
+    { "huge",           L_DISABLED                 },
+    { "near",           L_DISABLED                 },
+    { "pascal",         L_PASCAL                 },
+    { "__pascal",       L_PASCAL2                     },
+    { "__try",          L_TRY                 },
+    { "__except",       L_EXCEPT                     },
+    { "__finally",      L_FINALLY                     },
+    { "__leave",        L_LEAVE                     },
+    { "__asm",          L_ASM                 },
+    { "__fastcall",     L_FASTCALL                     },
+    { "__unaligned",    L_UNALIGNED                         },
+    { "__builtin_alignoL_BUILTINALIGNOFf",                           },
+    { "__sysapi",       L_SYSAPI                     },
+    { "__builtin_isfloaL_BUILTIN_ISFLOATt",                           },
+    { "__wchar_t",      L_WCHAR_T                     },
+    { "__restrict",     L_RESTRICT                     },
+    { "__int8",         L_INT8                 },
+    { "__int16",        L_INT16                     },
+    { "__int32",        L_INT32                     },
+    { "__int64",        L_INT64                     },
+    { "__int128",       L_INT128                     },
+    { "wchar_t",        L_WCHAR_T                     },
+    { "bool",           L_DISABLED                 },
+    { "true",           L_DISABLED                 },
+    { "false",          L_DISABLED                 },
+    { "mutable",        L_DISABLED                     },
+    { "explicit",       L_DISABLED                     },
+    { "typename",       L_DISABLED                     },
+    { NULL,            L_YACC_RESERVED              }
+};
 
 // GLOBAL: MSVC5_C1 0x000005c0
 // ?Declspec_Keys@@3PBUs_declspec_keys@@B
@@ -802,9 +926,20 @@
 // ?mkKeywordNewCpp@@YAXPAD@Z
 // void __cdecl mkKeywordNewCpp(char *)
 
+Id_t *pKeyId;
+
 // FUNCTION: MSVC5_C1 0x00005ea0
 // ?AddKeywordsToIdTable@@YAXXZ
-// void __cdecl AddKeywordsToIdTable(void)
+void AddKeywordsToIdTable(void)
+{
+    size_t i;
+    for (i = 0; keytab[i].szKeyword != NULL; i++) {
+        GetIdForKeyword(keytab[i].szKeyword);
+        pCurId->attr.isKeyword = TRUE;
+        pCurId->token = keytab[i].token;
+    }
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00006520
 // ?is_pkeyword@@YAEPAD@Z
@@ -819,6 +954,17 @@
 // FUNCTION: C1 0x0041bb78
 void InitKeywords()
 {
-    NOT_IMPLEMENTED();
+    PchC.p_Extension = PchC.p_Extension || PchC.p_BigIntExtension;
+    PchC.p_SizeOfBigInt = PchC.p_SizeOfBigInt / 8;
+    if (PchC.p_SizeOfBigInt == 0) {
+        PchC.p_SizeOfBigInt = 4;
+    } else if (PchC.p_SizeOfBigInt < 4 || PchC.p_SizeOfBigInt > 8) {
+        warning(1, 696, PchC.p_SizeOfBigInt * 8, 32);
+        PchC.p_SizeOfBigInt = 4;
+    } else if (PchC.p_SizeOfBigInt != 4 && PchC.p_SizeOfBigInt != 8) {
+        warning(1, 696, PchC.p_SizeOfBigInt * 8, 32);
+        PchC.p_SizeOfBigInt = 4;
+    }
+    AddKeywordsToIdTable();
 }
 

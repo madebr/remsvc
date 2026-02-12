@@ -235,7 +235,7 @@ extern void fatal_varargs(FatalNumber code, ...);
 // int __cdecl ActualWarnLevel(int, int)
 
 // ?warning@@YAXHHZZ
-// void __cdecl warning(int, int, ...)
+extern void warning(int, int, ...);
 
 // ?message_continuation@@YAXHZZ
 // void __cdecl message_continuation(int, ...)

@@ -224,7 +224,7 @@ struct TypeEntry_t{};
 struct IndirEntry_t{};
 struct FlistEntry_t{};
 struct Assoc_t{};
-struct Id_t{};
+struct Id_t;
 struct s_defn{};
 struct Token;
 

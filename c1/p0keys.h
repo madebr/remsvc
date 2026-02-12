@@ -601,7 +601,7 @@
 // void __cdecl mkKeywordNewCpp(char *)
 
 // ?AddKeywordsToIdTable@@YAXXZ
-// void __cdecl AddKeywordsToIdTable(void)
+extern void AddKeywordsToIdTable();
 
 // ?is_pkeyword@@YAEPAD@Z
 // unsigned char __cdecl is_pkeyword(char *)

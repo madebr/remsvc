@@ -166,7 +166,11 @@ void fatal_varargs(FatalNumber code, ...)
 
 // FUNCTION: MSVC5_C1 0x0003c100
 // ?warning@@YAXHHZZ
-// void __cdecl warning(int, int, ...)
+// FUNCTION: C1 0x00413697
+void warning(int, int, ...)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003c270
 // ?message_continuation@@YAXHZZ

@@ -320,7 +320,7 @@ typedef struct {
     // struct s_defn **p_Defn_level_0;
     // struct Type_t *p_Enum_head;
     // struct FlistEntry_t **p_Flist_table;
-    // struct Id_t **p_IdTable;
+    Id_t **p_IdTable;
     // struct IndirEntry_t **p_Indir_table;
     // struct s_StackOfPragmaItem_t *p_pPackStack;
     // struct s_StackOfPragmaItem_t *p_pConformStack;
