@@ -1081,7 +1081,7 @@ extern char *PchOldUFile;
 // struct s_stack *Test
 
 // ?CurFuncNumExNodes@@3KA
-// unsigned long CurFuncNumExNodes
+extern unsigned int CurFuncNumExNodes;
 
 // ?Cflag@@3HA
 extern bool32 Cflag;

@@ -82,7 +82,7 @@ struct Buffer {
         pbStart = NULL;
         pbEnd = NULL;
         cb = 0;
-        m_field_0xc = 0;
+        m_cbAlloc = NULL;
     }
 
     ~Buffer() {
@@ -120,7 +120,7 @@ struct Buffer {
     char *pbStart;
     char *pbEnd;
     size_t cb;
-    undefined4 m_field_0xc;
+    void (* m_cbAlloc)(char *buffer);
 
 private:
     // ?grow@Buffer@@AAEHJ@Z

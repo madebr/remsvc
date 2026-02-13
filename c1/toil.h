@@ -2,7 +2,8 @@
 #define TOIL_H
 
 enum OPTYPE {
-    OPfseek = 91
+    OPfseek = 91,
+    OPmaxopcode = 159
 };
 
 struct s_tree;
@@ -50,7 +51,7 @@ struct s_tree;
 // void __cdecl expil_SizedConst(__int64, int)
 
 // ?op_toil@@YAXW4OPTYPE@@PAUs_tree@@@Z
-extern void op_toil(OPTYPE type, s_tree *tree);
+extern void op_toil(OPTYPE op, s_tree *tree);
 
 // ?cbranch@@YAXPAUs_tree@@0H@Z
 // void __cdecl cbranch(struct s_tree *, struct s_tree *, int)
@@ -77,7 +78,7 @@ extern void op_toil(OPTYPE type, s_tree *tree);
 // int __cdecl fPromoteStatics(class Symbol_t *)
 
 // ?OutputExpOp@@YAXW4OPTYPE@@@Z
-// void __cdecl OutputExpOp(enum OPTYPE)
+extern void OutputExpOp(OPTYPE op);
 
 // ?NewLocalIlKey@@YAKXZ
 // unsigned long __cdecl NewLocalIlKey(void)

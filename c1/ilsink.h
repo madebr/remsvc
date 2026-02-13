@@ -95,11 +95,23 @@ struct ILSink {
         m_field_0x24 = v;
     }
 
-    void WriteByte(int byte) {
+    void chwrite(unsigned char u8) {
         fWriteOK &= buffer.ensureAvailable(2);
         if (fWriteOK) {
-            *buffer.pbStart = '\0';
-            buffer.pbStart += 1;
+            *buffer.pbEnd++ = u8;
+        }
+    }
+
+    void shwrite(unsigned short u16) {
+        fWriteOK &= buffer.ensureAvailable(4);
+        if (fWriteOK) {
+            if (u16 & 0xff80) {
+                *buffer.pbEnd++ = 0x80;
+                memcpy(buffer.pbEnd, &u16, 2);
+                buffer.pbEnd += 2;
+            } else {
+                *buffer.pbEnd++ = (unsigned char)u16;
+            }
         }
     }
 private:

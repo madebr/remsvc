@@ -203,7 +203,29 @@
 // ?grow@Buffer@@AAEHJ@Z
 bool32 Buffer::grow(size_t amount)
 {
-    NOT_IMPLEMENTED();
+    size_t grow = cb / 2;
+    if (amount + 0x1000 >= cb / 2) {
+        grow = amount + 0x1000;
+    }
+    size_t new_cb = (cb + grow + 0x1000 - 1) & ~(0x1000 - 1);
+    char *new_buffer = new char[new_cb];
+    if (new_buffer == NULL) {
+        return FALSE;
+    }
+    cb = new_cb;
+    size_t size = pbEnd - pbStart;
+    memcpy(new_buffer, pbStart, size);
+    memset(new_buffer + size, 0, new_cb - size);
+    delete[] pbStart;
+    if (new_buffer != NULL) {
+        char *prev_buffer = pbStart;
+        pbEnd = new_buffer + size;
+        pbStart = new_buffer;
+        if (new_buffer != prev_buffer && m_cbAlloc != NULL) {
+            m_cbAlloc(new_buffer);
+        }
+    }
+    return TRUE;
 }
 
 // FUNCTION: MSVC5_C1 0x000141b0

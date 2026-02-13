@@ -1,6 +1,14 @@
 #include "toil.h"
 
 #include "decomp.h"
+#include "error.h"
+#include "globals.h"
+
+// GLOBAL: C1 0x0045c688
+undefined4 UNK_0045c688;
+
+// GLOBAL: C1 0x00468c0c
+undefined4 UNK_00468c0c;
 
 // GLOBAL: MSVC5_C1 0x00003a68
 // ??_C@_08DLNM@?4?2toil?4c?$AA@
@@ -60,8 +68,14 @@
 
 // FUNCTION: MSVC5_C1 0x0002b290
 // ?op_toil@@YAXW4OPTYPE@@PAUs_tree@@@Z
-void op_toil(OPTYPE type, s_tree *tree)
+// FUNCTION: C1 0x0041402e
+void op_toil(OPTYPE op, s_tree *tree)
 {
+    if (op == OPmaxopcode) {
+        fatal_varargs(C1001, "toil.c", 4094);
+    }
+    OutputExpOp(op);
+    CurFuncNumExNodes += 1;
     NOT_IMPLEMENTED();
 }
 
@@ -97,9 +111,23 @@ void op_toil(OPTYPE type, s_tree *tree)
 // ?fPromoteStatics@@YAHPAVSymbol_t@@@Z
 // int __cdecl fPromoteStatics(class Symbol_t *)
 
+// FUNCTION: C1 0x004010eb
+void FUN_004010eb() {
+    if (UNK_00468c0c != 0 && UNK_00468c0c != UNK_0045c688) {
+        UNK_0045c688 = UNK_00468c0c;
+        ilsExp.chwrite(79);
+        ilsExp.chwrite(36);
+        ilsExp.shwrite(UNK_00468c0c);
+    }
+}
+
 // FUNCTION: MSVC5_C1 0x0002c110
 // ?OutputExpOp@@YAXW4OPTYPE@@@Z
-// void __cdecl OutputExpOp(enum OPTYPE)
+void OutputExpOp(OPTYPE op)
+{
+    FUN_004010eb();
+    ilsExp.chwrite(static_cast<unsigned char>(op));
+}
 
 // FUNCTION: MSVC5_C1 0x0002c180
 // ?NewLocalIlKey@@YAKXZ

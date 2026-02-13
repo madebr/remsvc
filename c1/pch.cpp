@@ -275,7 +275,7 @@ void OpenExpFile()
     if (IOGlobalVal != 0) {
         fatal_io_CRT_position(C1086,339,(char *)NULL,"pch.c",1818);
     }
-    ilsExp.WriteByte(0);
+    ilsExp.chwrite(0);
     ilsExp.flushFile();
 }
 

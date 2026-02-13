@@ -740,7 +740,8 @@ char *PchOldUFile = NULL;
 
 // GLOBAL: MSVC5_C1 0x00005074
 // ?CurFuncNumExNodes@@3KA
-// unsigned long CurFuncNumExNodes
+// GLOBAL: C1 0x00466448
+unsigned int CurFuncNumExNodes = 0;
 
 // GLOBAL: MSVC5_C1 0x00005078
 // ?Cflag@@3HA
