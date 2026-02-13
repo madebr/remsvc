@@ -1,7 +1,15 @@
 #ifndef IL_H
 #define IL_H
+
+#include "decomp.h"
+
+struct DOPEVECT {
+    const char *field_0x0;
+    undefined4 field_0x4;
+};
+
 // ?expdope@@3PBUDOPEVECT@@B
-// struct DOPEVECT const *expdope
+extern const DOPEVECT expdope[];
 
 // ?symdope@@3PBUIL_INFO@@B
 // struct IL_INFO const *symdope
