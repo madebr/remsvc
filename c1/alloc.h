@@ -5,7 +5,7 @@
 #include "decomp.h"
 
 // ?currentTreeLife@@3W4lifetime_e@@A
-// enum lifetime_e currentTreeLife
+extern lifetime_e currentTreeLife;
 
 // ?currentTypeLife@@3W4lifetime_e@@A
 // enum lifetime_e currentTypeLife

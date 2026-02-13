@@ -1,5 +1,10 @@
 #include "const.h"
 
+#include "alloc.h"
+#include "globals.h"
+#include "nheapall.h"
+#include "token.h"
+
 // FUNCTION: MSVC5_C1 0x00019f50
 // ?str_type@@YAXPAUs_tree@@@Z
 // void __cdecl str_type(struct s_tree *)
@@ -25,7 +30,11 @@
 // FUNCTION: C1 0x0040925a
 s_tree * BuildCintNoTTZero(long value)
 {
-    NOT_IMPLEMENTED();
+    s_tree *tree = HeapManager::Allocate<s_tree>(currentTreeLife);
+    tree->tr_shape = 3;
+    tree->tr_token = L_INT_CONSTANT;
+    tree->tr_p1type = PchS.rs.p_ST_BTint;
+    return tree;
 }
 
 // FUNCTION: MSVC5_C1 0x0001a220

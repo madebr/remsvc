@@ -6,7 +6,8 @@
 
 // GLOBAL: MSVC5_C1 0x000015ec
 // ?currentTreeLife@@3W4lifetime_e@@A
-// enum lifetime_e currentTreeLife
+// GLOBAL: C1 0x10a820b4
+lifetime_e currentTreeLife = M_LIFETIME3;
 
 // GLOBAL: MSVC5_C1 0x000015f0
 // ?currentTypeLife@@3W4lifetime_e@@A

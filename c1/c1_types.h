@@ -3,6 +3,16 @@
 
 #include "decomp.h"
 
+struct Symbol_t;
+
+struct Type_t {
+    undefined2 field_0x0;
+    undefined4 field_0x2;
+    undefined4 field_0x4;
+    undefined4 field_0x8;
+    undefined4 field_0xc;
+};
+
 typedef enum {
     CES_Undef           = 0,
     CES_Init            = 1,
@@ -31,10 +41,40 @@ struct s_cmd_line_warning_t {
     int severity;
 };
 
+union u_value_u {
+    // undefined *v_rcon;
+    // long64 v_long
+    int64_t v_i64;
+    // s_string s_string
+    // Symbol_t *v_symbol
+    // TokenStream *v_tokenbuffer
+};
+
 struct s_tree {
-    undefined field_0x0[0x1 - 0x0];
+    uint8_t tr_token;
     undefined tr_shape;
-    undefined field_0x2[0x18 - 0x2];
+    undefined field_0x2[0x4 - 0x2];
+    Type_t *tr_p1type;
+    undefined field_0x8[0x10 - 0x8];
+    union {
+        struct {
+            struct {
+                s_tree *tr_left;
+                s_tree *tr_right;
+            } binary;
+            struct {
+                s_tree *tr_uchild;
+            } unary;
+            struct {
+                Symbol_t *tr_symbol;
+                union {
+                    unsigned long tr_offset;
+                    unsigned long tr_key;
+                };
+            } symbol;
+            u_value_u value;
+        } value;
+    };
 };
 
 struct Buffer {

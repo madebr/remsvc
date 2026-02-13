@@ -1,15 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "decomp.h"
-
-struct Type_t {
-    undefined2 field_0x0;
-    undefined4 field_0x2;
-    undefined4 field_0x4;
-    undefined4 field_0x8;
-    undefined4 field_0xc;
-};
+#include "c1_types.h"
 
 // ?sizeof_bt@@3PBDB
 // char const *sizeof_bt
