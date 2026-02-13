@@ -1,5 +1,8 @@
 #ifndef P0GETTOK_H
 #define P0GETTOK_H
+
+#include "c1_types.h"
+
 // ??_C@_05KPNI@_CODE?$AA@
 // "_CODE"
 
@@ -123,7 +126,7 @@ public:
     // public: virtual void __thiscall TokenStream::pushToken(class Token const *)
 
     // ??0TokenStream@@QAE@W4lifetime_e@@H@Z
-    // public: __thiscall TokenStream::TokenStream(enum lifetime_e, int)
+    TokenStream(lifetime_e lifetime, int);
 
     // ?saveToken@TokenStream@@UAEXPBVToken@@@Z
     // public: virtual void __thiscall TokenStream::saveToken(class Token const *)

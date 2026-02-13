@@ -226,7 +226,7 @@ void InitializeStandardIdentifiers()
 
 // FUNCTION: MSVC5_C1 0x000058f0
 // ?p0_init@@YAXPAUlist@@@Z
-// FUNCTION: C1 0x????
+// FUNCTION: C1 0x0041a4a6
 void __cdecl p0_init(list<void *> *lst)
 {
     NOT_IMPLEMENTED();

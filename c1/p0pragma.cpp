@@ -313,7 +313,11 @@ void SkipToPchUse(const char *data, bool32 b)
 
 // FUNCTION: MSVC5_C1 0x0000cda0
 // ?PchCreateFname@@YAXPAE@Z
-// void __cdecl PchCreateFname(unsigned char *)
+// FUNCTION: C1 0x????????
+void __cdecl PchCreateFname(const char *filepath)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0000ce70
 // ?PchScanFname@@YAXPAPAE@Z

@@ -1,5 +1,12 @@
 #ifndef TOIL_H
 #define TOIL_H
+
+enum OPTYPE {
+    OPfseek = 91
+};
+
+struct s_tree;
+
 // ??_C@_08DLNM@?4?2toil?4c?$AA@
 // ".\\toil.c"
 
@@ -43,7 +50,7 @@
 // void __cdecl expil_SizedConst(__int64, int)
 
 // ?op_toil@@YAXW4OPTYPE@@PAUs_tree@@@Z
-// void __cdecl op_toil(enum OPTYPE, struct s_tree *)
+extern void op_toil(OPTYPE type, s_tree *tree);
 
 // ?cbranch@@YAXPAUs_tree@@0H@Z
 // void __cdecl cbranch(struct s_tree *, struct s_tree *, int)

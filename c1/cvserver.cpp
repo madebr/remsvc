@@ -1,3 +1,9 @@
+#include "cvserver.h"
+
+#include "decomp.h"
+
+#include "c1_types.h"
+
 // GLOBAL: MSVC5_C1 0x00001194
 // ??_C@_0N@GHNK@?4?2cvserver?4c?$AA@
 // ".\\cvserver.c"
@@ -195,7 +201,10 @@
 
 // FUNCTION: MSVC5_C1 0x00014100
 // ?grow@Buffer@@AAEHJ@Z
-// private: int __thiscall Buffer::grow(long)
+bool32 Buffer::grow(size_t amount)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x000141b0
 // ?chwrite@ILSink@@QAEXE@Z

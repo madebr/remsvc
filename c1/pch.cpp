@@ -1,9 +1,12 @@
 #include "pch.h"
 
+#include "const.h"
 #include "decomp.h"
 #include "error.h"
 #include "globals.h"
 #include "ilsink.h"
+#include "toil.h"
+#include "p0pragma.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -255,7 +258,25 @@ FILE *Newfp = NULL;
 // FUNCTION: C1 0x0041c815
 void OpenExpFile()
 {
-    NOT_IMPLEMENTED();
+    if (PchCFlag && (PchCFile != NULL || PchPFile != NULL) && !PchUFlag) {
+        PchCreateFname(PchCFile);
+        ilsExp.fopen(PchPFile, "", "w");
+        PchFileNameFromCmdLine = TRUE;
+    } else {
+        ilsExp.fopen(Basename, "ex", "w+");
+    }
+    if (PchUFlag) {
+        return;
+    }
+    op_toil(OPfseek, BuildCint(1136));
+    ilsExp.flushFile();
+    fflush(ilsExp.fp);
+    IOGlobalVal = fseek(ilsExp.fp, 1135, SEEK_SET);
+    if (IOGlobalVal != 0) {
+        fatal_io_CRT_position(C1086,339,(char *)NULL,"pch.c",1818);
+    }
+    ilsExp.WriteByte(0);
+    ilsExp.flushFile();
 }
 
 // FUNCTION: MSVC5_C1 0x00039d80

@@ -1,5 +1,8 @@
 #ifndef CONST_H
 #define CONST_H
+
+#include "c1_types.h"
+
 // ?str_type@@YAXPAUs_tree@@@Z
 // void __cdecl str_type(struct s_tree *)
 
@@ -16,10 +19,10 @@
 // struct s_tree * __cdecl BuildBigInt(__int64, int)
 
 // ?BuildCintNoTTZero@@YAPAUs_tree@@J@Z
-// struct s_tree * __cdecl BuildCintNoTTZero(long)
+extern s_tree * BuildCintNoTTZero(long value);
 
 // ?BuildCint@@YAPAUs_tree@@J@Z
-// struct s_tree * __cdecl BuildCint(long)
+extern s_tree * BuildCint(long value);
 
 // ?BuildCuint@@YAPAUs_tree@@J@Z
 // struct s_tree * __cdecl BuildCuint(long)

@@ -355,7 +355,7 @@ void init_main2()
         FUN_0041c5d3();
     }
     p0_init(listDefs);
-    tokenInputStack.pushStream(new FileTokenStream, M_PUSHMODE_0x0, NULL, tokenInputStack.GetPosition());
+    tokenInputStack.pushStream(new FileTokenStream(M_LIFETIME1, 0), M_PUSHMODE_0x0, NULL, tokenInputStack.GetPosition());
 
     if (pTheBrowserStatus == NULL) {
         pTheBrowserStatus = new BrowserStatus(SourceBrowserNam, pSbr);

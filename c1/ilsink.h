@@ -1,6 +1,7 @@
 #ifndef ILSINK_H
 #define ILSINK_H
 
+#include "c1_types.h"
 #include "decomp.h"
 #include "util.h"
 
@@ -18,26 +19,18 @@
 
 struct ILSink {
     ILSink() {
-        m_field_0x0 = 0;
-        m_field_0x4 = 0;
-        m_field_0x8 = 0;
-        m_field_0xc = 0;
         m_field_0x10 = 0;
-        m_file = NULL;
-        m_field_0x18 = TRUE;
+        fp = NULL;
+        fWriteOK = TRUE;
         m_field_0x1c = -1;
     }
 
     ~ILSink() {
-        if (m_file != NULL) {
-            ::fclose(m_file);
+        if (fp != NULL) {
+            ::fclose(fp);
         }
         if (m_field_0x28 != NULL) {
             StdFree(m_field_0x28);
-        }
-        if (m_field_0x0 != NULL) {
-            delete m_field_0x0;
-            m_field_0x0 = 0;
         }
     }
 
@@ -51,7 +44,7 @@ struct ILSink {
     int fclose();
 
     // ?flushFile@ILSink@@QAEXXZ
-    // public: void __thiscall ILSink::flushFile(void)
+    void flushFile();
 
     // ?closeFile@ILSink@@QAEXXZ
     // public: void __thiscall ILSink::closeFile(void)
@@ -101,6 +94,14 @@ struct ILSink {
     void SetField0x24(undefined v) {
         m_field_0x24 = v;
     }
+
+    void WriteByte(int byte) {
+        fWriteOK &= buffer.ensureAvailable(2);
+        if (fWriteOK) {
+            *buffer.pbStart = '\0';
+            buffer.pbStart += 1;
+        }
+    }
 private:
     // ?ppdb@ILSink@@0PAUPDB@@A
     // private: static struct PDB *ILSink::ppdb
@@ -114,13 +115,11 @@ private:
     // ?niIlMod@ILSink@@0KA
     // private: static unsigned long ILSink::niIlMod
 
-    char *m_field_0x0;
-    char *m_field_0x4;
-    undefined4 m_field_0x8;
-    undefined4 m_field_0xc;
+public:
+    Buffer buffer;
     undefined4 m_field_0x10;
-    FILE *m_file;
-    bool32 m_field_0x18;
+    FILE *fp;
+    bool32 fWriteOK;
     int m_field_0x1c;
     undefined m_field_0x20[0x24 - 0x20];
     undefined m_field_0x24;

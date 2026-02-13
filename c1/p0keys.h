@@ -580,22 +580,22 @@
 // "__"
 
 // ?mkKeywordIdent@@YAXPAD@Z
-// void __cdecl mkKeywordIdent(char *)
+extern void mkKeywordIdent(const char *name);
 
 // ?mkKeywordObsolete@@YAXPAD@Z
-// void __cdecl mkKeywordObsolete(char *)
+extern void mkKeywordObsolete(const char *name);
 
 // ?mkKeywordCppOnly@@YAXPAD@Z
-// void __cdecl mkKeywordCppOnly(char *)
+extern void mkKeywordCppOnly(const char *name);
 
 // ?mkKeywordFutureUse@@YAXPAD@Z
-// void __cdecl mkKeywordFutureUse(char *)
+extern void mkKeywordFutureUse(const char *name);
 
 // ?mkKeywordNotThisProduct@@YAXPAD@Z
-// void __cdecl mkKeywordNotThisProduct(char *)
+extern void mkKeywordNotThisProduct(const char *name);
 
 // ?mkKeywordExportSpecial@@YAXPAD@Z
-// void __cdecl mkKeywordExportSpecial(char *)
+extern void mkKeywordExportSpecial(const char *name);
 
 // ?mkKeywordNewCpp@@YAXPAD@Z
 // void __cdecl mkKeywordNewCpp(char *)

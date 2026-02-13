@@ -1,3 +1,5 @@
+#include "const.h"
+
 // FUNCTION: MSVC5_C1 0x00019f50
 // ?str_type@@YAXPAUs_tree@@@Z
 // void __cdecl str_type(struct s_tree *)
@@ -20,11 +22,23 @@
 
 // FUNCTION: MSVC5_C1 0x0001a1d0
 // ?BuildCintNoTTZero@@YAPAUs_tree@@J@Z
-// struct s_tree * __cdecl BuildCintNoTTZero(long)
+// FUNCTION: C1 0x0040925a
+s_tree * BuildCintNoTTZero(long value)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0001a220
 // ?BuildCint@@YAPAUs_tree@@J@Z
-// struct s_tree * __cdecl BuildCint(long)
+// FUNCTION: C1 0x0040929e
+s_tree * BuildCint(long value)
+{
+    s_tree *tree = BuildCintNoTTZero(value);
+    if (value == 0) {
+        tree->tr_shape |= 0x80;
+    }
+    return tree;
+}
 
 // FUNCTION: MSVC5_C1 0x0001a240
 // ?BuildCuint@@YAPAUs_tree@@J@Z

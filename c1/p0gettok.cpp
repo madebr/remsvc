@@ -181,8 +181,11 @@ void InitHardTokens()
 // public: virtual void __thiscall TokenStream::pushToken(class Token const *)
 
 // FUNCTION: MSVC5_C1 0x00003e70
-// ??0TokenStream@@QAE@W4lifetime_e@@H@Z
-// public: __thiscall TokenStream::TokenStream(enum lifetime_e, int)
+// ??0TokenStream@@QAE@W4lfetime_e@@H@Z
+TokenStream::TokenStream(lifetime_e lifetime, int)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x00003ef0
 // ?saveToken@TokenStream@@UAEXPBVToken@@@Z

@@ -239,7 +239,7 @@ extern s_StackOfPragmaPackItem_t *Pragma_stack;
 extern void SkipToPchUse(const char *data, bool32 b);
 
 // ?PchCreateFname@@YAXPAE@Z
-// void __cdecl PchCreateFname(unsigned char *)
+extern void __cdecl PchCreateFname(const char *filepath);
 
 // ?PchScanFname@@YAXPAPAE@Z
 // void __cdecl PchScanFname(unsigned char **)

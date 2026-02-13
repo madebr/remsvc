@@ -12,123 +12,138 @@ struct kw_t {
 
 // GLOBAL: C1 0x00452860
 const kw_t keytab[] = {
-    { "auto",           L_AUTO                 },
-    { "break",          L_BREAK                 },
-    { "case",           L_CASE                 },
-    { "char",           L_CHAR                 },
-    { "const",          L_CONST                 },
-    { "continue",       L_CONTINUE                     },
-    { "default",        L_DEFAULT                     },
-    { "do",             L_DO             },
-    { "double",         L_DOUBLE                 },
-    { "else",           L_ELSE                 },
-    { "enum",           L_ENUM                 },
-    { "extern",         L_EXTERN                 },
-    { "float",          L_FLOAT                 },
-    { "for",            L_FOR                 },
-    { "goto",           L_GOTO                 },
-    { "if",             L_IF             },
-    { "int",            L_INT                 },
-    { "long",           L_LONG                 },
-    { "register",       L_REGISTER                     },
-    { "return",         L_RETURN                 },
-    { "short",          L_SHORT                 },
-    { "signed",         L_SIGNED                 },
-    { "sizeof",         L_SIZEOF                 },
-    { "static",         L_STATIC                 },
-    { "struct",         L_STRUCT                 },
-    { "switch",         L_SWITCH                 },
-    { "typedef",        L_TYPEDEF                     },
-    { "union",          L_UNION                 },
-    { "unsigned",       L_UNSIGNED                     },
-    { "void",           L_VOID                 },
-    { "volatile",       L_VOLATILE                     },
-    { "while",          L_WHILE                 },
-    { "__inline",       L_INLINE                     },
-    { "__cdecl",        L_C                     },
-    { "__based",        L_BASED                     },
-    { "__stdcall",      L_STDCALL                     },
-    { "__declspec",     L_DECLSPEC                     },
-    { "asm",            L_ASM_0xb6                 },
-    { "catch",          L_CATCH                 },
-    { "class",          L_CLASS                 },
-    { "const_cast",     L_CONSTCAST                     },
-    { "delete",         L_DELETE                 },
-    { "dynamic_cast",   L_DYNCAST                         },
-    { "friend",         L_FRIEND                 },
-    { "inline",         L_INLINE                 },
-    { "new",            L_NEW                 },
-    { "operator",       L_OPERATOR                     },
-    { "private",        L_PRIVATE                     },
-    { "protected",      L_PROTECTED                     },
-    { "public",         L_PUBLIC                 },
-    { "reinterpret_castL_REINCAST",                            },
-    { "static_cast",    L_STATCAST                         },
-    { "template",       L_TEMPLATE                     },
-    { "this",           L_THIS                 },
-    { "throw",          L_THROW                 },
-    { "try",            L_TRY_CXX                 },
-    { "typeid",         L_POSTFIX_TYPEID                 },
-    { "virtual",        L_VIRTUAL                     },
-    { "namespace",      L_NAMESPACE                     },
-    { "using",          L_USING                 },
-    { "__single_inheritL_SIance",                            },
-    { "__multiple_inherL_MIitance",                          },
-    { "__virtual_inheriL_VItance",                           },
-    { "__novtordisp",   L_NOVTORDISP                         },
-    { "__resume",       L_DISABLED                     },
-    { "__nounwind",     L_DISABLED                     },
-    { "__syscall",      L_DISABLED                     },
-    { "__near",         L_DISABLED                 },
-    { "__far",          L_DISABLED                 },
-    { "__far16",        L_DISABLED                     },
-    { "__huge",         L_DISABLED                 },
-    { "__fortran",      L_DISABLED                     },
-    { "__export",       L_DISABLED                     },
-    { "__interrupt",    L_DISABLED                         },
-    { "__loadds",       L_DISABLED                     },
-    { "__saveregs",     L_DISABLED                     },
-    { "__segment",      L_DISABLED                     },
-    { "__segname",      L_DISABLED                     },
-    { "__self",         L_DISABLED                 },
-    { "__thiscall",     L_THISCALL                     },
-    { "cdecl",          L_C                 },
-    { "far",            L_DISABLED                 },
-    { "fortran",        L_DISABLED                     },
-    { "huge",           L_DISABLED                 },
-    { "near",           L_DISABLED                 },
-    { "pascal",         L_PASCAL                 },
-    { "__pascal",       L_PASCAL2                     },
-    { "__try",          L_TRY                 },
-    { "__except",       L_EXCEPT                     },
-    { "__finally",      L_FINALLY                     },
-    { "__leave",        L_LEAVE                     },
-    { "__asm",          L_ASM                 },
-    { "__fastcall",     L_FASTCALL                     },
-    { "__unaligned",    L_UNALIGNED                         },
-    { "__builtin_alignoL_BUILTINALIGNOFf",                           },
-    { "__sysapi",       L_SYSAPI                     },
-    { "__builtin_isfloaL_BUILTIN_ISFLOATt",                           },
-    { "__wchar_t",      L_WCHAR_T                     },
-    { "__restrict",     L_RESTRICT                     },
-    { "__int8",         L_INT8                 },
-    { "__int16",        L_INT16                     },
-    { "__int32",        L_INT32                     },
-    { "__int64",        L_INT64                     },
-    { "__int128",       L_INT128                     },
-    { "wchar_t",        L_WCHAR_T                     },
-    { "bool",           L_DISABLED                 },
-    { "true",           L_DISABLED                 },
-    { "false",          L_DISABLED                 },
-    { "mutable",        L_DISABLED                     },
-    { "explicit",       L_DISABLED                     },
-    { "typename",       L_DISABLED                     },
-    { NULL,            L_YACC_RESERVED              }
+    { "auto",                       L_AUTO             },
+    { "break",                      L_BREAK            },
+    { "case",                       L_CASE             },
+    { "char",                       L_CHAR             },
+    { "const",                      L_CONST            },
+    { "continue",                   L_CONTINUE         },
+    { "default",                    L_DEFAULT          },
+    { "do",                         L_DO               },
+    { "double",                     L_DOUBLE           },
+    { "else",                       L_ELSE             },
+    { "enum",                       L_ENUM             },
+    { "extern",                     L_EXTERN           },
+    { "float",                      L_FLOAT            },
+    { "for",                        L_FOR              },
+    { "goto",                       L_GOTO             },
+    { "if",                         L_IF               },
+    { "int",                        L_INT              },
+    { "long",                       L_LONG             },
+    { "register",                   L_REGISTER         },
+    { "return",                     L_RETURN           },
+    { "short",                      L_SHORT            },
+    { "signed",                     L_SIGNED           },
+    { "sizeof",                     L_SIZEOF           },
+    { "static",                     L_STATIC           },
+    { "struct",                     L_STRUCT           },
+    { "switch",                     L_SWITCH           },
+    { "typedef",                    L_TYPEDEF          },
+    { "union",                      L_UNION            },
+    { "unsigned",                   L_UNSIGNED         },
+    { "void",                       L_VOID             },
+    { "volatile",                   L_VOLATILE         },
+    { "while",                      L_WHILE            },
+    { "__inline",                   L_INLINE           },
+    { "__cdecl",                    L_C                },
+    { "__based",                    L_BASED            },
+    { "__stdcall",                  L_STDCALL          },
+    { "__declspec",                 L_DECLSPEC         },
+    { "asm",                        L_ASM_0xb6         },
+    { "catch",                      L_CATCH            },
+    { "class",                      L_CLASS            },
+    { "const_cast",                 L_CONSTCAST        },
+    { "delete",                     L_DELETE           },
+    { "dynamic_cast",               L_DYNCAST          },
+    { "friend",                     L_FRIEND           },
+    { "inline",                     L_INLINE           },
+    { "new",                        L_NEW              },
+    { "operator",                   L_OPERATOR         },
+    { "private",                    L_PRIVATE          },
+    { "protected",                  L_PROTECTED        },
+    { "public",                     L_PUBLIC           },
+    { "reinterpret_cast",           L_REINCAST         },
+    { "static_cast",                L_STATCAST         },
+    { "template",                   L_TEMPLATE         },
+    { "this",                       L_THIS             },
+    { "throw",                      L_THROW            },
+    { "try",                        L_TRY_CXX          },
+    { "typeid",                     L_POSTFIX_TYPEID   },
+    { "virtual",                    L_VIRTUAL          },
+    { "namespace",                  L_NAMESPACE        },
+    { "using",                      L_USING            },
+    { "__single_inheritance",       L_SI               },
+    { "__multiple_inheritance",     L_MI               },
+    { "__virtual_inheritance",      L_VI               },
+    { "__novtordisp",               L_NOVTORDISP       },
+    { "__resume",                   L_DISABLED         },
+    { "__nounwind",                 L_DISABLED         },
+    { "__syscall",                  L_DISABLED         },
+    { "__near",                     L_DISABLED         },
+    { "__far",                      L_DISABLED         },
+    { "__far16",                    L_DISABLED         },
+    { "__huge",                     L_DISABLED         },
+    { "__fortran",                  L_DISABLED         },
+    { "__export",                   L_DISABLED         },
+    { "__interrupt",                L_DISABLED         },
+    { "__loadds",                   L_DISABLED         },
+    { "__saveregs",                 L_DISABLED         },
+    { "__segment",                  L_DISABLED         },
+    { "__segname",                  L_DISABLED         },
+    { "__self",                     L_DISABLED         },
+    { "__thiscall",                 L_THISCALL         },
+    { "cdecl",                      L_C                },
+    { "far",                        L_DISABLED         },
+    { "fortran",                    L_DISABLED         },
+    { "huge",                       L_DISABLED         },
+    { "near",                       L_DISABLED         },
+    { "pascal",                     L_PASCAL           },
+    { "__pascal",                   L_PASCAL2          },
+    { "__try",                      L_TRY              },
+    { "__except",                   L_EXCEPT           },
+    { "__finally",                  L_FINALLY          },
+    { "__leave",                    L_LEAVE            },
+    { "__asm",                      L_ASM              },
+    { "__fastcall",                 L_FASTCALL         },
+    { "__unaligned",                L_UNALIGNED        },
+    { "__builtin_alignof",          L_BUILTINALIGNOF   },
+    { "__sysapi",                   L_SYSAPI           },
+    { "__builtin_isfloat",          L_BUILTIN_ISFLOAT  },
+    { "__wchar_t",                  L_WCHAR_T          },
+    { "__restrict",                 L_RESTRICT         },
+    { "__int8",                     L_INT8             },
+    { "__int16",                    L_INT16            },
+    { "__int32",                    L_INT32            },
+    { "__int64",                    L_INT64            },
+    { "__int128",                   L_INT128           },
+    { "wchar_t",                    L_WCHAR_T          },
+    { "bool",                       L_DISABLED         },
+    { "true",                       L_DISABLED         },
+    { "false",                      L_DISABLED         },
+    { "mutable",                    L_DISABLED         },
+    { "explicit",                   L_DISABLED         },
+    { "typename",                   L_DISABLED         },
+    { 0 }
+};
+
+struct s_declspec_keys {
+    const char *name;
+    int field;
+    int value;
+    bool32 hasArgs;
 };
 
 // GLOBAL: MSVC5_C1 0x000005c0
 // ?Declspec_Keys@@3PBUs_declspec_keys@@B
-// struct s_declspec_keys const *Declspec_Keys
+const s_declspec_keys Declspec_Keys[] = {
+    { "dllimport", 6, 2, FALSE },
+    { "dllexport", 7, 3, FALSE },
+    { "inline", 3, 1, FALSE },
+    { "naked", 4, 1, FALSE },
+    { "thread", 5, 1, FALSE },
+    { "allocate", 8, 1, TRUE },
+    { 0 },
+};
 
 // GLOBAL: MSVC5_C1 0x0000087c
 // ??_C@_06BHLC@arning?$AA@
@@ -900,45 +915,98 @@ const kw_t keytab[] = {
 
 // FUNCTION: MSVC5_C1 0x00005d60
 // ?mkKeywordIdent@@YAXPAD@Z
-// void __cdecl mkKeywordIdent(char *)
+// FUNCTION: C1 0x0041b764
+void mkKeywordIdent(const char *name)
+{
+    GetIdForKeyword(name);
+    pCurId->attr.isKeyword = FALSE;
+}
 
 // FUNCTION: MSVC5_C1 0x00005d80
 // ?mkKeywordObsolete@@YAXPAD@Z
-// void __cdecl mkKeywordObsolete(char *)
+// FUNCTION: C1 0x0041b7e3
+void mkKeywordObsolete(const char *name)
+{
+    GetIdForKeyword(name);
+    if (pCurId->attr.isKeyword) {
+        pCurId->token = L_DISABLED;
+        pCurId->action = 1;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005db0
 // ?mkKeywordCppOnly@@YAXPAD@Z
-// void __cdecl mkKeywordCppOnly(char *)
+// FUNCTION: C1 0x0041b92c
+void mkKeywordCppOnly(const char *name)
+{
+    GetIdForKeyword(name);
+    if (pCurId->attr.isKeyword) {
+      pCurId->token = L_DISABLED;
+      pCurId->action = 2;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005de0
 // ?mkKeywordFutureUse@@YAXPAD@Z
-// void __cdecl mkKeywordFutureUse(char *)
+// FUNCTION: C1 0x0041ba04
+void mkKeywordFutureUse(const char *name)
+{
+    GetIdForKeyword(name);
+    if (pCurId->attr.isKeyword) {
+        pCurId->token = L_DISABLED;
+        pCurId->action = 3;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005e10
 // ?mkKeywordNotThisProduct@@YAXPAD@Z
-// void __cdecl mkKeywordNotThisProduct(char *)
+// FUNCTION: C1 0x0041c1c4
+void mkKeywordNotThisProduct(const char *name)
+{
+    GetIdForKeyword(name);
+    if (pCurId->attr.isKeyword) {
+        pCurId->token = L_DISABLED;
+        pCurId->action = 4;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005e40
 // ?mkKeywordExportSpecial@@YAXPAD@Z
-// void __cdecl mkKeywordExportSpecial(char *)
+// FUNCTION: C1 0x0041c146
+void mkKeywordExportSpecial(const char *name)
+{
+    GetIdForKeyword(name);
+    if (pCurId->attr.isKeyword) {
+      pCurId->token = L_DISABLED;
+      pCurId->action = 5;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005e70
 // ?mkKeywordNewCpp@@YAXPAD@Z
-// void __cdecl mkKeywordNewCpp(char *)
-
-Id_t *pKeyId;
+// FUNCTION: C1 0x0041c0f1
+void mkKeywordNewCpp(const char *name)
+{
+    GetIdForKeyword(name);
+    if (pCurId->attr.isKeyword) {
+        pCurId->token = L_DISABLED;
+        pCurId->action = 6;
+    }
+}
 
 // FUNCTION: MSVC5_C1 0x00005ea0
 // ?AddKeywordsToIdTable@@YAXXZ
-void AddKeywordsToIdTable(void)
+// FUNCTION: 0x0041c031
+void AddKeywordsToIdTable()
 {
     size_t i;
-    for (i = 0; keytab[i].szKeyword != NULL; i++) {
-        GetIdForKeyword(keytab[i].szKeyword);
-        pCurId->attr.isKeyword = TRUE;
-        pCurId->token = keytab[i].token;
+    for (i = 0; Declspec_Keys[i].name != NULL; i++) {
+        GetIdForKeyword(Declspec_Keys[i].name);
+        pCurId->attr.isDeclSpecKey = TRUE;
+        if (!pCurId->attr.isKeyword) {
+            pCurId->token = i;
+        }
     }
-    NOT_IMPLEMENTED();
 }
 
 // FUNCTION: MSVC5_C1 0x00006520
@@ -954,6 +1022,8 @@ void AddKeywordsToIdTable(void)
 // FUNCTION: C1 0x0041bb78
 void InitKeywords()
 {
+    size_t i;
+
     PchC.p_Extension = PchC.p_Extension || PchC.p_BigIntExtension;
     PchC.p_SizeOfBigInt = PchC.p_SizeOfBigInt / 8;
     if (PchC.p_SizeOfBigInt == 0) {
@@ -965,6 +1035,135 @@ void InitKeywords()
         warning(1, 696, PchC.p_SizeOfBigInt * 8, 32);
         PchC.p_SizeOfBigInt = 4;
     }
+    for (i = 0; keytab[i].szKeyword != NULL; i++) {
+        GetIdForKeyword(keytab[i].szKeyword);
+        pCurId->attr.isKeyword = TRUE;
+        pCurId->token = keytab[i].token;
+    }
+    mkKeywordIdent("asm");
+    mkKeywordIdent("catch");
+    mkKeywordIdent("class");
+    mkKeywordIdent("const_cast");
+    mkKeywordIdent("delete");
+    mkKeywordIdent("dynamic_cast");
+    mkKeywordIdent("friend");
+    mkKeywordIdent("inline");
+    mkKeywordIdent("new");
+    mkKeywordIdent("operator");
+    mkKeywordIdent("private");
+    mkKeywordIdent("protected");
+    mkKeywordIdent("public");
+    mkKeywordIdent("reinterpret_cast");
+    mkKeywordIdent("static_cast");
+    mkKeywordIdent("template");
+    mkKeywordIdent("this");
+    mkKeywordIdent("throw");
+    mkKeywordIdent("try");
+    mkKeywordIdent("typeid");
+    mkKeywordIdent("virtual");
+    mkKeywordIdent("namespace");
+    mkKeywordIdent("using");
+    mkKeywordIdent("__interrupt");
+    mkKeywordIdent("__loadds");
+    mkKeywordIdent("__saveregs");
+    mkKeywordIdent("__segment");
+    mkKeywordIdent("__segname");
+    mkKeywordIdent("__self");
+    if (!PchC.p_Extension) {
+        mkKeywordIdent("cdecl");
+    }
+    if (!gOption_Zf && !PchC.p_Extension) {
+        mkKeywordIdent("far");
+    }
+    if (!gOption_Zf && !PchC.p_Extension) {
+        mkKeywordIdent("fortran");
+    }
+    if (!gOption_Zf && !PchC.p_Extension) {
+        mkKeywordIdent("huge");
+    }
+    if (!gOption_Zf && !PchC.p_Extension) {
+        mkKeywordIdent("near");
+    }
+    if (!gOption_Zf && !PchC.p_Extension) {
+        mkKeywordIdent("pascal");
+    }
+    mkKeywordIdent("wchar_t");
+    mkKeywordIdent("bool");
+    mkKeywordIdent("true");
+    mkKeywordIdent("false");
+    mkKeywordIdent("mutable");
+    mkKeywordIdent("explicit");
+    mkKeywordIdent("typename");
+    mkKeywordFutureUse("namespace");
+    mkKeywordFutureUse("using");
+    mkKeywordCppOnly("__single_inheritance");
+    mkKeywordCppOnly("__multiple_inheritance");
+    mkKeywordCppOnly("__virtual_inheritance");
+    mkKeywordCppOnly("__novtordisp");
+    mkKeywordFutureUse("__resume");
+    mkKeywordFutureUse("__nounwind");
+    mkKeywordObsolete("__syscall");
+    mkKeywordObsolete("__near");
+    mkKeywordObsolete("__far");
+    mkKeywordObsolete("__far16");
+    mkKeywordObsolete("__huge");
+    mkKeywordObsolete("__fortran");
+    mkKeywordExportSpecial("__export");
+    mkKeywordFutureUse("__thiscall");
+    mkKeywordObsolete("far");
+    mkKeywordObsolete("fortran");
+    mkKeywordObsolete("huge");
+    mkKeywordObsolete("near");
+    mkKeywordObsolete("pascal");
+    mkKeywordObsolete("__pascal");
+    mkKeywordNotThisProduct("__unaligned");
+    mkKeywordNotThisProduct("__builtin_alignof");
+    mkKeywordNotThisProduct("__sysapi");
+    mkKeywordNotThisProduct("__builtin_isfloat");
+    mkKeywordNotThisProduct("__wchar_t");
+    mkKeywordNotThisProduct("__restrict");
+    if (PchC.p_SizeOfBigInt < 4) {
+        mkKeywordNotThisProduct("__int8");
+    }
+    if (PchC.p_SizeOfBigInt < 4) {
+        mkKeywordNotThisProduct("__int16");
+    }
+    if (PchC.p_SizeOfBigInt < 4) {
+        mkKeywordNotThisProduct("__int32");
+    }
+    if (PchC.p_SizeOfBigInt < 8) {
+        mkKeywordNotThisProduct("__int64");
+    }
+    if (PchC.p_SizeOfBigInt < 16) {
+        mkKeywordNotThisProduct("__int128");
+    }
+    mkKeywordNewCpp("bool");
+    mkKeywordNewCpp("true");
+    mkKeywordNewCpp("false");
+    mkKeywordNewCpp("mutable");
+    mkKeywordNewCpp("explicit");
+    mkKeywordNewCpp("typename");
+    if (PchC.p_Extension || PchC.p_option_ZE) {
+        for (i = 0; keytab[i].szKeyword != NULL; i++) {
+            if (strncmp(keytab[i].szKeyword, "__", 2) == 0) {
+                GetIdForKeyword(keytab[i].szKeyword);
+                if (pCurId->attr.isKeyword) {
+                    if (pCurId->token == L_DISABLED) {
+                        int action = pCurId->action;
+                        if (action == 1 || action == 5) {
+                            GetIdForKeyword(&keytab[i].szKeyword[1]);
+                            pCurId->attr.isKeyword = TRUE;
+                            pCurId->token = L_DISABLED;
+                            pCurId->action = action;
+                        }
+                    } else {
+                        GetIdForKeyword(&keytab[i].szKeyword[1]);
+                        pCurId->attr.isKeyword = TRUE;
+                        pCurId->token = L_DISABLED;
+                    }
+                }
+            }
+        }
+    }
     AddKeywordsToIdTable();
 }
-

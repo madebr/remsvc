@@ -460,21 +460,6 @@ extern IPMSigMgr *pIPMSigMgr;
 // ?contains@ISet@@QBEHI@Z
 // public: int __thiscall ISet::contains(unsigned int) const
 
-// ?setPbExtent@Buffer@@AAEHPAE0@Z
-// private: int __thiscall Buffer::setPbExtent(unsigned char *, unsigned char *)
-
-// ?Free@Buffer@@QAEXXZ
-// public: void __thiscall Buffer::Free(void)
-
-// ?Ensure@Buffer@@QAEHJPAPAE@Z
-// public: int __thiscall Buffer::Ensure(long, unsigned char **)
-
-// ?Reserve@Buffer@@QAEHJPAPAE@Z
-// public: int __thiscall Buffer::Reserve(long, unsigned char **)
-
-// ?Append@Buffer@@QAEHPAEJPAPAE@Z
-// public: int __thiscall Buffer::Append(unsigned char *, long, unsigned char **)
-
 // ?setHashSize@?$Map@KKV?$HashClass@K$0A@@@@@AAEHI@Z
 // private: int __thiscall Map<unsigned long, unsigned long, class HashClass<unsigned long, 0>>::setHashSize(unsigned int)
 

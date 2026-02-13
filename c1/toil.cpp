@@ -1,3 +1,7 @@
+#include "toil.h"
+
+#include "decomp.h"
+
 // GLOBAL: MSVC5_C1 0x00003a68
 // ??_C@_08DLNM@?4?2toil?4c?$AA@
 // ".\\toil.c"
@@ -56,7 +60,10 @@
 
 // FUNCTION: MSVC5_C1 0x0002b290
 // ?op_toil@@YAXW4OPTYPE@@PAUs_tree@@@Z
-// void __cdecl op_toil(enum OPTYPE, struct s_tree *)
+void op_toil(OPTYPE type, s_tree *tree)
+{
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0002ba20
 // ?cbranch@@YAXPAUs_tree@@0H@Z

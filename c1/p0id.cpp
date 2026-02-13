@@ -54,6 +54,7 @@ void GetIdForKeyword(const char *keyword)
                 prev_item->pNext = current_item->pNext;
                 current_item->pNext = PchS.rs.p_IdTable[table_index];
                 PchS.rs.p_IdTable[table_index] = current_item;
+                pCurId = current_item;
                 return;
             }
         }

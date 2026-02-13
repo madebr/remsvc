@@ -1,6 +1,7 @@
 #include "ilsink.h"
 
 #include "decomp.h"
+#include "error.h"
 
 // GLOBAL: MSVC5_C1 0x00001950
 // ?ppdb@ILSink@@0PAUPDB@@A
@@ -31,7 +32,19 @@
 // FUNCTION: C1 0x00419195
 void ILSink::fopen(const char *basename, const char *extension, const char *mode)
 {
-    NOT_IMPLEMENTED();
+    char path[260];
+    const char *used_extension;
+
+    used_extension = strcmp(basename, "nul") == 0 ? NULL : extension;
+    strcpy(path, basename);
+    if (used_extension != NULL) {
+        strcat(path, used_extension);
+    }
+    fp = ::fopen(path, mode);
+    if (fp == NULL) {
+        fatal_io_CRT(C1083, 339, path);
+    }
+    setvbuf(fp, NULL, _IOFBF, 4096);
 }
 
 // FUNCTION: MSVC5_C1 0x0003e0e0
@@ -48,7 +61,9 @@ int ILSink::fclose()
 
 // FUNCTION: MSVC5_C1 0x0003e170
 // ?flushFile@ILSink@@QAEXXZ
-// public: void __thiscall ILSink::flushFile(void)
+void ILSink::flushFile() {
+    NOT_IMPLEMENTED();
+}
 
 // FUNCTION: MSVC5_C1 0x0003e200
 // ?closeFile@ILSink@@QAEXXZ

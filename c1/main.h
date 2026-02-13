@@ -170,6 +170,11 @@ extern void to_human();
 
 class FileTokenStream : public TokenStream {
 public:
+
+    FileTokenStream(lifetime_e lifetime, int v)
+    : TokenStream(lifetime, v) {
+        NOT_IMPLEMENTED();
+    }
     // ?pushToken@FileTokenStream@@UAEXPBVToken@@@Z
     // public: virtual void __thiscall FileTokenStream::pushToken(class Token const *)
 
