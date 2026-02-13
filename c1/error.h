@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#define ERROR_OCCURRED() (((WarnIsError > 1) ? 1 : 0) + Nerrors)
+
 typedef enum {
     C1000 = 0,
     FATAL_NONE= 0 ,

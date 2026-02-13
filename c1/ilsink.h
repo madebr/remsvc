@@ -114,6 +114,19 @@ struct ILSink {
             }
         }
     }
+
+    void lowrite(long l) {
+        fWriteOK &= buffer.ensureAvailable(6);
+        if (fWriteOK) {
+            if (l & ~0x7fL) {
+                *buffer.pbEnd++ = 0x80;
+                memcpy(buffer.pbEnd, &l, 4);
+                buffer.pbEnd += 4;
+            } else {
+                *buffer.pbEnd++ = static_cast<unsigned char>(l);
+            }
+        }
+    }
 private:
     // ?ppdb@ILSink@@0PAUPDB@@A
     // private: static struct PDB *ILSink::ppdb

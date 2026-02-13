@@ -3,6 +3,7 @@
 #include "decomp.h"
 #include "error.h"
 #include "globals.h"
+#include "il.h"
 
 // GLOBAL: C1 0x0045c688
 undefined4 UNK_0045c688;
@@ -76,7 +77,16 @@ void op_toil(OPTYPE op, s_tree *tree)
     }
     OutputExpOp(op);
     CurFuncNumExNodes += 1;
-    NOT_IMPLEMENTED();
+    const char *command = expdope[op].field_0x0;
+    for (; *command; command++) {
+        switch (*command) {
+        case 2:
+            ilsExp.lowrite(tree->value.v_long);
+            break;
+        default:
+            NOT_IMPLEMENTED();
+        }
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x0002ba20

@@ -43,7 +43,7 @@ struct s_cmd_line_warning_t {
 
 union u_value_u {
     // undefined *v_rcon;
-    // long64 v_long
+    long v_long;
     int64_t v_i64;
     // s_string s_string
     // Symbol_t *v_symbol
@@ -58,22 +58,20 @@ struct s_tree {
     undefined field_0x8[0x10 - 0x8];
     union {
         struct {
-            struct {
-                s_tree *tr_left;
-                s_tree *tr_right;
-            } binary;
-            struct {
-                s_tree *tr_uchild;
-            } unary;
-            struct {
-                Symbol_t *tr_symbol;
-                union {
-                    unsigned long tr_offset;
-                    unsigned long tr_key;
-                };
-            } symbol;
-            u_value_u value;
-        } value;
+            s_tree *tr_left;
+            s_tree *tr_right;
+        } binary;
+        struct {
+            s_tree *tr_uchild;
+        } unary;
+        struct {
+            Symbol_t *tr_symbol;
+            union {
+                unsigned long tr_offset;
+                unsigned long tr_key;
+            };
+        } symbol;
+        u_value_u value;
     };
 };
 

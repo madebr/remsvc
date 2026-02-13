@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "error.h"
+#include "globals.h"
 
 // GLOBAL: MSVC5_C1 0x00001950
 // ?ppdb@ILSink@@0PAUPDB@@A
@@ -61,8 +62,17 @@ int ILSink::fclose()
 
 // FUNCTION: MSVC5_C1 0x0003e170
 // ?flushFile@ILSink@@QAEXXZ
-void ILSink::flushFile() {
-    NOT_IMPLEMENTED();
+// FUNCTION: C1 0x0041c8d8
+void ILSink::flushFile()
+{
+    if (buffer.pbStart != buffer.pbEnd) {
+        if (!ERROR_OCCURRED() && !Prep && !Out_funcdef && !fWriteOK == 0) {
+            if (!fWriteOK || buffer.pbStart + fwrite(buffer.pbStart, 1, buffer.pbEnd - buffer.pbStart, fp) != buffer.pbEnd) {
+                fatal_io_CRT_position(C1088, 339,  NULL, "ilsink.cpp",68);
+            }
+        }
+        buffer.pbEnd = buffer.pbStart;
+    }
 }
 
 // FUNCTION: MSVC5_C1 0x0003e200
