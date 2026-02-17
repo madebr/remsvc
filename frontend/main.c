@@ -1468,8 +1468,8 @@ BOOL early_switch_scan(char **argv, int argc)
                 if (fgets(line, sizeof(line) - 1, f) != NULL) {
                     char *pos_nologo = strstr(line, "nologo");
                     if (pos_nologo != NULL && pos_nologo > line && (pos_nologo[-1] == '-' || pos_nologo[-1] == '/') &&
-                        (pos_nologo == line + 1 || _mbschr((unsigned char *) " \t\"", pos_nologo[-2]) != NULL) &&
-                        (pos_nologo[6] == '\0' || _mbschr((unsigned char *) " \t\"\n", pos_nologo[6]))) {
+                        (pos_nologo == line + 1 || _mbschr(" \t\"", pos_nologo[-2]) != NULL) &&
+                        (pos_nologo[6] == '\0' || _mbschr(" \t\"\n", pos_nologo[6]))) {
                         found = TRUE;
                     }
                 }
@@ -1569,7 +1569,7 @@ void deactivate_passes(flag_s *option)
         passinfo_s *filetype_compiler_spec;
         for (filetype_compiler_spec = filetype_spec->passes; filetype_compiler_spec->pass_filename != NULL;
              filetype_compiler_spec++) {
-            if (a0 == '.' || _mbschr((unsigned char *) option->arg, filetype_compiler_spec->id) != NULL) {
+            if (a0 == '.' || _mbschr(option->arg, filetype_compiler_spec->id) != NULL) {
                 filetype_compiler_spec->is_active = 0;
             }
         }
@@ -1650,20 +1650,20 @@ void check_compile_collide(flag_s *option)
         const char *arg2;
         const char *end_arg2;
 
-        arg1_space = (char *) _mbschr((unsigned char *) option->arg, ' ');
-        arg2_space = (char *) _mbschr((unsigned char *) arg1_space + 1, ' ');
+        arg1_space = (char *) _mbschr(option->arg, ' ');
+        arg2_space = (char *) _mbschr(arg1_space + 1, ' ');
         *arg2_space = '\0';
         arg2 = arg2_space + 1;
         end_arg2 = arg2;
         for (;;) {
-            char *next_end_arg2 = (char *) _mbsinc((unsigned char *) end_arg2);
+            char *next_end_arg2 = (char *) _mbsinc(end_arg2);
             if (next_end_arg2 == NULL || *next_end_arg2 == '\0') {
                 break;
             }
             end_arg2 = next_end_arg2;
         }
-        if (_mbsstr((unsigned char *) arg2, (unsigned char *) "%b") == NULL &&
-            _mbschr((unsigned char *) "\\/", *end_arg2) == NULL) {
+        if (_mbsstr(arg2, "%b") == NULL &&
+            _mbschr("\\/", *end_arg2) == NULL) {
             cmderr(2036, &arg1_space[1], arg2);
         }
     }
@@ -1683,7 +1683,7 @@ void configure_asmlist(flag_s *option)
     if (option->arg[0] == '\0') {
         return;
     }
-    arg_extra = (char *) _mbschr((unsigned char *) option->arg, ' ');
+    arg_extra = (char *) _mbschr(option->arg, ' ');
     if (arg_extra != NULL) {
         *arg_extra = '\0';
         arg_extra += 1;
@@ -1830,7 +1830,7 @@ void check_required()
         parent_value = xstrdup(parent->required);
         parent_ptr = parent_value;
         while (1) {
-            char *next_ptr = (char *) _mbschr((unsigned char *) parent_ptr, ';');
+            char *next_ptr = (char *) _mbschr(parent_ptr, ';');
             flag_s *implied1;
             flag_s *implied2;
             flag_s *implied3;
@@ -1916,7 +1916,7 @@ const char *complete_filename(const char *extension_spec, char *path, const char
         path_ptr = concat(path, filename);
     } else {
         path_filename = path;
-        path_ptr = (char *) _mbsrchr((unsigned char *) path_filename, '.');
+        path_ptr = (char *) _mbsrchr(path_filename, '.');
         if (path_ptr == NULL) {
             path_ptr = &path[strlen(path)];
         } else if (ext_c1 != '<') {
@@ -1982,12 +1982,12 @@ int Dargs(const char **args, int *index)
     if (macro_arg == NULL || macro_arg[0] == '\0') {
         cmderr(2004, "D");
     }
-    pos_hash = (char *) _mbschr((unsigned char *) macro_arg, '#');
+    pos_hash = (char *) _mbschr(macro_arg, '#');
     if (pos_hash != NULL) {
         /* FIXME/BUG: this function modifies args ! */
         *pos_hash = '=';
     }
-    pos_assign = (char *) _mbschr((unsigned char *) macro_arg, '=');
+    pos_assign = (char *) _mbschr(macro_arg, '=');
     if (pos_assign == NULL) {
         macro_name_len = strlen(macro_arg);
     } else {

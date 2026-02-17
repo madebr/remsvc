@@ -46,7 +46,7 @@ char *pathname(char *buffer, const char *path)
 const char *gobblewhite(const char *text)
 {
     while (*text != '\0' && _ismbcspace(*text)) {
-        text = (char *) _mbsinc((unsigned char *) text);
+        text = (char *) _mbsinc(text);
     }
     return text;
 }
@@ -66,13 +66,13 @@ char *concatmeta(char *dest, const char *fmt)
     dest = dest + strlen(dest);
     if (fmt != NULL) {
         while (*fmt != '\0') {
-            _mbccpy((unsigned char *) dest, (unsigned char *) fmt);
-            dest = (char *) _mbsinc((unsigned char *) dest);
-            if (_mbsncmp((unsigned char *) fmt, (unsigned char *) "%", 1) == 0) {
-                _mbccpy((unsigned char *) dest, (unsigned char *) fmt);
-                dest = (char *) _mbsinc((unsigned char *) dest);
+            _mbccpy(dest, fmt);
+            dest = (char *) _mbsinc(dest);
+            if (_mbsncmp(fmt, "%", 1) == 0) {
+                _mbccpy(dest, fmt);
+                dest = (char *) _mbsinc(dest);
             }
-            fmt = (char *) _mbsinc((unsigned char *) fmt);
+            fmt = (char *) _mbsinc(fmt);
         }
         *dest = '\0';
     }
@@ -109,16 +109,16 @@ size_t strqlen(const char *path)
         if (_ismbcspace(*path)) {
             space = true;
         }
-        if (_mbsncmp((unsigned char *) path, (unsigned char *) "\"", 1) == 0) {
+        if (_mbsncmp(path, "\"", 1) == 0) {
             len += count_backslash + 1;
         }
-        if (_mbsncmp((unsigned char *) path, (unsigned char *) "\\", 1) == 0) {
+        if (_mbsncmp(path, "\\", 1) == 0) {
             count_backslash += 1;
         } else {
             count_backslash = 0;
         }
-        len += _mbclen((unsigned char *) path);
-        path = (char *) _mbsinc((unsigned char *) path);
+        len += _mbclen(path);
+        path = (char *) _mbsinc(path);
     }
     if (space) {
         len += count_backslash + 2;
@@ -136,32 +136,32 @@ char *strqcpy(char *dest, const char *path)
         if (_ismbcspace(*path)) {
             space = true;
         }
-        if (_mbsncmp((unsigned char *) path, (unsigned char *) "\"", 1) == 0) {
+        if (_mbsncmp(path, "\"", 1) == 0) {
             while (count_backslash-- >= 0) {
-                _mbccpy((unsigned char *) write_ptr, (unsigned char *) "\\");
-                write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+                _mbccpy(write_ptr, "\\");
+                write_ptr = (char *) _mbsinc(write_ptr);
             }
         }
-        if (_mbsncmp((unsigned char *) path, (unsigned char *) "\\", 1) == 0) {
+        if (_mbsncmp(path, "\\", 1) == 0) {
             count_backslash += 1;
         } else {
             count_backslash = 0;
         }
-        _mbccpy((unsigned char *) write_ptr, (unsigned char *) path);
-        write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
-        path = (char *) _mbsinc((unsigned char *) path);
+        _mbccpy(write_ptr, path);
+        write_ptr = (char *) _mbsinc(write_ptr);
+        path = (char *) _mbsinc(path);
     }
     if (space) {
         memmove(&dest[1], dest, write_ptr - dest);
-        _mbccpy((unsigned char *) dest, (unsigned char *) "\"");
-        write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+        _mbccpy(dest, "\"");
+        write_ptr = (char *) _mbsinc(write_ptr);
         while (count_backslash > 0) {
-            _mbccpy((unsigned char *) write_ptr, (unsigned char *) "\\");
-            write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+            _mbccpy(write_ptr, "\\");
+            write_ptr = (char *) _mbsinc(write_ptr);
             count_backslash -= 1;
         }
-        _mbccpy((unsigned char *) write_ptr, (unsigned char *) "\"");
-        write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+        _mbccpy(write_ptr, "\"");
+        write_ptr = (char *) _mbsinc(write_ptr);
     }
     *write_ptr = '\0';
     return dest;
@@ -173,13 +173,13 @@ const char *strrchars(const char *text, const char *needles)
     const char *last_pos = NULL;
 
     while (*needles != '\0') {
-        const char *pos = (char *) _mbsrchr((unsigned char *) text, *needles);
+        const char *pos = (char *) _mbsrchr(text, *needles);
         if (pos != NULL) {
             if (last_pos == NULL || last_pos < pos) {
                 last_pos = pos;
             }
         }
-        needles = (char *) _mbsinc((unsigned char *) needles);
+        needles = (char *) _mbsinc(needles);
     }
     return last_pos;
 }
@@ -211,15 +211,15 @@ char **sztoszv(const char *text, BOOL cleanUpSlash)
             bool copy_src = true;
             int nb_quotes = 0;
             int count_slash = 0;
-            while (_mbsncmp((unsigned char *) src_ptr, (unsigned char *) "\\", 1) == 0) {
-                src_ptr = (char *) _mbsinc((unsigned char *) src_ptr);
+            while (_mbsncmp(src_ptr, "\\", 1) == 0) {
+                src_ptr = (char *) _mbsinc(src_ptr);
                 count_slash += 1;
             }
-            if (_mbsncmp((unsigned char *) src_ptr, (unsigned char *) "\"", 1) == 0) {
+            if (_mbsncmp(src_ptr, "\"", 1) == 0) {
                 if (count_slash % 2 == 0) {
                     if (in_quotes) {
-                        if (_mbsncmp(_mbsinc((unsigned char *) src_ptr), (unsigned char *) "\"", 1) == 0) {
-                            src_ptr = (char *) _mbsinc((unsigned char *) src_ptr);
+                        if (_mbsncmp(_mbsinc(src_ptr), "\"", 1) == 0) {
+                            src_ptr = (char *) _mbsinc(src_ptr);
                             if (!cleanUpSlash) {
                                 nb_quotes = 1;
                             }
@@ -237,22 +237,22 @@ char **sztoszv(const char *text, BOOL cleanUpSlash)
             }
             while (count_slash != 0) {
                 count_slash -= 1;
-                _mbccpy((unsigned char *) dst_ptr, (unsigned char *) "\\");
-                dst_ptr = (char *) _mbsinc((unsigned char *) dst_ptr);
+                _mbccpy(dst_ptr, "\\");
+                dst_ptr = (char *) _mbsinc(dst_ptr);
             }
             while (nb_quotes != 0) {
                 nb_quotes -= 1;
-                _mbccpy((unsigned char *) dst_ptr, (unsigned char *) "\"");
-                dst_ptr = (char *) _mbsinc((unsigned char *) dst_ptr);
+                _mbccpy(dst_ptr, "\"");
+                dst_ptr = (char *) _mbsinc(dst_ptr);
             }
             if (src_ptr[0] == '\0' || (!in_quotes && _ismbcspace(src_ptr[0]))) {
                 break;
             }
             if (copy_src) {
-                _mbccpy((unsigned char *) dst_ptr, (unsigned char *) src_ptr);
-                dst_ptr = (char *) _mbsinc((unsigned char *) dst_ptr);
+                _mbccpy(dst_ptr, src_ptr);
+                dst_ptr = (char *) _mbsinc(dst_ptr);
             }
-            src_ptr = (char *) _mbsinc((unsigned char *) src_ptr);
+            src_ptr = (char *) _mbsinc(src_ptr);
         }
         dst_ptr[0] = '\0';
         dst_ptr += 1;
@@ -350,17 +350,17 @@ size_t l2a(unsigned long number, char *dest, int radix)
     str = &buffer[1];
     len = 0;
     while (1) {
-        _mbccpy((unsigned char *) str, (unsigned char *) &"0123456789abcdef"[number % radix]);
-        str = (char *) _mbsinc((unsigned char *) str);
+        _mbccpy(str, &"0123456789abcdef"[number % radix]);
+        str = (char *) _mbsinc(str);
         number /= radix;
         if (number == 0) {
             break;
         }
     }
     while (1) {
-        str = (char *) _mbsdec((unsigned char *) buffer, (unsigned char *) str);
-        _mbccpy((unsigned char *) dest, (unsigned char *) str);
-        dest = (char *) _mbsinc((unsigned char *) dest);
+        str = (char *) _mbsdec(buffer, str);
+        _mbccpy(dest, str);
+        dest = (char *) _mbsinc(dest);
         if (*str == '\0') {
             break;
         }
@@ -388,17 +388,17 @@ char *format(size_t *len, const char *fmt, va_list ap)
     char *write_ptr = buffer;
     const char *src;
     while (*fmt != '\0') {
-        if (_mbsncmp((unsigned char *) fmt, (unsigned char *) "%", 1) == 0) {
-            fmt = _mbsinc((unsigned char *) fmt);
+        if (_mbsncmp(fmt, "%", 1) == 0) {
+            fmt = _mbsinc(fmt);
             switch (*fmt) {
             case 'c':
                 *write_ptr = (char) va_arg(ap, int);
-                write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+                write_ptr = (char *) _mbsinc(write_ptr);
                 break;
             case 'd':
             case 'x':
                 write_ptr += l2a(va_arg(ap, int), write_ptr,
-                _mbsncmp((unsigned char *) fmt, (unsigned char *) "d", 1) == 0 ? 10 : 0);
+                _mbsncmp(fmt, "d", 1) == 0 ? 10 : 0);
                 break;
             case 's':
                 src = va_arg(ap, const char *);
@@ -406,16 +406,16 @@ char *format(size_t *len, const char *fmt, va_list ap)
                 write_ptr += strlen(src);
                 break;
             default:
-                _mbccpy((unsigned char *) write_ptr, (unsigned char *) "%");
-                _mbccpy(_mbsinc((unsigned char *) write_ptr), (unsigned char *) fmt);
-                write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+                _mbccpy(write_ptr, "%");
+                _mbccpy(_mbsinc(write_ptr), fmt);
+                write_ptr = (char *) _mbsinc(write_ptr);
                 break;
             }
         } else {
-            _mbccpy((unsigned char *) write_ptr, (unsigned char *) fmt);
-            write_ptr = (char *) _mbsinc((unsigned char *) write_ptr);
+            _mbccpy(write_ptr, fmt);
+            write_ptr = (char *) _mbsinc(write_ptr);
         }
-        fmt = _mbsinc((unsigned char *) fmt);
+        fmt = _mbsinc(fmt);
     }
     *write_ptr = '\0';
     *len = write_ptr - buffer;
@@ -522,9 +522,9 @@ const char *GetMessageInFile(const char *path, int code)
     start_text = gobblewhite(ptr_text) + 1;
     ptr_text = (char *) start_text; /* Skip first '"' */
 
-    while (_mbsncmp((unsigned char *) ptr_text, (unsigned char *) "\"", 1) != 0) {
-        if (_mbsncmp((unsigned char *) ptr_text, (unsigned char *) "\\", 1) == 0) {
-            switch (*_mbsinc((unsigned char *) ptr_text)) {
+    while (_mbsncmp(ptr_text, "\"", 1) != 0) {
+        if (_mbsncmp(ptr_text, "\\", 1) == 0) {
+            switch (*_mbsinc(ptr_text)) {
                 case 'n':
                     *ptr_text = '\n';
                     strcpy(ptr_text + 1, ptr_text + 2);
@@ -535,7 +535,7 @@ const char *GetMessageInFile(const char *path, int code)
                     break;
             }
         }
-        ptr_text = (char *) _mbsinc((unsigned char *) ptr_text);
+        ptr_text = (char *) _mbsinc(ptr_text);
     }
     *ptr_text = '\0';
     fclose(f);

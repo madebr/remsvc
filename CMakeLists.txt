@@ -9,7 +9,7 @@ cmake_dependent_option(REMSVC_MSPDB "Enabled MS PDB 4.1 support" OFF "TARGET MSP
 cmake_dependent_option(REMSVC_RECCMP "Build accurate executables" OFF "MSVC" OFF)
 
 if(REMSVC_RECCMP)
-    set(CMAKE_C_FLAGS "/W2 /GX /D \"WIN32\" /D \"_WINDOWS\"")
+    set(CMAKE_C_FLAGS "/W2 /GX /J /D \"WIN32\" /D \"_WINDOWS\"")
     set(CMAKE_C_FLAGS_DEBUG "/Gm /Zi /Od /D \"_DEBUG\"")
     set(CMAKE_C_FLAGS_RELEASE "/D \"NDEBUG\"")
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "/Zi /D \"NDEBUG\"")

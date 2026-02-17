@@ -375,7 +375,7 @@ char *get_minrebuild_options(context_s *ctx)
                     if (_fullpath(buffer2, arg_value_ptr, 1024) == NULL) {
                         strcpy(buffer2, option->arg);
                     }
-                    _mbslwr((unsigned char *) buffer2);
+                    _mbslwr(buffer2);
                     arg_value_ptr = buffer2;
                 }
                 strqcpy(buffer1, arg_value_ptr);
@@ -390,7 +390,7 @@ char *get_minrebuild_options(context_s *ctx)
         char *incString = xnew(lenInclude + 6);
         strcpy(incString, "-inc=");
         strqcpy(&incString[5], ctx->include);
-        _mbslwr((unsigned char *) incString);
+        _mbslwr(incString);
         len += lenInclude + 6;
         argv[arg_i] = incString;
     }
@@ -619,7 +619,7 @@ int dopass(context_s *ctx)
         ptr_include = ctx->include;
         for (;;) {
             argc += 2;
-            ptr_include = (char *) _mbschr((unsigned char *) ptr_include, ';');
+            ptr_include = (char *) _mbschr(ptr_include, ';');
             if (ptr_include == NULL) {
                 break;
             }
@@ -658,12 +658,12 @@ int dopass(context_s *ctx)
         for (;;) {
             char *ptr_end;
 
-            ptr_end = (char *) _mbschr((unsigned char *) ptr_include, ';');
+            ptr_end = (char *) _mbschr(ptr_include, ';');
             if (ptr_end == NULL) {
                 break;
             }
             if (ptr_include != ptr_end) {
-                int pos_non_whitespace = (int) _mbsspn((unsigned char *) ptr_include, (unsigned char *) " \t");
+                int pos_non_whitespace = (int) _mbsspn(ptr_include, " \t");
                 if (pos_non_whitespace < ptr_end - ptr_include) {
                     *argv_ptr++ = &arg_ptr[1];
                     arg_ptr = append(&arg_ptr[1], "-I");
@@ -676,7 +676,7 @@ int dopass(context_s *ctx)
             }
             ptr_include = &ptr_end[1];
         }
-        pos_non_whitespace = _mbsspn((unsigned char *) ptr_include, (unsigned char *) " \t");
+        pos_non_whitespace = _mbsspn(ptr_include, " \t");
         if (pos_non_whitespace < strlen(ptr_include)) {
             *argv_ptr++ = &arg_ptr[1];
             arg_ptr = append(&arg_ptr[1], "-I");
@@ -978,7 +978,7 @@ char *replaca(char *buffer, const char *format, context_s *ctx)
                 break;
             case 'B':
                 basename(path_buffer, filepath);
-                _mbsupr((unsigned char *) path_buffer);
+                _mbsupr(path_buffer);
                 dest = concat(dest, path_buffer);
                 break;
             case 'e':
